@@ -1,0 +1,14 @@
+{
+  "tutorial": [
+    "https://raw.githubusercontent.com/kekehurry/cityflow_community/refs/heads/main/cityflow_database/json/tutorial/MIT-ABM.csflow.json",
+    "https://raw.githubusercontent.com/kekehurry/cityflow_community/refs/heads/main/cityflow_database/json/tutorial/校园空间学术信息传播潜力.csflow.json"
+  ],
+  "basic": [
+    "https://raw.githubusercontent.com/kekehurry/cityflow_community/refs/heads/main/cityflow_database/json/basic/Basic.csflow.json"
+  ],
+  "showcase": [
+    "https://raw.githubusercontent.com/kekehurry/cityflow_community/refs/heads/main/cityflow_database/json/showcase/Amenity Density in Cambridge.csflow.json",
+    "https://raw.githubusercontent.com/kekehurry/cityflow_community/refs/heads/main/cityflow_database/json/showcase/D3 Charts Examples.csflow.json",
+    "https://raw.githubusercontent.com/kekehurry/cityflow_community/refs/heads/main/cityflow_database/json/showcase/Travel Agent.csflow.json"
+  ]
+}
