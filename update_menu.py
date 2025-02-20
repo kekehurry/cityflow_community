@@ -5,7 +5,7 @@ import json
 GITHUB_USER = "kekehurry"
 REPO_NAME = "cityflow_community"
 BRANCH = "main"
-BASE_URL = f"https://raw.githubusercontent.com/{GITHUB_USER}/{REPO_NAME}/refs/heads/{BRANCH}/cityflow_database/json"
+BASE_URL = f"https://raw.githubusercontent.com/{GITHUB_USER}/{REPO_NAME}/refs/heads/{BRANCH}"
 
 workflows = {}
 
