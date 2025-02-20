@@ -4,11 +4,11 @@
     "https://raw.githubusercontent.com/kekehurry/cityflow_community/refs/heads/main/showcase/D3 Charts Examples.csflow.json",
     "https://raw.githubusercontent.com/kekehurry/cityflow_community/refs/heads/main/showcase/Travel Agent.csflow.json"
   ],
+  "featured": [
+    "https://raw.githubusercontent.com/kekehurry/cityflow_community/refs/heads/main/featured/MIT-ABM.csflow.json",
+    "https://raw.githubusercontent.com/kekehurry/cityflow_community/refs/heads/main/featured/校园空间学术信息传播潜力.csflow.json"
+  ],
   "basic": [
     "https://raw.githubusercontent.com/kekehurry/cityflow_community/refs/heads/main/basic/Basic.csflow.json"
-  ],
-  "tutorial": [
-    "https://raw.githubusercontent.com/kekehurry/cityflow_community/refs/heads/main/tutorial/MIT-ABM.csflow.json",
-    "https://raw.githubusercontent.com/kekehurry/cityflow_community/refs/heads/main/tutorial/校园空间学术信息传播潜力.csflow.json"
   ]
 }
