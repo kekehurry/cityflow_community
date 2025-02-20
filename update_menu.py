@@ -9,8 +9,10 @@ BASE_URL = f"https://raw.githubusercontent.com/{GITHUB_USER}/{REPO_NAME}/refs/he
 
 workflows = {}
 
+ignore_dir = [".git", ".github"]
+
 for d in os.listdir(os.getcwd()):
-    if os.path.isdir(d):
+    if os.path.isdir(d) and not d in ignore_dir:
         folder_path = os.path.join(os.getcwd(), d)
         if os.path.exists(folder_path):
             files = []
