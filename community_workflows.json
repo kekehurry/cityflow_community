@@ -10,5 +10,8 @@
   ],
   "basic": [
     "https://raw.githubusercontent.com/kekehurry/cityflow_community/refs/heads/main/basic/Basic.csflow.json"
+  ],
+  "tutorial": [
+    "https://raw.githubusercontent.com/kekehurry/cityflow_community/refs/heads/main/tutorial/Basic Tutorial.csflow.json"
   ]
 }
