@@ -1,13 +1,17 @@
 {
-  "tutorial": ["/cityflow_community/tutorial/Basic Tutorial.csflow.json"],
-  "basic": ["/cityflow_community/basic/Basic.csflow.json"],
-  "featured": [
-    "/cityflow_community/featured/KNN Accessibility in Cambridge.csflow.json",
-    "/cityflow_community/featured/MIT-ABM.csflow.json"
-  ],
   "showcase": [
     "/cityflow_community/showcase/Amenity Density in Cambridge.csflow.json",
     "/cityflow_community/showcase/D3 Charts Examples.csflow.json",
     "/cityflow_community/showcase/Travel Agent.csflow.json"
+  ],
+  "featured": [
+    "/cityflow_community/featured/KNN Accessibility in Cambridge.csflow.json",
+    "/cityflow_community/featured/MIT-ABM.csflow.json"
+  ],
+  "basic": [
+    "/cityflow_community/basic/Basic.csflow.json"
+  ],
+  "tutorial": [
+    "/cityflow_community/tutorial/Basic Tutorial.csflow.json"
   ]
 }
