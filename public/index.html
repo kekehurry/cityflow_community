@@ -7,7 +7,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             console.log("start fetch");
-        fetch('/public/community_workflows.json')
+        fetch('/community_workflows.json')
             .then((response) => response.json())
             .then((filesData) => {
             const container = document.getElementById('data-container');

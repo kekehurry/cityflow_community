@@ -1,17 +1,17 @@
 {
   "tutorial": [
-    "/public/tutorial/Basic Tutorial.csflow.json"
+    "/tutorial/Basic Tutorial.csflow.json"
   ],
   "basic": [
-    "/public/basic/Basic.csflow.json"
+    "/basic/Basic.csflow.json"
   ],
   "featured": [
-    "/public/featured/KNN Accessibility in Cambridge.csflow.json",
-    "/public/featured/MIT-ABM.csflow.json"
+    "/featured/KNN Accessibility in Cambridge.csflow.json",
+    "/featured/MIT-ABM.csflow.json"
   ],
   "showcase": [
-    "/public/showcase/Amenity Density in Cambridge.csflow.json",
-    "/public/showcase/D3 Charts Examples.csflow.json",
-    "/public/showcase/Travel Agent.csflow.json"
+    "/showcase/Amenity Density in Cambridge.csflow.json",
+    "/showcase/D3 Charts Examples.csflow.json",
+    "/showcase/Travel Agent.csflow.json"
   ]
 }

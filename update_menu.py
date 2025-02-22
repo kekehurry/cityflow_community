@@ -7,7 +7,7 @@ ignore_dir = [".git", ".github"]
 
 public_folder = os.path.join(os.getcwd(), "public")
 
-base_url = '/public'
+base_url = '/'
 
 if not os.path.exists(public_folder):
     os.mkdir(public_folder)
@@ -18,7 +18,7 @@ for d in os.listdir(public_folder):
         files = []
         for file in os.listdir(folder_path):
             if file.endswith(".csflow.json"):
-                files.append(base_url+'/'+d+'/'+file)
+                files.append(base_url+d+'/'+file)
         # 排序可选
         workflows[d] = sorted(files)
 
