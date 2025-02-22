@@ -5,7 +5,7 @@ workflows = {}
 
 ignore_dir = [".git", ".github"]
 
-public_folder = os.path.join(os.getcwd(), "public")
+public_folder = os.getcwd()
 
 base_url = '/'
 
@@ -23,5 +23,5 @@ for d in os.listdir(public_folder):
         workflows[d] = sorted(files)
 
 
-with open(os.path.join(public_folder,'community_workflows.json'), "w", encoding="utf-8") as f:
+with open('community_workflows.json', "w", encoding="utf-8") as f:
     json.dump(workflows, f, ensure_ascii=False, indent=2)
