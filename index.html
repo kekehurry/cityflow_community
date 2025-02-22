@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Static Website</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log("start fetch");
+        fetch('/public/community_workflows.json')
+            .then((response) => response.json())
+            .then((filesData) => {
+            const container = document.getElementById('data-container');
+            Object.keys(filesData).forEach((category) => {
+                const header = document.createElement('h2');
+                header.textContent = category;
+                container.appendChild(header);
+
+                const list = document.createElement('ul');
+
+                filesData[category].forEach((filePath) => {
+                const listItem = document.createElement('li');
+                const downloadLink = document.createElement('a');
+                downloadLink.href = filePath;
+                downloadLink.download = '';
+                downloadLink.textContent = filePath;
+                listItem.appendChild(downloadLink);
+                list.appendChild(listItem);
+                });
+                container.appendChild(list);
+            });
+            })
+            .catch((error) => {
+            console.error('Error loading files data:', error);
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>CityFlow Community</h1>
+    <p>This is a simple static website that serves CityFlow Community Workflows.</p>
+    <div id="data-container"></div>
+</body>
+</html>
