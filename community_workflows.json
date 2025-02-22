@@ -1,6 +1,9 @@
 {
   "basic": [
-    "/basic/Basic.csflow.json"
+    "/cityflow_community/basic/Basic.csflow.json"
   ],
-  "public": []
+  "public": [],
+  "tutorial": [
+    "/cityflow_community/tutorial/Basic Tutorial.csflow.json"
+  ]
 }
