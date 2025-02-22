@@ -7,7 +7,7 @@ ignore_dir = [".git", ".github"]
 
 public_folder = os.getcwd()
 
-base_url = '/'
+base_url = '/cityflow_community/'
 
 if not os.path.exists(public_folder):
     os.mkdir(public_folder)
