@@ -8,12 +8,9 @@ This repository contains the community workflows for the [Cityflow Platform](htt
 
 ```
 my-static-website
-├── public
-│   ├── index.html      # Main HTML file for the static website
-│   └── folder          # datafolder
-│       └── data.json   # JSON data file accessible via the website
-├── src
-│   └── main.js         # JavaScript file for handling interactions
+│── index.html      # Main HTML file for the static website
+│── folder          # datafolder
+│   └── data.json   # JSON data file accessible via the website
 └── README.md           # Documentation for the project
 ```
 
@@ -24,20 +21,17 @@ To set up and run this static website, follow these steps:
 1. **Clone the Repository**
    ```bash
    git clone <repository-url>
-   cd my-static-website
+   cd cityflow_community
    ```
 
 2. **Open the `index.html` File**
-   You can open the `public/index.html` file directly in your web browser. This file serves as the entry point for the website.
+   You can open the `index.html` file directly in your web browser. This file serves as the entry point for the website.
 
 3. **Access the JSON Data**
    The JSON data can be accessed directly via the URL:
    ```
-   /public/folder/data.json
+   /folder/data.json
    ```
-
-4. **JavaScript Functionality**
-   The JavaScript code in `src/main.js` handles any interactions on the webpage, such as fetching and displaying the JSON data.
 
 ## License
 
