@@ -4,9 +4,6 @@ on:
   issues:
     types:
       - labeled
-  issue_comment:
-    types:
-      - created
 
 jobs:
   process-file:
@@ -21,15 +18,11 @@ jobs:
         id: extract_info
         run: |
           # Extract Author
-
-          AUTHOR=$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=###\s*Author\s*\n)[^\n]+')
-
+          AUTHOR=$(echo "${{ github.event.issue.body }}" | sed -n 's/^### Author\s*\(.*\)/\1/p')
           echo "Extracted Author: $AUTHOR"
 
           # Extract Category
-
-          CATEGORY=$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=###\s*Category\s*\n)[^\n]+')
-          
+          CATEGORY=$(echo "${{ github.event.issue.body }}" | sed -n 's/^### Category\s*\(.*\)/\1/p')
           echo "Extracted Category: $CATEGORY"
 
           # Set GitHub Actions output
