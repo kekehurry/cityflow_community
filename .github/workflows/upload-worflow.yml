@@ -1,3 +1,10 @@
+name: Process Issue File
+
+on:
+  issues:
+    types:
+      - labeled
+
 jobs:
   process-file:
     if: contains(github.event.issue.labels.*.name, 'approved') 
