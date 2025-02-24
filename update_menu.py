@@ -12,7 +12,7 @@ for folder in ['files','icons','images','html']:
     if not os.path.exists(os.path.join(source_folder,folder)): 
         os.makedirs(os.path.join(source_folder,folder))
 
-base_url = 'https://github.com/kekehurry/cityflow_community'
+base_url = 'https://kekehurry.github.io/cityflow_community'
 
 
 workflows = {}
