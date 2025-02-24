@@ -4,8 +4,8 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "authorId": null,
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "chart",
         "code": [
@@ -83,8 +83,8 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "authorId": null,
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "chart",
         "code": [
@@ -162,8 +162,8 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "authorId": null,
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "chart",
         "code": [
@@ -241,8 +241,8 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "authorId": null,
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "chart",
         "code": [
@@ -320,8 +320,8 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "authorId": null,
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "chart",
         "code": [
@@ -409,7 +409,7 @@
   "logs": "Using defaults and conda-forge.\r\n\nNo conda packages to install.\r\nNo npm packages to install.\r\nNo pip packages to install.\r\nSetup Completed!\r\n\n",
   "isAlive": false,
   "loading": false,
-  "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+  "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
   "basic": false,
   "category": "showcase",
   "city": "Cambridge",

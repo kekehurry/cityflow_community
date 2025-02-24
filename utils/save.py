@@ -5,12 +5,13 @@ from .utils import base642file,text2file
 
 admin_passkey = 'admin/cityflow'
 admin_id = md5(admin_passkey.encode()).hexdigest()
+print(admin_id)
 
 def save_workflow(data,source_folder,base_url,admin=False):
     if admin:
         author = 'CityFlow'
         data['author'] = author
-        data['author_id'] = admin_id
+        data['authorId'] = admin_id
     else:
         author = data.get('author')
     name = data.get('name') 
@@ -25,8 +26,8 @@ def save_workflow(data,source_folder,base_url,admin=False):
         module = save_module(module,source_folder,base_url,admin)
         new_modules.append(module)
     data['nodes'] = new_modules
-    if 'authorId' in data:
-        del data['authorId']
+    if 'author_id' in data:
+        del data['author_id']
     return data
     
 
@@ -36,7 +37,7 @@ def save_module(module,source_folder,base_url,admin):
     icon = config.get('icon')
     if admin:
         config['author'] = 'CityFlow'
-        config['author_id'] = admin_id
+        config['authorId'] = admin_id
     if icon:
         icon_path = os.path.join(source_folder,f"icons/{module_id}.png")
         icon_data = config['icon']
@@ -68,6 +69,6 @@ def save_module(module,source_folder,base_url,admin):
     module['config'] = config
     if 'author' in module:
         del module['author']
-    if 'authorId' in module:
-        del module['authorId']
+    if 'author_id' in module:
+        del module['author_id']
     return module

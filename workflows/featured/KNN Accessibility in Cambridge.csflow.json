@@ -4,8 +4,8 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "authorId": null,
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "code": [
@@ -89,7 +89,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "baseUrl": "",
         "basic": false,
         "category": "custom",
@@ -135,7 +135,8 @@
         "time": "1/23/2025, 6:08:36 PM",
         "type": "interface",
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 200
+        "width": 200,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -183,7 +184,7 @@
           "method": "count"
         },
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "baseUrl": "",
         "basic": false,
         "category": "custom",
@@ -223,7 +224,8 @@
         "time": "1/23/2025, 6:13:39 PM",
         "type": "interface",
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 200
+        "width": 200,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -262,8 +264,8 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "authorId": null,
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "code": [
@@ -340,7 +342,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "description": "# KNN Accessibility Score in Cambridge\n\n $$ KNNA[i]^{r} = \\sum_{ j \\in G-\\{i\\} , d[i,j] \\leq r } \\frac {W[j]*C_k}{e^{\\beta*max(d[i,j]-plateau,0)}}  $$\n\n\n$d[i,j]$ is the lowest-cost path distance between origin $i$ and destination $j$ in network $G$.\n\n$W[j]$ is the weight of destination j, and the function of distance between i and j in the denominator represents an exponential distance decay rate that is controlled  by parameter $\\beta$.\n\n$C_k$ is a predefined coefficient for the K-th nearest destination, given in an array of the form [0.5, ..., 0.1]. \n\nAn optional  $plateau$ radius (e.g. 400 meters) to the index: a  baseline distance from origin i in which no distance decay is applied and destinations contribute their full weights towards the index. This allows treating all nearby destinations as equally accessible. The $plateau$ radius can be set to zero to ensure that distance decay is always included. If the $plateau$ distance is greater than or equal to the search radius, it has no effect.\n\nReference:  Alhassan, Abdulaziz and Sevtsuk, Andres, Madina Python Package: Scalable Urban Network Analysis for Modeling Pedestrian and Bicycle Trips in Cities. Available at SSRN: https://ssrn.com/abstract=4748255 or http://dx.doi.org/10.2139/ssrn.4748255",
         "discription": "this module is useful for adding text to the workspace",
@@ -354,7 +356,8 @@
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "value": "# KNN Accessibility Score in Cambridge\n\n $$ KNNA[i]^{r} = \\sum_{ j \\in G-\\{i\\} , d[i,j] \\leq r } \\frac {W[j]*C_k}{e^{\\beta*max(d[i,j]-plateau,0)}}  $$\n\n\n$d[i,j]$ is the lowest-cost path distance between origin $i$ and destination $j$ in network $G$.\n\n$W[j]$ is the weight of destination j, and the function of distance between i and j in the denominator represents an exponential distance decay rate that is controlled  by parameter $\\beta$.\n\n$C_k$ is a predefined coefficient for the K-th nearest destination, given in an array of the form [0.5, ..., 0.1]. \n\nAn optional  $plateau$ radius (e.g. 400 meters) to the index: a  baseline distance from origin i in which no distance decay is applied and destinations contribute their full weights towards the index. This allows treating all nearby destinations as equally accessible. The $plateau$ radius can be set to zero to ensure that distance decay is always included. If the $plateau$ distance is greater than or equal to the search radius, it has no effect.\n\nReference:  Alhassan, Abdulaziz and Sevtsuk, Andres, Madina Python Package: Scalable Urban Network Analysis for Modeling Pedestrian and Bicycle Trips in Cities. Available at SSRN: https://ssrn.com/abstract=4748255 or http://dx.doi.org/10.2139/ssrn.4748255",
-        "width": 1272
+        "width": 1272,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -386,7 +389,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "input/output",
         "code": [
@@ -556,7 +559,8 @@
         "time": "1/24/2025, 1:57:30 AM",
         "type": "interface",
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 500
+        "width": 500,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -599,7 +603,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "Custom",
         "code": [
@@ -632,7 +636,8 @@
         "time": "2/7/2025, 2:31:52 PM",
         "type": "module",
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 150
+        "width": 150,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -675,7 +680,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "description": "### This workflow is a simplified versioin of KNNA Score.  It's been simplified in these aspect:\n\n- $d[i,j]$  is calculated based on point-to-point distances and do not take into account the road network\n- W[j] is simply calculated by the amount of different amenities. (w=1 for each single amenity point)",
         "discription": "this module is useful for adding text to the workspace",
@@ -689,7 +694,8 @@
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "value": "### This workflow is a simplified versioin of KNNA Score.  It's been simplified in these aspect:\n\n- $d[i,j]$  is calculated based on point-to-point distances and do not take into account the road network\n- W[j] is simply calculated by the amount of different amenities. (w=1 for each single amenity point)",
-        "width": 996
+        "width": 996,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -721,7 +727,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "gis",
         "code": [
@@ -1496,7 +1502,8 @@
         "time": "1/24/2025, 8:58:40 PM",
         "type": "interface",
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 350
+        "width": 350,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -1539,7 +1546,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "Custom",
         "code": [
@@ -1574,7 +1581,8 @@
         "time": "2/7/2025, 2:34:02 PM",
         "type": "module",
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 150
+        "width": 150,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -1617,7 +1625,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "chart",
         "code": [
@@ -1657,7 +1665,8 @@
         "time": "1/24/2025, 2:16:27 AM",
         "type": "interface",
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 320
+        "width": 320,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -1793,7 +1802,7 @@
   "logs": "",
   "isAlive": false,
   "loading": false,
-  "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+  "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
   "basic": false,
   "category": "featured",
   "city": "Cambridge",

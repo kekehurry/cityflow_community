@@ -4,8 +4,8 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "authorId": null,
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "code": [
@@ -84,7 +84,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "baseUrl": "",
         "basic": false,
         "category": "custom",
@@ -130,7 +130,8 @@
         "time": "1/23/2025, 6:08:36 PM",
         "type": "interface",
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 200
+        "width": 200,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -178,7 +179,7 @@
           "method": "count"
         },
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "baseUrl": "",
         "basic": false,
         "category": "custom",
@@ -218,7 +219,8 @@
         "time": "1/23/2025, 6:13:39 PM",
         "type": "interface",
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 200
+        "width": 200,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -257,7 +259,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "baseUrl": "",
         "basic": false,
         "category": "custom",
@@ -295,7 +297,8 @@
         "time": "1/23/2025, 5:14:16 PM",
         "type": "interface",
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 500
+        "width": 500,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -334,7 +337,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "description": "# Amenity Density in Cambridge",
         "discription": "this module is useful for adding text to the workspace",
@@ -348,7 +351,8 @@
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "value": "# Amenity Density in Cambridge",
-        "width": 731
+        "width": 731,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -380,7 +384,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "description": "### Filter the type of Amenity",
         "discription": "this module is useful for adding text to the workspace",
@@ -394,7 +398,8 @@
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "value": "### Filter the type of Amenity",
-        "width": 300
+        "width": 300,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -425,7 +430,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "description": "### Create Aggegate Map",
         "discription": "this module is useful for adding text to the workspace",
@@ -439,7 +444,8 @@
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "value": "### Create Aggegate Map",
-        "width": 300
+        "width": 300,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -470,7 +476,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "description": "### Mapping density to color",
         "discription": "this module is useful for adding text to the workspace",
@@ -484,7 +490,8 @@
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "value": "### Mapping density to color",
-        "width": 300
+        "width": 300,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -515,7 +522,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "description": "### Visualization",
         "discription": "this module is useful for adding text to the workspace",
@@ -529,7 +536,8 @@
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "value": "### Visualization",
-        "width": 300
+        "width": 300,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -560,7 +568,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "discription": "this module is useful for drawing an rectangle/triangle/circle",
         "files": [],
@@ -573,7 +581,8 @@
         "rect": true,
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 614
+        "width": 614,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -605,7 +614,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "controlX": 26,
         "controlY": 60,
@@ -620,7 +629,8 @@
         "rotate": 28.789260670368623,
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 100
+        "width": 100,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -651,7 +661,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "description": "Change aggregate methods if you like",
         "discription": "this module is useful for adding text to the workspace",
@@ -665,7 +675,8 @@
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "value": "Change aggregate methods if you like",
-        "width": 300
+        "width": 300,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -696,7 +707,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "description": "Change different color mapping",
         "discription": "this module is useful for adding text to the workspace",
@@ -710,7 +721,8 @@
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "value": "Change different color mapping",
-        "width": 300
+        "width": 300,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -741,8 +753,8 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "authorId": null,
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "code": [
@@ -875,7 +887,7 @@
   "logs": "Using defaults and conda-forge.\r\n\nNo conda packages to install.\r\nNo npm packages to install.\r\nNo pip packages to install.\r\nSetup Completed!\r\n\n",
   "isAlive": false,
   "loading": false,
-  "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+  "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
   "autoSave": true,
   "basic": false,
   "category": "showcase",

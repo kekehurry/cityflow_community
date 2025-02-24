@@ -35,8 +35,13 @@ for d in os.listdir(raw_folder):
                 with open(os.path.join(ouput_folder, file), "w", encoding="utf-8") as f:
                     json.dump(data, f, ensure_ascii=False, indent=2)
                 files.append(base_url+f"/workflows/{d}/{file}")
-        # 排序可选
         workflows[d] = sorted(files)
+
+
+# Sort the workflows dictionary to prioritize 'showcase'
+if 'showcase' in workflows:
+    showcase_workflows = {'showcase': workflows.pop('showcase')}
+    workflows = {**showcase_workflows, **workflows}
 
 with open('community_workflows.json', "w", encoding="utf-8") as f:
     json.dump(workflows, f, ensure_ascii=False, indent=2)

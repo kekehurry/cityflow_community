@@ -4,7 +4,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "description": "## Use this panel for demonstration",
@@ -19,7 +19,8 @@
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "value": "## Use this panel for demonstration",
-        "width": 534
+        "width": 534,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -52,7 +53,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "controlX": 82,
@@ -67,7 +68,8 @@
         "name": "Arrow",
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 100
+        "width": 100,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -98,7 +100,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "description": "## Change max steps here",
@@ -113,7 +115,8 @@
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "value": "## Change max steps here",
-        "width": 479
+        "width": 479,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -145,7 +148,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "discription": "this module is useful for drawing an arrow",
@@ -159,7 +162,8 @@
         "rotate": 92.53305575568973,
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 100
+        "width": 100,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -190,7 +194,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "controlX": 132,
@@ -206,7 +210,8 @@
         "rotate": 84.88034109395075,
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 136
+        "width": 136,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -238,7 +243,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "description": "## To RUN this workflow, you'll need to set an OPENAI API KEY in advanced settings",
@@ -253,7 +258,8 @@
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "value": "## To RUN this workflow, you'll need to set an OPENAI API KEY in advanced settings",
-        "width": 534
+        "width": 534,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -285,7 +291,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "description": " # Travel Agent\n\nAriel Noyman1*, Kai Hu2*, Kent Larson1\n\n1MIT Media Lab, 2South China University of Technology\n\nUnderstanding human behavior in built environments is critical for designing functional, user-centered urban spaces. We introduce TravelAgent, a novel simulation platform that models pedestrian navigation and activity patterns across diverse indoor and outdoor environments under varying contextual and environmental conditions. TravelAgent leverages generative agents integrated into 3D virtual environments, enabling agents to process multimodal sensory inputs and exhibit human-like decision-making, behavior, and adaptation.\n\nMore details: https://www.arielnoyman.com/travelAgent/\n\nCitiation:\nNoyman, Ariel, Kai Hu, and Kent Larson. \"TravelAgent: Generative Agents in the Built Environment.\" arXiv preprint arXiv:2412.18985 (2024).",
@@ -300,7 +306,8 @@
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "value": " # Travel Agent\n\nAriel Noyman1*, Kai Hu2*, Kent Larson1\n\n1MIT Media Lab, 2South China University of Technology\n\nUnderstanding human behavior in built environments is critical for designing functional, user-centered urban spaces. We introduce TravelAgent, a novel simulation platform that models pedestrian navigation and activity patterns across diverse indoor and outdoor environments under varying contextual and environmental conditions. TravelAgent leverages generative agents integrated into 3D virtual environments, enabling agents to process multimodal sensory inputs and exhibit human-like decision-making, behavior, and adaptation.\n\nMore details: https://www.arielnoyman.com/travelAgent/\n\nCitiation:\nNoyman, Ariel, Kai Hu, and Kent Larson. \"TravelAgent: Generative Agents in the Built Environment.\" arXiv preprint arXiv:2412.18985 (2024).",
-        "width": 1067
+        "width": 1067,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -332,7 +339,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "code": [
@@ -366,7 +373,8 @@
         "run": false,
         "type": "interface",
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 150
+        "width": 150,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -410,7 +418,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "code": [
@@ -448,7 +456,8 @@
         "time": "2/11/2025, 3:25:05 PM",
         "type": "interface",
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 600
+        "width": 600,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -493,7 +502,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "code": [
@@ -523,7 +532,8 @@
         "time": "2/12/2025, 6:08:36 PM",
         "type": "module",
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 150
+        "width": 150,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -568,8 +578,8 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "authorId": null,
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "code": [
@@ -653,7 +663,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "discription": "this module is useful to listen to a custom event",
@@ -670,7 +680,8 @@
         ],
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 150
+        "width": 150,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -702,8 +713,8 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "authorId": null,
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "code": [
@@ -785,8 +796,8 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "authorId": null,
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "code": [
@@ -868,7 +879,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "code": [
@@ -897,7 +908,8 @@
         "time": "2/12/2025, 6:15:30 PM",
         "type": "module",
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 150
+        "width": 150,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -941,8 +953,8 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "authorId": null,
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "code": [
@@ -1015,7 +1027,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "discription": "this module is useful to listen to a custom event",
@@ -1032,7 +1044,8 @@
         "name": "Event Sender",
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 150
+        "width": 150,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -1063,7 +1076,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "code": [
@@ -1098,7 +1111,8 @@
         "run": false,
         "type": "interface",
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 200
+        "width": 200,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -1142,7 +1156,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "code": [
@@ -1176,7 +1190,8 @@
         "run": false,
         "type": "interface",
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 300
+        "width": 300,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -1221,7 +1236,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "code": [
@@ -1251,7 +1266,8 @@
         "time": "2/12/2025, 3:57:54 PM",
         "type": "module",
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 180
+        "width": 180,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -1296,8 +1312,8 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "authorId": null,
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "code": [
@@ -1375,7 +1391,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
         "code": [
@@ -1415,7 +1431,8 @@
         "run": false,
         "type": "interface",
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 300
+        "width": 300,
+        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
       },
       "data": {
         "input": null,
@@ -1579,7 +1596,7 @@
   "logs": "Using defaults and conda-forge.\r\n\nNo conda packages to install.\r\nNo npm packages to install.\r\nNo pip packages to install.\r\nSetup Completed!\r\n\n",
   "isAlive": false,
   "loading": false,
-  "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
+  "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
   "autoSave": true,
   "basic": false,
   "category": "showcase",
