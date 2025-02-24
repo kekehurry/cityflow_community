@@ -23,11 +23,15 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/56be1fc495a592a1459b062e63222f68.png",
         "id": "56be1fc495a592a1459b062e63222f68",
         "iframeId": "8ZrQj-j5AnA9KBiadkCWy",
-        "input": ["input"],
+        "input": [
+          "input"
+        ],
         "language": "javascript",
         "local": false,
         "name": "Radar Chart",
-        "output": [""],
+        "output": [
+          ""
+        ],
         "pin": true,
         "pinHeight": 329,
         "pinLeft": 70,
@@ -102,11 +106,17 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/3090c381dfa6f94ca171b18a199efab2.png",
         "id": "3090c381dfa6f94ca171b18a199efab2",
         "iframeId": "0I16wad5XtV1QHYzHd2QU",
-        "input": ["weights", "amenities", "grids"],
+        "input": [
+          "weights",
+          "amenities",
+          "grids"
+        ],
         "language": "python",
         "local": false,
         "name": "KNN Accessibility",
-        "output": ["output"],
+        "output": [
+          "output"
+        ],
         "port": null,
         "run": false,
         "sessionID": "zwPZeXbWhu6lg-TEGk8pV",
@@ -175,11 +185,15 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/299b0700adcc7f588ff38be499c4959f.png",
         "id": "299b0700adcc7f588ff38be499c4959f",
         "iframeId": "HJZP9-1P_I6bh1d7pEPM0",
-        "input": ["geojson"],
+        "input": [
+          "geojson"
+        ],
         "language": "javascript",
         "local": false,
         "name": "Grouping",
-        "output": ["geojson"],
+        "output": [
+          "geojson"
+        ],
         "port": null,
         "property": "amenity",
         "rows": [
@@ -1034,11 +1048,15 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/cbb47dce8bfa9d240e365f44a40e45f8.png",
         "id": "cbb47dce8bfa9d240e365f44a40e45f8",
         "iframeId": "CbwYeTwhEDC_CkqKwkoxd",
-        "input": ["input"],
+        "input": [
+          "input"
+        ],
         "language": "python",
         "local": false,
         "name": "Parse Data",
-        "output": ["output"],
+        "output": [
+          "output"
+        ],
         "port": null,
         "run": false,
         "sessionID": "DtcPGK7OaJS_2Wvm_ONOt",
@@ -1145,11 +1163,15 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/6623a043760f68682cac51f12a727ec7.png",
         "id": "6623a043760f68682cac51f12a727ec7",
         "iframeId": "0EG4SDuXxQKrKVakyrJ6-",
-        "input": [""],
+        "input": [
+          ""
+        ],
         "language": "javascript",
         "local": false,
         "name": "Form Input",
-        "output": ["output"],
+        "output": [
+          "output"
+        ],
         "pin": true,
         "pinHeight": 262,
         "pinLeft": 73,
@@ -1368,11 +1390,15 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/d47665933a1f4686ff7a76168c87aad9.png",
         "id": "d47665933a1f4686ff7a76168c87aad9",
         "iframeId": "c9V4QgBNEAzDS8RGG2zyK",
-        "input": [""],
+        "input": [
+          ""
+        ],
         "language": "python",
         "local": false,
         "name": "Cambridge Data",
-        "output": ["data"],
+        "output": [
+          "data"
+        ],
         "port": null,
         "run": false,
         "time": "2/7/2025, 2:06:09 PM",
@@ -1442,12 +1468,17 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/114ce8c96ff7ba963db3f6c6be3f644f.png",
         "id": "114ce8c96ff7ba963db3f6c6be3f644f",
         "iframeId": "5a0tWHHhBvzIhsSTdeabC",
-        "input": ["boundary", "geoData"],
+        "input": [
+          "boundary",
+          "geoData"
+        ],
         "language": "javascript",
         "local": false,
         "model": "gpt-4o-mini",
         "name": "GridCreator",
-        "output": ["grid"],
+        "output": [
+          "grid"
+        ],
         "port": null,
         "run": false,
         "secretKey": "",
@@ -1503,7 +1534,10 @@
         "colorScheme": "interpolateSpectral",
         "containerIsRunning": false,
         "custom": true,
-        "dataRange": [0, 1],
+        "dataRange": [
+          0,
+          1
+        ],
         "dataType": "continuous",
         "description": "This module provides a React component to configure and visualize data properties on geojson features using various mapping schemes and data types.",
         "expand": false,
@@ -1516,14 +1550,18 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/d67fe21132c3895fca943ff54dc5b9de.png",
         "id": "d67fe21132c3895fca943ff54dc5b9de",
         "iframeId": "pJbawbcbq-pyq76iRXBPp",
-        "input": ["geojson"],
+        "input": [
+          "geojson"
+        ],
         "language": "javascript",
         "local": false,
         "model": "gpt-4o-mini",
         "name": "Mapping",
         "numCategories": 10,
         "option": "color",
-        "output": ["geojson"],
+        "output": [
+          "geojson"
+        ],
         "port": null,
         "property": "knna_score",
         "run": false,
@@ -1596,11 +1634,15 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/ef970d7d5432108c0c82508c3eabb348.png",
         "id": "ef970d7d5432108c0c82508c3eabb348",
         "iframeId": "xP6V1448NXdXAXFrI-rLr",
-        "input": ["input"],
+        "input": [
+          "input"
+        ],
         "language": "javascript",
         "local": false,
         "name": "GeoJson Map",
-        "output": [""],
+        "output": [
+          ""
+        ],
         "pin": true,
         "pinHeight": 597,
         "pinLeft": 404,
@@ -1758,7 +1800,7 @@
   "name": "KNN Accessibility in Cambridge",
   "packages": "",
   "private": true,
-  "screenShot": "/images/4dbff6b65b103a27ae9465cd0a1a659e_12-07-00.png",
+  "screenShot": "/images/64b0005ed99552e64a633332ae2a475e_04-17-09.png",
   "showcase": false,
   "source": "3fd21cd24e5e54e7b4bd4fe2482d7b14",
   "tag": "GIS, Accessibility, Urban Planning, Data Visualization, Map Analysis"

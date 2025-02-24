@@ -24,11 +24,15 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/f23897d003b30a21f1dd16793b0ce75f.png",
         "id": "f23897d003b30a21f1dd16793b0ce75f",
         "iframeId": "6RkL2eCbILAIj-_z0yQBD",
-        "input": ["input"],
+        "input": [
+          "input"
+        ],
         "language": "javascript",
         "local": false,
         "name": "Diverging Bar",
-        "output": [""],
+        "output": [
+          ""
+        ],
         "port": null,
         "run": false,
         "sessionId": "NPmaYAqq8kiTufGEPrQTE",
@@ -100,11 +104,15 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/06f6df3f3dc8efb6d6d576e382b2f099.png",
         "id": "06f6df3f3dc8efb6d6d576e382b2f099",
         "iframeId": "JnBpejJFtUjv90lcoP9-D",
-        "input": ["input"],
+        "input": [
+          "input"
+        ],
         "language": "javascript",
         "local": false,
         "name": "Pie Chart",
-        "output": [""],
+        "output": [
+          ""
+        ],
         "port": null,
         "run": false,
         "sessionId": "5C7GHHpCVL-I419wqMYtb",
@@ -176,11 +184,15 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/a8b5ce73c7725e2d39264abb963ad2d6.png",
         "id": "a8b5ce73c7725e2d39264abb963ad2d6",
         "iframeId": "3fSvbpVe8z2L0Tw3Lwanq",
-        "input": ["input"],
+        "input": [
+          "input"
+        ],
         "language": "javascript",
         "local": false,
         "name": "Area Chart",
-        "output": [""],
+        "output": [
+          ""
+        ],
         "port": null,
         "run": false,
         "sessionId": "kRLf-F3856mX9AcWBMMq3",
@@ -252,11 +264,15 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/169d032f8b80caaf1362fa7d7b18360d.png",
         "id": "169d032f8b80caaf1362fa7d7b18360d",
         "iframeId": "P3O_hIU3wVAFchwcD2PxI",
-        "input": ["input"],
+        "input": [
+          "input"
+        ],
         "language": "javascript",
         "local": false,
         "name": "Radar Chart",
-        "output": [""],
+        "output": [
+          ""
+        ],
         "port": null,
         "run": false,
         "sessionId": "90CkkzfG6RwGW7k6lUcLR",
@@ -328,11 +344,15 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/db710833a3a459a4979d4f5555407098.png",
         "id": "db710833a3a459a4979d4f5555407098",
         "iframeId": "vS8w_djotu51I-H4yBXH1",
-        "input": ["input"],
+        "input": [
+          "input"
+        ],
         "language": "javascript",
         "local": false,
         "name": "Bar Chart",
-        "output": [""],
+        "output": [
+          ""
+        ],
         "port": null,
         "run": false,
         "sessionId": "Pc3p9_a_JQvP5yW2KPmjO",
@@ -404,7 +424,7 @@
   "name": "D3 Charts Examples",
   "packages": "",
   "private": false,
-  "screenShot": "/images/7b3754ea996f5a6473b1760c97cbc8a2_12-07-00.png",
+  "screenShot": "/images/98734ea82893bb265181d065333c6b2d_04-17-07.png",
   "showcase": false,
   "source": null,
   "tag": "Data Visualization, Urban Planning, City Analytics, D3.js Charts, GIS Integration",

@@ -579,11 +579,15 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/chzFlmYaghdIjY92xI5YH.png",
         "id": "c7f981c76f584f0df103b746e707c668",
         "iframeId": "mAw0k-rz_C4Fc2j9daIcQ",
-        "input": [""],
+        "input": [
+          ""
+        ],
         "language": "javascript",
         "local": false,
         "name": "Text Input",
-        "output": ["output"],
+        "output": [
+          "output"
+        ],
         "port": null,
         "run": false,
         "sessionId": "sUrPjbmVvFDPj4vm6qGrd",
@@ -691,11 +695,15 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/Hm4CuxJqX_KjpgxD79ICW.png",
         "id": "50af4da2159996e8c15539a5be047c68",
         "iframeId": "O9A5I0uqjISPkXklZg9ab",
-        "input": ["input"],
+        "input": [
+          "input"
+        ],
         "language": "javascript",
         "local": false,
         "name": "DataViewer",
-        "output": ["output"],
+        "output": [
+          "output"
+        ],
         "port": null,
         "run": false,
         "sessionId": "F7xzVS3PVAvsabsEfZtpx",
@@ -770,7 +778,7 @@
   "name": "Basic Tutorial",
   "packages": "",
   "private": true,
-  "screenShot": "/images/b8ce98e8927bb0b52fc162a5446268c5_12-06-58.png",
+  "screenShot": "/images/a8399e0dba922158060b1c8fc851f57d_04-17-10.png",
   "showcase": false,
   "source": null,
   "tag": "Tutorial",
