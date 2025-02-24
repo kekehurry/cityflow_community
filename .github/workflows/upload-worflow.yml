@@ -52,7 +52,7 @@ jobs:
           echo "Found .json file: $JSON_FILE"
           
           # Update Menu
-          python update_menu.py --author $AUTHOR --category "$CATEGORY" --file "$JSON_FILE"
+          python update_menu.py --author "$AUTHOR" --category "$CATEGORY" --file "$JSON_FILE"
           
           echo "Updated Menu"
 
