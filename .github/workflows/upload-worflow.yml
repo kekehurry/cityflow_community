@@ -20,21 +20,17 @@ jobs:
           # Extract Author
           AUTHOR=$(echo "${{ github.event.issue.body }}" | sed -n 's/^### Author\s*\(.*\)/\1/p')
           echo "Extracted Author: $AUTHOR"
-          
+
           # Extract Category
           CATEGORY=$(echo "${{ github.event.issue.body }}" | sed -n 's/^### Category\s*\(.*\)/\1/p')
           echo "Extracted Category: $CATEGORY"
 
-          # Extract Zip File URL using markdown link pattern
-          ZIP_URL=$(echo "${{ github.event.issue.body }}" | grep -oP '\[.*\]\((https://github\.com/[^/]+/[^/]+/files/\d+/[^ ]+\.zip)\)')
-          ZIP_URL=$(echo "$ZIP_URL" | sed -E 's/.*\((.*)\)/\1/')  # Clean up to just get the URL
-          
+          # Extract Zip File URL
+          ZIP_URL=$(echo "${{ github.event.issue.body }}" | grep -oP 'https://github\.com/[^/]+/[^/]+/files/\d+/[^ ]+\.zip')
           if [ -z "$ZIP_URL" ]; then
             echo "No .zip file found in the comment."
             exit 1
           fi
-
-          echo "Extracted ZIP URL: $ZIP_URL"
 
           # Download the file
           curl -L -o uploaded_file.zip "$ZIP_URL"
@@ -55,7 +51,7 @@ jobs:
           echo "Found .json file: $JSON_FILE"
           
           # Update Menu
-          python update_menu.py --author "$AUTHOR" --category "$CATEGORY" --file "$JSON_FILE"
+          python update_menu.py --author $AUTHOR --category "$CATEGORY" --file "$JSON_FILE"
           
           echo "Updated Menu"
 
