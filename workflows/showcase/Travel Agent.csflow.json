@@ -1594,7 +1594,7 @@
   "author": "CityFlow",
   "flowInited": false,
   "logs": "Using defaults and conda-forge.\r\n\nNo conda packages to install.\r\nNo npm packages to install.\r\nNo pip packages to install.\r\nSetup Completed!\r\n\n",
-  "isAlive": false,
+  "isAlive": true,
   "loading": false,
   "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
   "autoSave": true,
@@ -1607,7 +1607,7 @@
   "name": "Travel Agent",
   "packages": "",
   "private": false,
-  "screenShot": "/api/dataset/source/images/51778db71c2c6d05d7ac1f443bfa8231_10-23-25.png",
+  "screenShot": "https://kekehurry.github.io/cityflow_community/source//images/62697877795e956a3a947240403f77cc_16-46-15.png",
   "showcase": false,
   "source": null,
   "tag": ""

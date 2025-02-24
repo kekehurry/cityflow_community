@@ -5,7 +5,6 @@ from .utils import base642file,text2file
 
 admin_passkey = 'admin/cityflow'
 admin_id = md5(admin_passkey.encode()).hexdigest()
-print(admin_id)
 
 def save_workflow(data,source_folder,base_url,admin=False):
     if admin:
@@ -19,7 +18,8 @@ def save_workflow(data,source_folder,base_url,admin=False):
     screenshot = data.get('screenShot') 
     if screenshot and 'base64' in screenshot:
         screenshot_path = os.path.join(source_folder,f"images/{workflow_id}_{time.strftime('%H-%M-%S')}.png")
-        data['screenShot'] = base642file(screenshot_path,screenshot)
+        request_path = base642file(screenshot_path,screenshot)
+        data['screenShot'] = base_url+f"/source/{request_path}"
 
     new_modules = []
     for module in data['nodes']:

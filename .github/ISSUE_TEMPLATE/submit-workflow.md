@@ -1,18 +1,18 @@
 ---
-name: Submit File
-about: Submit a file for review and inclusion in the repository
+name: Submit WorkFlow File
+about: Submit a workflow file for sharing to the community
 title: "[WorkFlow Submission]"
 labels: workflow-submission
 ---
 
 ### Author
-The aothor name.
+[Replace this line with the aothor name]
 
 ### Category
-The category of the workflow.
+[Replace this line with the category of the workflow]
 
 ### Description
-Please describe the file you are submitting.
+[Please describe the file you are submitting]
 
 ### WorkFlow File
-Attach your file by dragging and dropping it here or clicking to upload.
+Compress your workflow file into a `.zip` archive and upload it here.

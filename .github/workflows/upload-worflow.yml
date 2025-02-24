@@ -37,20 +37,35 @@ jobs:
       - name: Download file from Issue comment
         id: download_file
         run: |
-          # Extract Issue File URL
-          FILE_URL=$(echo "${{ github.event.comment.body }}" | grep -oP 'https://github.com/[^/]+/[^/]+/files/\d+/download')
-          if [ -z "$FILE_URL" ]; then
-            echo "No file found in the comment."
+          # Extract Zip File URL
+          ZIP_URL=$(echo "${{ github.event.comment.body }}" | grep -oP 'https://github.com/[^/]+/[^/]+/files/\d+/download')
+          if [ -z "$ZIP_URL" ]; then
+            echo "No .zip file found in the comment."
             exit 1
           fi
 
           # Download the file
-          curl -L -o uploaded_file "$FILE_URL"
-          echo "File downloaded: $(ls -l uploaded_file)"
+          curl -L -o uploaded_file.zip "$ZIP_URL"
+          echo "File downloaded: $(ls -l uploaded_file.zip)"
 
+          # Unzip the file
+          unzip uploaded_file.zip -d ./extracted_files/
+          echo "Files extracted: $(ls -l ./extracted_files/)"
+
+          # Find the .json file in the extracted files
+          JSON_FILE=$(find ./extracted_files/ -name "*.json" | head -n 1)
+          
+          if [ -z "$JSON_FILE" ]; then
+            echo "No .json file found in the extracted files."
+            exit 1
+          fi
+
+          echo "Found .json file: $JSON_FILE"
+          
           # Update Menu
-          python update_menu.py --author ${{ steps.extract_info.outputs.author }} --category ${{ steps.extract_info.outputs.category }} --file uploaded_file
-          echo "File moved to repository."
+          python update_menu.py --author ${{ steps.extract_info.outputs.author }} --category ${{ steps.extract_info.outputs.category }} --file "$JSON_FILE"
+          
+          echo "Updated Menu"
 
       - name: Commit and push file
         run: |
