@@ -1,7 +1,7 @@
 ---
 name: Submit WorkFlow File
 about: Submit a workflow file for sharing to the community
-title: "[WorkFlow Submission]"
+title: "WorkFlow Submission"
 labels: workflow-submission
 ---
 
