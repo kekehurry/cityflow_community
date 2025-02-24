@@ -1,0 +1,61 @@
+name: Process Issue File
+
+on:
+  issues:
+    types:
+      - labeled
+  issue_comment:
+    types:
+      - created
+
+jobs:
+  process-file:
+    if: contains(github.event.issue.labels.*.name, 'approved') 
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Extract Author and Category
+        id: extract_info
+        run: |
+          # Extract Author
+
+          AUTHOR=$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=### Author\n)[^\n]+')
+          echo "Extracted Author: $AUTHOR"
+
+          # Extract Category
+
+          CATEGORY=$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=### Category\n)[^\n]+')
+          echo "Extracted Category: $CATEGORY"
+
+          # Set GitHub Actions output
+          echo "::set-output name=author::$AUTHOR"
+          echo "::set-output name=category::$CATEGORY"
+
+      - name: Download file from Issue comment
+        id: download_file
+        run: |
+          # Extract Issue File URL
+          FILE_URL=$(echo "${{ github.event.comment.body }}" | grep -oP 'https://github.com/[^/]+/[^/]+/files/\d+/download')
+          if [ -z "$FILE_URL" ]; then
+            echo "No file found in the comment."
+            exit 1
+          fi
+
+          # Download the file
+          curl -L -o uploaded_file "$FILE_URL"
+          echo "File downloaded: $(ls -l uploaded_file)"
+
+          # Update Menu
+          python update_menu.py --author ${{ steps.extract_info.outputs.author }} --category ${{ steps.extract_info.outputs.category }} --file uploaded_file
+          echo "File moved to repository."
+
+      - name: Commit and push file
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Add file from Issue #${{ github.event.issue.number }} by ${{ steps.extract_info.outputs.author }} (Category: ${{ steps.extract_info.outputs.category }})"
+          git push

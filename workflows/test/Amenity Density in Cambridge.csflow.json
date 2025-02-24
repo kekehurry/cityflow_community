@@ -1,0 +1,894 @@
+{
+  "nodes": [
+    {
+      "basic": false,
+      "config": {
+        "author": "CityFlow",
+        "authorId": null,
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "//entrypoint.js\nimport {GeoJsonBaseLayer, TileBaseLayer} from './layers'\nimport React, { useEffect, useState, useRef} from \"react\";\nimport DeckGL from \"@deck.gl/react\";\nimport { Box} from \"@mui/material\";\nimport { MapController} from \"@deck.gl/core\";\n\nimport * as turf from '@turf/turf'\n\nconst mapboxToken = window.secrets.MAPBOX_TOKEN;\n\nexport default function DeckGLMap(props) {\n    const {input,config,setConfig,setOutput} = props\n    const deckGLref = useRef(null);\n    const [layers, setLayers] = useState([]);\n    const [viewState, setViewState] = useState({\n        latitude: 42.3654825444308, \n        longitude: -71.09032464941119,\n        zoom:  15,\n        pitch: 0,\n        bearing: 0,\n        minZoom: 10,\n        maxZoom: 22,\n    });\n    const [bbox, setBbox] = useState(null);\n\n    const onBeforeRender = () => {\n        const layer = layers[0];\n        // fit the bounds of the layer\n        if (layer && layer.isLoaded && bbox) {\n            const viewport = layer.context.viewport;\n            // fitBounds - Bounding box in [[longitude, latitude], [longitude, latitude]] format\n            const formatedBounds = [[bbox[0], bbox[1]], [bbox[2], bbox[3]]];\n            const {longitude, latitude, zoom} = viewport.fitBounds(formatedBounds);\n            if (!(longitude === config.longtitude && latitude === config.latitude && zoom === config.zoom )){\n            setViewState({...viewState,longitude, latitude, zoom:zoom-1});\n            }\n        }\n    }\n\n    useEffect(() => {\n      const dataLayers = []\n      \n      if (mapboxToken) {\n        dataLayers.push(TileBaseLayer())\n      }\n      if(input?.input) {\n        setBbox(turf.bbox(input.input));\n        dataLayers.push(\n        GeoJsonBaseLayer({ data:input.input, opacity: 0.5 })\n        )\n      }\n      setLayers(dataLayers)\n    }, [input,mapboxToken]);\n    \n    return (\n        <Box style={{\n            minWidth:config?.width,\n            minHeight:config?.height,\n            width:\"100%\", \n            height:\"100%\", \n            margin:0,\n            padding:0}}>\n            <DeckGL\n            ref={deckGLref}\n            initialViewState={viewState}\n            onContextMenu={(e) => e.preventDefault()}\n            onBeforeRender={onBeforeRender}\n            layers={layers}\n            controller={{\n                type: MapController,\n                dragRotate: true,\n                dragPan: true,\n                scrollZoom: true,\n                touchZoom: true,\n                touchRotate: true,\n                keyboard: true,\n                doubleClickZoom: true\n            }}\n            >\n            </DeckGL>\n        </Box>\n    );\n}\n",
+          "//layers.js\n\nimport {GeoJsonLayer,BitmapLayer} from '@deck.gl/layers';\nimport {TileLayer} from '@deck.gl/geo-layers';\nimport {nanoid} from 'nanoid';\n\nconst mapboxToken = window.secrets.MAPBOX_TOKEN;\n\nexport function GeoJsonBaseLayer({data, opacity}){\n    if(data){\n        return new GeoJsonLayer({\n          id: nanoid(),\n          data: data,\n          opacity: opacity || 0.5,\n          pickable: data.properties?.pickable || true,\n          stroked: data.properties?.stroked || true,\n          filled: data.properties?.filled || true,\n          extruded: data.properties?.extruded || true,\n          wireframe: data.properties?.wireframe || true,\n          pointType: data.properties?.pointType || 'circle',\n          autoHighlight: data.properties?.autoHighlight || true,\n          highlightColor: data.properties?.highlightColor || [242, 0, 117, 120],\n          lineWidthUnits: data.properties?.lineWidthUnits || 'pixels',\n          lineWidthMinPixels: data.properties?.lineWidthMinPixels || 1,\n          getFillColor: d => d.properties?.color || data.properties?.color ||  [255, 0, 0],\n          getLineColor: d => d.properties?.lineColor || data.properties?.lineColor || [255, 255, 255],\n          getPointRadius: d =>   d.properties?.pointRadius || data.properties?.pointRadius || 10,\n          getLineWidth: d => d.properties?.lineWidth ||data.properties?.lineWidth ||  1,\n          getElevation: d => d.properties?.height || data.properties?.height || 1,\n          updateTriggers: {\n            getFillColor: data,\n            getLineColor: data,\n            getPointRadius: data,\n            getLineWidth: data,\n            getElevation: data,\n          },\n          transitions: {\n            getFillColor: data.properties?.duration || 500,\n            getElevation: data.properties?.duration || 500,\n            getLineWidth: data.properties?.duration || 500,\n            getPointRadius: data.properties?.duration || 500,\n            getLineColor: data.properties?.duration || 500,\n          }\n        });\n      \n      \n    }\n  }\n\nexport function TileBaseLayer() {\n  const mapStyle = {\n    Dark: 'cjs9rb33k2pix1fo833uweyjd',\n    Light: 'ck0h5xn701bpr1dqs3he2lecq',\n    Inverse: 'cjlu6w5sc1dy12rmn4kl2zljn',\n    Normal: 'cl8dv36nv000t14qik9yg4ys6',\n  };\n  return new TileLayer({\n    data:\n      `https://api.mapbox.com/styles/v1/relnox/${mapStyle.Dark}/tiles/256/{z}/{x}/{y}?access_token=` + mapboxToken +\n      '&attribution=false&logo=false&fresh=true',\n    minZoom: 0,\n    maxZoom: 21,\n    tileSize: 256,\n    id: 'MapboxTile',\n    renderSubLayers: (props) => {\n      const {\n        bbox: { west, south, east, north },\n      } = props.tile;\n\n      return new BitmapLayer(props, {\n        data: null,\n        image: props.data,\n        bounds: [west, south, east, north],\n      });\n    },\n  });\n}"
+        ],
+        "containerIsRunning": false,
+        "custom": true,
+        "description": "This module creates a React component for a map using Deck.gl, displaying GeoJSON data and Mapbox tiles with customizable styles and interactions.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "da7e9a0d2c7380a5d33b4e38d0176a1e",
+        "height": 400,
+        "html": "https://kekehurry.github.io/cityflow_community/source//html/987f94fd1d234b39d8b0e8f7ea6c7425",
+        "icon": "https://kekehurry.github.io/cityflow_community/source//icons/0876afcfb439c2a8780c994c4976803c.png",
+        "id": "0876afcfb439c2a8780c994c4976803c",
+        "iframeId": "xP6V1448NXdXAXFrI-rLr",
+        "input": [
+          "input"
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "GeoJson Map",
+        "output": [
+          ""
+        ],
+        "pin": true,
+        "pinHeight": 627,
+        "pinLeft": 255,
+        "pinTop": 86,
+        "pinWidth": 1073,
+        "port": null,
+        "run": false,
+        "sessionID": "JF5f8wIsPemc3MFwlgdb2",
+        "time": "2/7/2025, 1:25:03 PM",
+        "type": "interface",
+        "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "width": 600
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 484,
+      "id": "0876afcfb439c2a8780c994c4976803c",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "GeoJson Map",
+      "position": {
+        "x": 1710.9160996435714,
+        "y": 177.57638265452127
+      },
+      "positionAbsolute": {
+        "x": 1710.9160996435714,
+        "y": 177.57638265452127
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+      "version": "0.0.1",
+      "width": 632
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "CityFlow",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "baseUrl": "",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "//entrypoint.js\n\n//import packages from the scope\nimport { TextField,MenuItem,Stack} from \"@mui/material\";\nimport React, { useEffect, useState } from \"react\";\nimport * as d3 from 'd3';\n\nfunction rgbToHex(r, g, b) {\n    function valToHex(c) {\n      var hex = c.toString(16);\n      return hex.length === 1 ? \"0\" + hex : hex;\n    }\n    return \"#\" + valToHex(r) + valToHex(g) + valToHex(b);\n  }\n  \n/**\n * convert hex to rgb array\n */\nfunction hexToRgb(hex) {\n  var result = /^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i.exec(hex);\n  return result\n    ? [\n        parseInt(result[1], 16),\n        parseInt(result[2], 16),\n        parseInt(result[3], 16),\n      ]\n    : null;\n}\n\n/**\n * convert rgb string to array\n */\n\nfunction rgbToArray(rgb) {\n  var result = rgb.replace(/[^\\d,]/g, \"\").split(\",\");\n  return result\n    ? [\n      parseInt(result[0], 16),\n      parseInt(result[1], 16),\n      parseInt(result[2], 16),\n    ]\n  : null;\n}\n\n\n\n// main function\nexport default function Item(props) {\n    // load necessary variables from the scope\n    const {input,config,setConfig,setOutput} = props;\n    const [range,setRange] = useState({\n        min: 0,\n        max: 1\n    });\n    \n    const [values,setValues] = useState({\n        option: config?.option || \"color\",\n        property: config?.property || \"id_count\",\n        dataType: config?.dataType || \"continuous\",\n        numCategories: config?.numCategories || 10,\n        colorScheme: config?.colorScheme || \"interpolateSpectral\",\n        dataRange: config?.dataRange || [0,1]\n    });\n\n    const handleValueChange = (e,k) => {\n        setValues({...values,[k]: e.target.value})\n        setConfig({...config,[k]: e.target.value});\n    }\n    const handleRangeChange = (e,k) => {\n        setRange({...range,[k]: e.target.value})\n        if (k === \"min\") {\n            setValues({...values,dataRange: [e.target.value,range.max]})\n            setConfig({...config,dataRange: [e.target.value,range.max]});\n        }else{\n            setValues({...values,dataRange: [range.min,e.target.value]})\n            setConfig({...config,dataRange: [range.min,e.target.value]});\n        }\n    }\n\n    const itemList = [\"color\",\"lineColor\",\"pointRadius\",\"lineWidth\",\"height\"]\n\n    const linearSchemes = [\"interpolateRdBu\",\"interpolatePuOr\",\"interpolateSpectral\",\"interpolatePiYG\"];\n\n    const ordinalSchemes = [\"schemeRdYlBu\",\"schemeRdBu\",\"schemeSpectral\",\"schemeBrBG\"];\n\n    const mappingValue = (v) => {\n        if (!(input && input.geojson)) return\n        let scale;\n        let data = [];\n        input.geojson.features.forEach(d => {\n            data.push(d.properties[values.property]);\n        });\n        if (values.option ===\"color\" || values.option === \"lineColor\") {\n            if (!(values.colorScheme && values.dataType && d3[values.colorScheme])) return v;\n            if (values.dataType === \"continuous\" && d3[values.colorScheme](1)) {\n                scale = d3.scaleLinear()\n                    .domain(d3.extent(data))\n                    .range([d3[values.colorScheme](1),d3[values.colorScheme](0)])\n                return scale(v) && rgbToArray(scale(v));\n            }else if (d3[values.colorScheme][values.numCategories]){\n                scale = d3.scaleOrdinal()\n                    .domain([...new Set(data)])\n                    .range(d3[values.colorScheme][values.numCategories])\n            return hexToRgb(scale(v));\n            }\n        }else {\n            if (values.dataType === \"continuous\") {\n                scale = d3.scaleLinear()\n                .domain(d3.extent(data))\n                .range([parseFloat(range.min),parseFloat(range.max)])\n                return scale(v);\n            }else{\n                const min = parseFloat(range.min);\n                const max = parseFloat(range.max);\n                const stepSize = (max - min) / values.numCategories;\n                const discreteRange = Array.from({length: values.numCategories}, (_, i) => min + i * stepSize);\n                scale = d3.scaleOrdinal()\n                .domain([...new Set(data)].sort(d3.descending))\n                .range(discreteRange)\n                return scale(v);\n            }\n        }\n    }\n\n    useEffect(() => {\n        if (config?.run && input && input.geojson) {\n            const newData = {...input.geojson,\n                features: input.geojson.features.map((d) => {\n                    return {\n                        ...d,\n                        properties: {\n                            ...d.properties,\n                            [values.option]: mappingValue(d.properties[values.property])\n                        }\n                    }\n                })\n            }\n            setOutput({geojson:newData});\n        } else {\n            setOutput({geojson:null});\n        }\n        setConfig({...config,...values})\n    }, [config?.run,input,values]);\n\n    return (\n        <>\n        <Stack spacing={1} sx={{p:1}}>\n        {input && input.geojson && input.geojson.features[0] && \n            (<TextField fullWidth label=\"Aggregate Property\" size=\"small\" \n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    onChange={(e)=>{handleValueChange(e,\"property\")}}\n                    value = {values.property}\n                    select\n                    >\n                    {\n                    Object.keys(input.geojson.features[0].properties).map((property) => (\n                        <MenuItem key={property} value={property}>\n                        {property}\n                        </MenuItem>\n                    )) || <MenuItem value={\"\"}>No Properties</MenuItem>\n                    }\n            </TextField>) \n            || <TextField fullWidth label=\"Aggregate Property\" size=\"small\" \n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    disabled = {true}\n                />\n        }\n        <Stack spacing={1}>\n        <TextField fullWidth label=\"Options\" size=\"small\" select\n            InputLabelProps={{style: { fontSize: 8 }}}\n            InputProps={{style: { fontSize: 8}}}\n            onChange={(e)=>{handleValueChange(e,\"option\")}}\n            value={values.option}>\n            {itemList.map((item) => (\n                <MenuItem key={item} value={item}>\n                    {item}\n                </MenuItem>\n            ))}\n        </TextField>\n        {\n        <TextField fullWidth label=\"Data Type\" size=\"small\" select\n        InputLabelProps={{style: { fontSize: 8 }}}\n        InputProps={{style: { fontSize: 8}}}\n        onChange={(e)=>{handleValueChange(e,\"dataType\")}}\n        value={values.dataType}>\n            <MenuItem value=\"continuous\">Continuous</MenuItem>\n            <MenuItem value=\"discrete\">Discrete</MenuItem>\n        </TextField>\n        }\n        {\n        values.dataType === \"discrete\" &&\n        <TextField fullWidth label=\"Number of Categories\" size=\"small\"\n            InputLabelProps={{style: { fontSize: 8 }}} select\n            InputProps={{style: { fontSize: 8}}}\n            onChange={(e)=>{handleValueChange(e,\"numCategories\")}}\n            value={values.numCategories}\n            >\n            {\n                Array.from({length: 8}, (_, i) => (\n                    <MenuItem key={i+2} value={i+3}>\n                        {i+3}\n                    </MenuItem>\n                ))\n            }\n        </TextField>\n        }\n        {\n        (values.option === \"color\" || values.option === \"lineColor\") &&\n        (<TextField fullWidth label=\"Data Range\" size=\"small\" select\n            InputLabelProps={{style: { fontSize: 8 }}}\n            InputProps={{style: { fontSize: 8}}}\n            onChange={(e)=>{handleValueChange(e,\"colorScheme\")}}\n            value={values.colorScheme}>\n                {\n                    values.dataType === \"continuous\" && linearSchemes.map((scheme) => (\n                        <MenuItem key={scheme} value={scheme}>\n                            <div style={{ width: config?.width||200, height: 10}}>\n                            {Array.from({ length: 100 }, (_, i) => (\n                                <div\n                                    key={i}\n                                    style={{\n                                        width: (config?.width||200)/100,\n                                        height: 10,\n                                        backgroundColor: d3[scheme](1-i/100),\n                                        display: 'inline-block',\n                                    }}\n                                />\n                            ))}\n                            </div>\n                        </MenuItem>\n                    ))\n                }\n                {\n                    (values.dataType === \"discrete\" && values.numCategories) && ordinalSchemes.map((scheme) => (\n                        <MenuItem key={scheme} value={scheme} sx={{display:\"felx\", alignItems:\"center\"}}>\n                            <div style={{ width: config?.width || 200, height: 10}}>\n                                {d3[scheme][values.numCategories].slice().reverse().map((c) => (\n                                <div\n                                    key={c}\n                                    style={{\n                                    width: (config?.width||200)/values.numCategories,\n                                    height: 10,\n                                    backgroundColor: c,\n                                    display: 'inline-block',\n                                    }}\n                                />\n                                ))}\n                            </div>\n                        </MenuItem>\n                    ))\n                \n                }\n        </TextField>)\n        || (\n            <>\n            <TextField fullWidth label=\"Min\" size=\"small\"\n                InputLabelProps={{style: { fontSize: 8 }}}\n                InputProps={{style: { fontSize: 8}}}\n                onChange = {(e)=>handleRangeChange(e,\"min\")}\n                value={range.min}\n                type=\"number\"\n            />\n            <TextField fullWidth label=\"Max\" size=\"small\" \n                InputLabelProps={{style: { fontSize: 8 }}}\n                InputProps={{style: { fontSize: 8}}}\n                onChange = {(e)=>handleRangeChange(e,\"max\")}\n                value={range.max}\n                type=\"number\"\n            />\n            </>\n        )\n        }\n        </Stack>\n        </Stack>\n        </>\n    )\n}\n"
+        ],
+        "colorScheme": "interpolateSpectral",
+        "containerIsRunning": false,
+        "custom": true,
+        "dataRange": [
+          0,
+          1
+        ],
+        "dataType": "continuous",
+        "description": "This module provides a React component to configure and visualize data properties on geojson features using various mapping schemes and data types.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "cc499433eb5636f1236f4c85604cfaba",
+        "height": 230,
+        "html": "https://kekehurry.github.io/cityflow_community/source//html/1c425aa92cdda795d9aa38e7c85d8581",
+        "icon": "https://kekehurry.github.io/cityflow_community/source//icons/fa854c45ab1435e4d54989e9e93b1c20.png",
+        "id": "fa854c45ab1435e4d54989e9e93b1c20",
+        "iframeId": "pJbawbcbq-pyq76iRXBPp",
+        "input": [
+          "geojson"
+        ],
+        "language": "javascript",
+        "local": false,
+        "model": "gpt-4o-mini",
+        "name": "Mapping",
+        "numCategories": 10,
+        "option": "color",
+        "output": [
+          "geojson"
+        ],
+        "port": null,
+        "property": "id_count",
+        "run": false,
+        "secretKey": "",
+        "sessionID": "JQv4VQ1Mm0widtIlBD0n0",
+        "time": "1/23/2025, 6:08:36 PM",
+        "type": "interface",
+        "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "width": 200
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 314,
+      "id": "fa854c45ab1435e4d54989e9e93b1c20",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "Mapping",
+      "position": {
+        "x": 1311.8931012940554,
+        "y": 173.0420304005495
+      },
+      "positionAbsolute": {
+        "x": 1311.8931012940554,
+        "y": 173.0420304005495
+      },
+      "selected": true,
+      "type": "expand",
+      "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+      "version": "0.0.1",
+      "width": 232,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "basic": false,
+      "config": {
+        "aggInfo": {
+          "property": "id",
+          "method": "count"
+        },
+        "author": "CityFlow",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "baseUrl": "",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "//entrypoint.js\n\n//import packages from the scope\nimport {Stack,MenuItem,TextField} from '@mui/material';\nimport React, { useEffect,useState} from 'react';\nimport * as turf from '@turf/turf';\n\n// main function\nexport default function GridCreator(props) {\n    // load necessary variables from the scope\n    const {input,config,setConfig,setOutput} = props;\n    const [gridType, setGridType] = useState(config?.gridType || \"hexGrid\");\n    const [gridSize, setGridSize] = useState(config?.gridSize || 100);\n    const [aggInfo, setAggInfo] = useState({\n        \"property\": config?.aggInfo?.property || \"id\",\n        \"method\":  config?.aggInfo?.method || \"count\"\n    })\n    const aggOperators = [\"count\",\"sum\",\"avg\",\"min\",\"max\",\"none\"];\n    useEffect(() => {\n        if (config?.run && input && input.boundary) {\n            let grid;\n            grid = createGrid(input.boundary);\n            if (input.geoData){\n                grid = aggGrid(grid,input.geoData)\n            }\n            setOutput({grid})\n        } else {\n            setOutput({grid:null});\n        }\n    }, [config?.run,input,gridType,gridSize,aggInfo.property,aggInfo.method]);\n\n    // save values to config\n    useEffect(() => {\n        setConfig({...config,gridType,gridSize,aggInfo});\n    }, [gridType,gridSize,aggInfo]);\n\n    const createGrid = (boundary) => {\n        let grid = null;\n        try {\n            const bbox = turf.bbox(boundary);\n            //create grid\n            switch (gridType) {\n                case \"hexGrid\":\n                    grid = turf.hexGrid(bbox,gridSize/1000);\n                    break;\n                case \"squareGrid\":\n                    grid = turf.squareGrid(bbox,gridSize/1000);\n                    break;\n                case \"triangleGrid\":\n                    grid = turf.triangleGrid(bbox,gridSize/1000);\n                    break;\n                default:\n                    break;\n            }\n            } catch (error) {\n                console.log(error);\n                return;\n        }\n        return grid;\n    }\n\n    const aggGrid = (grid,geoData) => {\n        // filter the grid outsize the hull polygon\n        if (aggInfo.property){\n            const hull = turf.convex(geoData);\n            grid.features  = grid.features.filter((feature) => turf.booleanPointInPolygon(turf.centroid(feature),hull));\n            const {property, method} = aggInfo;\n            //Convert geoData to Point\n            geoData.features = geoData.features.map((feature) => {\n                if (feature.geometry.type === \"Point\") return feature;\n                const point = turf.centerOfMass(feature.geometry);\n                feature.geometry = point.geometry;\n                feature.type = \"Point\"\n                return feature;\n            });\n            // Collect the points in each grid\n            let collection = turf.collect(grid, geoData, property, `${property}_${method}`);\n            // Aggregate the property in each grid\n            let aggFeatures = [];\n            switch (method) {\n                case \"count\":\n                    aggFeatures = collection.features.map((feature) => {\n                        feature.properties[`${property}_${method}`] = feature.properties[`${property}_${method}`].length;\n                        feature.properties['color'] = feature.properties[`${property}_${method}`] ? [255,0,0,200]:[120, 165, 120, 150]\n                        return feature;\n                    });\n                    break;\n                case \"sum\":\n                    aggFeatures = collection.features.map((feature) => {\n                        feature.properties[`${property}_${method}`] = feature.properties[`${property}_${method}`].reduce((a,b) => a+b,0);\n                        feature.properties['color'] = feature.properties[`${property}_${method}`] ? [255,0,0,200]:[120, 165, 120, 150]\n                        return feature;\n                    });\n                    break;\n                case \"avg\":\n                    aggFeatures = collection.features.map((feature) => {\n                        const numFeatures = feature.properties[`${property}_${method}`].length;\n                        if (numFeatures>0){\n                            const sum = feature.properties[`${property}_${method}`].reduce((a,b) => a+b,0);\n                            feature.properties[`${property}_${method}`] = sum/numFeatures;\n                        } else {\n                            feature.properties[`${property}_${method}`] = 0;\n                        }\n                        feature.properties['color'] = feature.properties[`${property}_${method}`] ? [255,0,0,200]:[120, 165, 120, 150]\n                        return feature;\n                    });\n                    break;\n                case \"min\":\n                    aggFeatures = collection.features.map((feature) => {\n                        feature.properties[`${property}_${method}`] = Math.min(...feature.properties[`${property}_${method}`]);\n                        feature.properties['color'] = feature.properties[`${property}_${method}`] ? [255,0,0,200]:[120, 165, 120, 150]\n                        return feature;\n                    });\n                    break;\n                case \"max\":\n                    aggFeatures = collection.features.map((feature) => {\n                        feature.properties[`${property}_${method}`] = Math.max(...feature.properties[`${property}_${method}`]);\n                        feature.properties['color'] = feature.properties[`${property}_${method}`] ? [255,0,0,200]:[120, 165, 120, 150]\n                        return feature;\n                    });\n                    break;\n                case \"none\":\n                    aggFeatures = collection.features.map((feature) => {\n                        feature.properties['color'] = [120, 165, 120, 150]\n                        return feature;\n                    });\n                    break;\n                default:\n                    aggFeatures = collection.features\n                    break;\n            }\n            grid.features = aggFeatures;\n        }\n        grid.properties = {\n            \"gridType\": gridType, \n            \"gridSize\": gridSize,\n            \"lineColor\":[255, 255, 255, 200],\n            \"lineWidth\": 500, \n            \"stroked\" : true,\n            \"wireframe\": true,\n        };\n        return grid;\n    }\n\n\n    const handleTypeChange = (e) => {\n        setGridType(e.target.value);\n    }\n    const handleValueChange = (e) => {\n        setGridSize(e.target.value);\n    }\n    const handleAggChange = (e,key) => {\n        const newAggInfo = {...aggInfo, [key]: e.target.value};\n        setAggInfo(newAggInfo);\n    }\n\n    return (\n        <>\n        <Stack spacing={1.2} sx={{p:1, paddingTop:2}}>\n            <Stack direction=\"row\" spacing={1}>\n                <TextField fullWidth label=\"Grid Type\" value={gridType} size=\"small\"\n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    onChange={handleTypeChange}\n                    select>\n                    <MenuItem value=\"hexGrid\">hexGrid</MenuItem>\n                    <MenuItem value=\"squareGrid\">squareGrid</MenuItem>\n                    <MenuItem value=\"triangleGrid\">triangleGrid</MenuItem>\n                </TextField>\n                <TextField label=\"Grid Size(m)\" type=\"number\" value={gridSize} size=\"small\" \n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    onChange={handleValueChange}\n                    >\n                </TextField>\n            </Stack>\n            {input && input.geoData && input.geoData.features[0] && \n            (<TextField label=\"Aggregate Property\" size=\"small\" \n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    onChange={(e)=>{handleAggChange(e,\"property\")}}\n                    value = {aggInfo?.property||\"\"}\n                    select\n                    >\n                    {Object.keys(input.geoData.features[0].properties).map((property) => (\n                        <MenuItem key={property} value={property}>\n                        {property}\n                        </MenuItem>\n                    )) || <MenuItem value={\"\"}>No Properties</MenuItem>\n                    }\n            </TextField>) \n            || <TextField label=\"Aggregate Property\" size=\"small\" \n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    disabled = {true}\n                />\n            }\n            <TextField fullWidth label=\"Aggregate Method\" size=\"small\"\n                    value = {aggInfo?.method || \"count\"}\n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    onChange={(e)=>{handleAggChange(e,\"method\")}}\n                    select>\n                    {aggOperators.map((operator) => (\n                        <MenuItem key={operator} value={operator}>\n                        {operator}\n                        </MenuItem>\n                    ))}\n            </TextField>\n        </Stack>\n        </>\n    );\n}"
+        ],
+        "containerIsRunning": false,
+        "custom": true,
+        "description": "This module creates and aggregates a grid based on geographic input, allowing users to specify grid type, size, and aggregation method.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "gridSize": 100,
+        "gridType": "hexGrid",
+        "hash": "955cbfe23f87e73d7c25efa475c091bb",
+        "height": 140,
+        "html": "https://kekehurry.github.io/cityflow_community/source//html/e8342f535a43fb00c068da963676b342",
+        "icon": "https://kekehurry.github.io/cityflow_community/source//icons/2080fa4b131adee6e5bc087ec1771170.png",
+        "id": "2080fa4b131adee6e5bc087ec1771170",
+        "iframeId": "5a0tWHHhBvzIhsSTdeabC",
+        "input": [
+          "boundary",
+          "geoData"
+        ],
+        "language": "javascript",
+        "local": false,
+        "model": "gpt-4o-mini",
+        "name": "GridCreator",
+        "output": [
+          "grid"
+        ],
+        "port": null,
+        "run": false,
+        "secretKey": "",
+        "sessionID": "dZh5vC16MnOXAFERk5yld",
+        "time": "1/23/2025, 6:13:39 PM",
+        "type": "interface",
+        "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "width": 200
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 240,
+      "id": "2080fa4b131adee6e5bc087ec1771170",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "GridCreator",
+      "position": {
+        "x": 815.3815294841463,
+        "y": 177.5763826545212
+      },
+      "positionAbsolute": {
+        "x": 815.3815294841463,
+        "y": 177.5763826545212
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+      "version": "0.0.1",
+      "width": 232
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "CityFlow",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "baseUrl": "",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "//entrypoint.js\n\n//import packages from the scope\nimport {Typography,List, Stack,TextField ,MenuItem} from '@mui/material';\nimport {DataGrid} from \"@mui/x-data-grid\";\nimport React, { useEffect,useState } from 'react';\nimport * as Icon from '@mui/icons-material';\nimport {nanoid} from 'nanoid';\n\n// Filter\nconst Filter = ({idx,columns,handleUpdateFilter,filter})=>{\n    const logicOperators = [\"AND\",\"OR\",\"NOT\"];\n    const stringOperators = [\"contains\",\"starts with\",\"ends with\"];\n    const numberOperators = [\"==\",\">=\",\">\",\"<=\",\"<\",\"!=\"];\n\n    const [value, setValue] = useState({\n        Logic: filter?.Logic||\"AND\",\n        Columns: filter?.Columns||\"\",\n        Operator: filter?.Operator||\"\",\n        Value: filter?.Value||\"\"\n    });\n    const [selectedColumn, setSelectedColumn] = useState({ \n        field: '', \n        type: 'string'\n    });\n    const handleValueChange = (e, key) => {\n        setValue({\n            ...value,\n            [key]: e.target.value\n        });\n    };\n    \n    return(\n        <>\n        {columns && columns.length>0 &&\n        <Stack direction=\"row\" spacing={1} sx={{display:\"flex\",width:\"100%\"}}>\n            <TextField id=\"Logic\" label=\"Logic\" variant=\"outlined\" size=\"small\"\n            onChange={(e)=>handleValueChange(e,\"Logic\")}\n            InputLabelProps={{style: { fontSize: 10 }}}\n            InputProps={{style: { fontSize: 8 }}}\n            value = {value.Logic}\n            sx={{width:\"100%\"}}\n            select>\n                {logicOperators.map((operator) => (\n                    <MenuItem key={operator} value={operator}>\n                    {operator}\n                    </MenuItem>\n                ))}\n            </TextField>\n            <TextField id=\"Columns\" label=\"Columns\" variant=\"outlined\" size=\"small\"\n            onChange={(e)=>{\n                handleValueChange(e,\"Columns\");\n                setSelectedColumn(columns.find(column => column.field === e.target.value));\n            }}\n            InputLabelProps={{style: { fontSize: 10 }}}\n            InputProps={{style: { fontSize: 8 }}}\n            value = {value.Columns}\n            sx={{width:\"100%\"}}\n            select>\n                {columns.map((column) => (\n                    <MenuItem key={column.field} value={column.field}>\n                    {column.field}\n                    </MenuItem>\n                ))}\n            </TextField> \n            <TextField id=\"Operator\" label=\"Operator\" variant=\"outlined\" size=\"small\"\n            onChange={(e)=>handleValueChange(e,\"Operator\")}\n            InputLabelProps={{style: { fontSize: 10 }}}\n            InputProps={{style: { fontSize: 8 }}}\n            value={value.Operator}\n            sx={{width:\"100%\"}}\n            select>\n                {selectedColumn && selectedColumn.type===\"string\"&&\n                stringOperators.map((operator) => (\n                    <MenuItem key={operator} value={operator}>\n                    {operator}\n                    </MenuItem>\n                ))}\n                {selectedColumn && selectedColumn.type===\"number\"&&\n                numberOperators.map((operator) => (\n                    <MenuItem key={operator} value={operator}>\n                    {operator}\n                    </MenuItem>\n                ))}\n            </TextField>\n            <TextField id=\"Value\" label=\"Value\" variant=\"outlined\" size=\"small\"\n            value={value.Value}\n            onChange={(e)=>{handleValueChange(e,\"Value\")}}\n            onKeyDown={(e)=>{\n                if (e.key === 'Enter') {\n                    handleUpdateFilter(idx,value);\n                }}\n            }\n            onBlur={(e)=>handleUpdateFilter(idx,value)}\n            InputLabelProps={{style: { fontSize: 10 }}}\n            InputProps={{style: { fontSize: 8 }, autoComplete: 'off'}}\n            sx={{width:\"100%\"}}\n            />\n        </Stack>\n         } \n        </>   \n    )\n}\n\n\n\n\n// main function\nexport default function GeoJsonEditor(props) {\n    // load necessary variables from the scope\n    const {input,config,setConfig,setOutput} = props;\n    const [columns, setColumns] = useState([]);\n    const [origRows, setOrigRows] = useState([]);\n    const [rows, setRows] = useState([]);\n    const [filteredIds, setFilteredIds] = useState([]);\n    const [filters, setFilters] = useState(config?.filters||[]);\n\n    const filterValue = {\n        \"Logic\":\"AND\",\n        \"Columns\":\"id\",\n        \"Operator\":\"\",\n        \"Value\":\"\"\n    };\n    const handleAddFilter = () => { \n        setFilters([...filters, filterValue])\n        setConfig({...config, run:false})\n    }\n    const handleDeleteFilter = () => {\n        setFilters(filters.slice(0,-1));\n    }\n    const handleUpdateFilter = (idx,newFilter) => {\n        const newFilters = filters.map((filter,i) => \n            i === idx ? \n            newFilter : filter\n        )\n        setFilters(newFilters);\n    }\n\n    // save filters to config\n    useEffect(() => {   \n        setConfig({...config,filters:filters});\n    }, [filters]);\n    \n    useEffect(() => {\n        if (!(input && input.input)) return;\n        let columns = [];\n        let rows = [];\n        const geoData = input.input;\n        if (geoData){\n            const {features} = geoData; \n            const properties = features.length>0 ? features[0].properties : {};\n            if (!(Object.keys(properties).includes(\"id\"))){\n                columns = [{field: \"id\", headerName: \"ID\", editable: false, type: 'number', width: 30}];\n            };\n            for (let key in properties) {\n                const type = typeof properties[key];\n                columns.push({\n                    field: key,\n                    headerName: key,\n                    width:70,\n                    type: type==='number'? 'number' : 'string',\n                    editable: true,\n                })\n            }\n            features.forEach((feature,idx) => {\n                const properties = feature.properties;\n                let row = {};\n                if (!(Object.keys(properties).includes(\"id\"))){\n                    row.id = idx;\n                };\n                for (let key in properties) {\n                    row[key] = properties[key];\n                }\n                rows.push(row);\n            });\n        }\n        setColumns([...columns]);\n        setRows([...rows]);\n        setOrigRows([...rows]);\n    }, [input]);\n\n    const filterRows = (filter)=>{\n        const {Columns,Operator,Value} = filter;\n        if (Columns==='' || Operator==='' || Value==='' || !origRows || columns.length===0){\n            return rows\n        };\n        const column = columns.find(column => column.field === Columns);\n        const type = column.type;\n        switch (type){\n            case \"number\":\n                return origRows.filter(row => {\n                    switch (Operator){\n                        case \"==\":\n                            return (row[Columns] == Value);\n                        case \">=\":\n                            return (row[Columns] >= Value);\n                        case \">\":\n                            return (row[Columns] > Value);\n                        case \"<=\":\n                            return (row[Columns] <= Value);\n                        case \"<\":\n                            return (row[Columns] < Value);\n                        case \"!=\":\n                            return (row[Columns] != Value);\n                    }\n                });\n            case \"string\":\n                return origRows.filter(row => {\n                    switch (Operator){\n                        case \"contains\":\n                            return JSON.stringify(row[Columns])?.includes(Value);\n                        case \"starts with\":\n                            return JSON.stringify(row[Columns])?.startsWith(Value);\n                        case \"ends with\":\n                            return JSON.stringify(row[Columns])?.endsWith(Value);\n                    }\n                });\n        }\n\n    }\n\n    useEffect(() => {\n        if (origRows.length===0) return\n        if (!filters || filters && filters.length === 0){\n            setRows(origRows);\n        }else{\n        let currentRows = [...origRows]\n        filters.forEach(filter => {\n            const {Logic} = filter;\n            const result = filterRows(filter);\n            switch (Logic){\n                case \"AND\":\n                    currentRows = result ? currentRows.filter(row => result?.includes(row)):currentRows;\n                    break;\n                case \"OR\":\n                    currentRows = result ? currentRows.concat(result):currentRows;\n                    break;\n                case \"NOT\":\n                    currentRows= result ? currentRows.filter(row => !result?.includes(row)):currentRows;\n                    break;\n            }\n        });\n        setRows(currentRows);\n        }\n    }, [filters,config?.run,origRows]);\n\n    useEffect(() => {\n        if (!(input && input.input && rows.length>0 && config?.run)) {\n            setOutput(null);\n            return;\n        };\n        const geoData = input.input;\n        let filteredRows = [...rows];\n        if (filteredIds && filteredIds.length>0){\n            filteredRows = rows.filter(row => filteredIds.includes(row.id))\n        };\n        const filteredFeatures = geoData.features.filter((feature,idx) => {\n            if (!(Object.keys(feature.properties).includes(\"id\"))) {\n                return filteredRows.find(row => row.id === idx);\n            }else{\n                return filteredRows.find(row => row.id === feature.properties.id);\n            }\n        });\n        setOutput({\"output\":{type:\"FeatureCollection\",features:filteredFeatures}});\n    }, [rows, config?.run, input && input.input]);\n\n    return (\n        <List>\n            <Stack spacing={1} p={1} sx= {{paddingBottom:0}}>\n                {filters.map((filter,idx) => (\n                <Filter key={nanoid()} idx={idx} \n                columns={columns} \n                handleUpdateFilter={handleUpdateFilter} \n                filter={filter}\n                run = {config?.run}\n                />\n                ))}\n            <Stack direction=\"row\" spacing={1} sx={{alignItems:\"right\"}}>\n                <Typography variant=\"caption\">Filters</Typography>\n                <Icon.AddCircle onClick={handleAddFilter} sx={{width:\"15px\",height:\"15px\",cursor:\"pointer\"}}/>\n                <Icon.RemoveCircle onClick={handleDeleteFilter} sx={{width:\"15px\",height:\"15px\",cursor:\"pointer\"}}/>\n            </Stack>\n            </Stack>\n            <Stack p={1}>\n            <DataGrid\n                rowHeight={20}\n                columnHeaderHeight = {30}\n                columnBufferPx ={50}\n                rows={rows}\n                columns={columns}\n                size=\"small\"\n                initialState={{\n                    pagination: {\n                        paginationModel: { page: 0, pageSize: 20 },\n                    },\n                    }}\n                pageSizeOptions={[20, 40]}\n                checkboxSelection\n                disableColumnFilter\n                onRowSelectionModelChange={(ids) => {setFilteredIds(ids)}}\n                processRowUpdate={(newRow, oldRow) => {setRows(rows.map(row => row.id === oldRow.id ? newRow : row));return newRow}}\n                onProcessRowUpdateError={(error, newRow, oldRow) => {console.log(error)}}\n                editMode='cell'\n                sx={{\n                    \"& .MuiDataGrid-footerContainer\":{\n                        height:30,\n                        minHeight:30\n                    },\n                    \"& .MuiDataGrid-scrollbar\":{\n                        display:\"none\"\n                    }\n                }}\n            />\n            </Stack>\n        </List>\n    );\n}"
+        ],
+        "containerIsRunning": false,
+        "custom": true,
+        "description": "This module provides a React component for editing GeoJSON data, allowing users to add, update, and delete filters to display specific rows based on criteria.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "filters": [],
+        "hash": "fb311ae71c89e5716ea4b1982007df59",
+        "height": 300,
+        "html": "https://kekehurry.github.io/cityflow_community/source//html/bce95aaf42c693f47ff07bf23755a073",
+        "icon": "https://kekehurry.github.io/cityflow_community/source//icons/97237283c604e0551f2c03d66228e048.png",
+        "id": "97237283c604e0551f2c03d66228e048",
+        "iframeId": "XhezhbVzYUnU7ohGNvLvt",
+        "input": [
+          "input"
+        ],
+        "language": "javascript",
+        "local": false,
+        "model": "gpt-4o-mini",
+        "name": "GeojsonEditor",
+        "output": [
+          "output"
+        ],
+        "port": null,
+        "run": false,
+        "secretKey": "",
+        "sessionID": "eVoRuX1-1V4JRHbCAYC1D",
+        "time": "1/23/2025, 5:14:16 PM",
+        "type": "interface",
+        "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "width": 500
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 384,
+      "id": "97237283c604e0551f2c03d66228e048",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "GeojsonEditor",
+      "position": {
+        "x": 191.90809456302804,
+        "y": 374.8207057022933
+      },
+      "positionAbsolute": {
+        "x": 191.90809456302804,
+        "y": 374.8207057022933
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+      "version": "0.0.1",
+      "width": 532
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "CityFlow",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "basic": false,
+        "description": "# Amenity Density in Cambridge",
+        "discription": "this module is useful for adding text to the workspace",
+        "files": [],
+        "hash": "d0a330a05fd3f75a11ee3ad13185dc02",
+        "height": 76,
+        "icon": "https://kekehurry.github.io/cityflow_community/source//icons/4b5e451baa2ade58fb8143801e8645d5.png",
+        "id": "4b5e451baa2ade58fb8143801e8645d5",
+        "local": false,
+        "name": "Text",
+        "run": false,
+        "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "value": "# Amenity Density in Cambridge",
+        "width": 731
+      },
+      "data": {
+        "input": null,
+        "module": "annotation/text/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 76,
+      "id": "4b5e451baa2ade58fb8143801e8645d5",
+      "module": "text",
+      "name": "Text",
+      "position": {
+        "x": 716.6106050030698,
+        "y": -158.30776958102956
+      },
+      "positionAbsolute": {
+        "x": 716.6106050030698,
+        "y": -158.30776958102956
+      },
+      "resizing": false,
+      "selected": false,
+      "type": "annotation",
+      "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+      "version": "0.0.1",
+      "width": 731
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "CityFlow",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "basic": false,
+        "description": "### Filter the type of Amenity",
+        "discription": "this module is useful for adding text to the workspace",
+        "files": [],
+        "hash": "c1b3ebc3381fea0728aa65dbcd4b418e",
+        "height": 50,
+        "icon": "https://kekehurry.github.io/cityflow_community/source//icons/ac7f026759d82615d9087ea4036526ab.png",
+        "id": "ac7f026759d82615d9087ea4036526ab",
+        "local": false,
+        "name": "Text",
+        "run": false,
+        "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "value": "### Filter the type of Amenity",
+        "width": 300
+      },
+      "data": {
+        "input": null,
+        "module": "annotation/text/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 50,
+      "id": "ac7f026759d82615d9087ea4036526ab",
+      "module": "text",
+      "name": "Text",
+      "position": {
+        "x": 376.4190248384083,
+        "y": 269.88873044024854
+      },
+      "positionAbsolute": {
+        "x": 376.4190248384083,
+        "y": 269.88873044024854
+      },
+      "selected": false,
+      "type": "annotation",
+      "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+      "version": "0.0.1",
+      "width": 300
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "CityFlow",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "basic": false,
+        "description": "### Create Aggegate Map",
+        "discription": "this module is useful for adding text to the workspace",
+        "files": [],
+        "hash": "95a8bcf9724aa351f1e8e8f49ea5e8a9",
+        "height": 50,
+        "icon": "https://kekehurry.github.io/cityflow_community/source//icons/349c110334f47468c2936121053a4062.png",
+        "id": "349c110334f47468c2936121053a4062",
+        "local": false,
+        "name": "Text",
+        "run": false,
+        "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "value": "### Create Aggegate Map",
+        "width": 300
+      },
+      "data": {
+        "input": null,
+        "module": "annotation/text/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 50,
+      "id": "349c110334f47468c2936121053a4062",
+      "module": "text",
+      "name": "Text",
+      "position": {
+        "x": 806.5996158733892,
+        "y": 71.1876459126982
+      },
+      "positionAbsolute": {
+        "x": 806.5996158733892,
+        "y": 71.1876459126982
+      },
+      "selected": false,
+      "type": "annotation",
+      "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+      "version": "0.0.1",
+      "width": 300
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "CityFlow",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "basic": false,
+        "description": "### Mapping density to color",
+        "discription": "this module is useful for adding text to the workspace",
+        "files": [],
+        "hash": "1954c176f508e03dcdaf4a52436f0db4",
+        "height": 50,
+        "icon": "https://kekehurry.github.io/cityflow_community/source//icons/c60b31423c1aa0d8cc35c865d06abac4.png",
+        "id": "c60b31423c1aa0d8cc35c865d06abac4",
+        "local": false,
+        "name": "Text",
+        "run": false,
+        "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "value": "### Mapping density to color",
+        "width": 300
+      },
+      "data": {
+        "input": null,
+        "module": "annotation/text/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 50,
+      "id": "c60b31423c1aa0d8cc35c865d06abac4",
+      "module": "text",
+      "name": "Text",
+      "position": {
+        "x": 1309.7551327929095,
+        "y": 51.087399014389035
+      },
+      "positionAbsolute": {
+        "x": 1309.7551327929095,
+        "y": 51.087399014389035
+      },
+      "selected": false,
+      "type": "annotation",
+      "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+      "version": "0.0.1",
+      "width": 300
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "CityFlow",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "basic": false,
+        "description": "### Visualization",
+        "discription": "this module is useful for adding text to the workspace",
+        "files": [],
+        "hash": "b161d5bb0e9639d3de458a813a693150",
+        "height": 50,
+        "icon": "https://kekehurry.github.io/cityflow_community/source//icons/aab2fd645586f8699709eb37abc9a46f.png",
+        "id": "aab2fd645586f8699709eb37abc9a46f",
+        "local": false,
+        "name": "Text",
+        "run": false,
+        "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "value": "### Visualization",
+        "width": 300
+      },
+      "data": {
+        "input": null,
+        "module": "annotation/text/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 50,
+      "id": "aab2fd645586f8699709eb37abc9a46f",
+      "module": "text",
+      "name": "Text",
+      "position": {
+        "x": 1790.838710092948,
+        "y": 37.94018111002589
+      },
+      "positionAbsolute": {
+        "x": 1790.838710092948,
+        "y": 37.94018111002589
+      },
+      "selected": false,
+      "type": "annotation",
+      "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+      "version": "0.0.1",
+      "width": 300
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "CityFlow",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "basic": false,
+        "discription": "this module is useful for drawing an rectangle/triangle/circle",
+        "files": [],
+        "hash": "5196d4a7aeee1013bd1f711786ea3966",
+        "height": 147,
+        "icon": "https://kekehurry.github.io/cityflow_community/source//icons/d1b537e472d8a8b0581085f37faaff45.png",
+        "id": "d1b537e472d8a8b0581085f37faaff45",
+        "local": false,
+        "name": "Shape",
+        "rect": true,
+        "run": false,
+        "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "width": 614
+      },
+      "data": {
+        "input": null,
+        "module": "annotation/shape/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 147,
+      "id": "d1b537e472d8a8b0581085f37faaff45",
+      "module": "shape",
+      "name": "Shape",
+      "position": {
+        "x": 682.3477200114598,
+        "y": -181.9575482844665
+      },
+      "positionAbsolute": {
+        "x": 682.3477200114598,
+        "y": -181.9575482844665
+      },
+      "resizing": false,
+      "selected": false,
+      "type": "annotation",
+      "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+      "version": "0.0.1",
+      "width": 614
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "CityFlow",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "basic": false,
+        "controlX": 26,
+        "controlY": 60,
+        "discription": "this module is useful for drawing an arrow",
+        "files": [],
+        "hash": "18279fc4e661cffa8ce5fea9f3774c9e",
+        "height": 100,
+        "icon": "https://kekehurry.github.io/cityflow_community/source//icons/630321d8c48e5a6a5f3d3c68f9001b2c.png",
+        "id": "630321d8c48e5a6a5f3d3c68f9001b2c",
+        "local": false,
+        "name": "Arrow",
+        "rotate": 28.789260670368623,
+        "run": false,
+        "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "width": 100
+      },
+      "data": {
+        "input": null,
+        "module": "annotation/arrow/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 100,
+      "id": "630321d8c48e5a6a5f3d3c68f9001b2c",
+      "module": "arrow",
+      "name": "Arrow",
+      "position": {
+        "x": 1024.0083493173415,
+        "y": 395.5057345095416
+      },
+      "positionAbsolute": {
+        "x": 1024.0083493173415,
+        "y": 395.5057345095416
+      },
+      "selected": false,
+      "type": "annotation",
+      "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+      "version": "0.0.1",
+      "width": 100
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "CityFlow",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "basic": false,
+        "description": "Change aggregate methods if you like",
+        "discription": "this module is useful for adding text to the workspace",
+        "files": [],
+        "hash": "78602205e6a548854cb066369d295086",
+        "height": 50,
+        "icon": "https://kekehurry.github.io/cityflow_community/source//icons/930ad62aed5dcd473e80785ad48f6eef.png",
+        "id": "930ad62aed5dcd473e80785ad48f6eef",
+        "local": false,
+        "name": "Text",
+        "run": false,
+        "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "value": "Change aggregate methods if you like",
+        "width": 300
+      },
+      "data": {
+        "input": null,
+        "module": "annotation/text/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 50,
+      "id": "930ad62aed5dcd473e80785ad48f6eef",
+      "module": "text",
+      "name": "Text",
+      "position": {
+        "x": 968.3832370637438,
+        "y": 498.6235350496532
+      },
+      "positionAbsolute": {
+        "x": 968.3832370637438,
+        "y": 498.6235350496532
+      },
+      "selected": false,
+      "type": "annotation",
+      "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+      "version": "0.0.1",
+      "width": 300
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "CityFlow",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "basic": false,
+        "description": "Change different color mapping",
+        "discription": "this module is useful for adding text to the workspace",
+        "files": [],
+        "hash": "ee2686db57473c07b336c9130a82bd41",
+        "height": 50,
+        "icon": "https://kekehurry.github.io/cityflow_community/source//icons/cfc4ac68d2f523053809b51755bfa6dc.png",
+        "id": "cfc4ac68d2f523053809b51755bfa6dc",
+        "local": false,
+        "name": "Text",
+        "run": false,
+        "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "value": "Change different color mapping",
+        "width": 300
+      },
+      "data": {
+        "input": null,
+        "module": "annotation/text/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 50,
+      "id": "cfc4ac68d2f523053809b51755bfa6dc",
+      "module": "text",
+      "name": "Text",
+      "position": {
+        "x": 1308.8861185030987,
+        "y": 500.1941370581361
+      },
+      "positionAbsolute": {
+        "x": 1308.8861185030987,
+        "y": 500.1941370581361
+      },
+      "selected": false,
+      "type": "annotation",
+      "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+      "version": "0.0.1",
+      "width": 300
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "CityFlow",
+        "authorId": null,
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "#entrypoint.py\n\nimport json\nimport cityflow.module as cm\n\nwith open('cambridge.json','r') as f:\n    cm.output.data = json.load(f)\n"
+        ],
+        "custom": true,
+        "description": "This is POI data from OSM in Cambridge, MA",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [
+          {
+            "data": "https://kekehurry.github.io/cityflow_community/source//files/f87b581b63a69f4f5f103d0da28847ee",
+            "path": "cambridge.json",
+            "size": 1336026
+          }
+        ],
+        "hash": "64e9663e01c81e298cfaaa368f4c5ac7",
+        "height": 0,
+        "html": "",
+        "icon": "https://kekehurry.github.io/cityflow_community/source//icons/f7ab7630e34e50a20c22bacbc60b53e2.png",
+        "id": "f7ab7630e34e50a20c22bacbc60b53e2",
+        "iframeId": "c9V4QgBNEAzDS8RGG2zyK",
+        "input": [
+          ""
+        ],
+        "language": "python",
+        "local": false,
+        "name": "Cambridge Data",
+        "output": [
+          "data"
+        ],
+        "port": null,
+        "run": false,
+        "time": "2/7/2025, 2:06:09 PM",
+        "type": "module",
+        "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "width": 150
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 84,
+      "id": "f7ab7630e34e50a20c22bacbc60b53e2",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "Cambridge Data",
+      "position": {
+        "x": -116.84007254832244,
+        "y": 176.62147600808407
+      },
+      "positionAbsolute": {
+        "x": -116.84007254832244,
+        "y": 176.62147600808407
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+      "version": "0.0.1",
+      "width": 182,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "3hnxJ7",
+      "source": "f7ab7630e34e50a20c22bacbc60b53e2",
+      "sourceHandle": "f7ab7630e34e50a20c22bacbc60b53e2||data",
+      "target": "97237283c604e0551f2c03d66228e048",
+      "targetHandle": "97237283c604e0551f2c03d66228e048||input",
+      "type": "base"
+    },
+    {
+      "id": "EHCdJU",
+      "source": "f7ab7630e34e50a20c22bacbc60b53e2",
+      "sourceHandle": "f7ab7630e34e50a20c22bacbc60b53e2||data",
+      "target": "2080fa4b131adee6e5bc087ec1771170",
+      "targetHandle": "2080fa4b131adee6e5bc087ec1771170||boundary",
+      "type": "base"
+    },
+    {
+      "id": "HpwdBc",
+      "source": "97237283c604e0551f2c03d66228e048",
+      "sourceHandle": "97237283c604e0551f2c03d66228e048||output",
+      "target": "2080fa4b131adee6e5bc087ec1771170",
+      "targetHandle": "2080fa4b131adee6e5bc087ec1771170||geoData",
+      "type": "base"
+    },
+    {
+      "id": "_LEB8v",
+      "source": "2080fa4b131adee6e5bc087ec1771170",
+      "sourceHandle": "2080fa4b131adee6e5bc087ec1771170||grid",
+      "target": "fa854c45ab1435e4d54989e9e93b1c20",
+      "targetHandle": "fa854c45ab1435e4d54989e9e93b1c20||geojson",
+      "type": "base"
+    },
+    {
+      "id": "lJ2qq6",
+      "source": "fa854c45ab1435e4d54989e9e93b1c20",
+      "sourceHandle": "fa854c45ab1435e4d54989e9e93b1c20||geojson",
+      "target": "0876afcfb439c2a8780c994c4976803c",
+      "targetHandle": "0876afcfb439c2a8780c994c4976803c||input",
+      "type": "base"
+    }
+  ],
+  "globalScale": 0.01,
+  "viewport": {
+    "x": 104.50299360482,
+    "y": 302.81835164570214,
+    "zoom": 0.43574163729532683
+  },
+  "flowId": "22b3ac18e08a6825620e7bc2df9c7d02",
+  "author": "Kai Hu",
+  "flowInited": false,
+  "logs": "",
+  "isAlive": false,
+  "loading": false,
+  "authorId": "d29545ce164c0b53b65671d6c1ebe6ac",
+  "autoSave": true,
+  "basic": false,
+  "category": "showcase",
+  "city": "Cambridge",
+  "description": "This workflow calculates amenity density in Cambridge, MA using OpenStreetMap (OSM) data, visualizing the results on a map with various filters and aggregation methods.",
+  "hash": "22b3ac18e08a6825620e7bc2df9c7d02",
+  "image": "ghcr.io/kekehurry/cityflow_runner:full",
+  "name": "Amenity Density in Cambridge",
+  "packages": "\n  \n",
+  "private": false,
+  "screenShot": "/images/23a0e022a2d86a14e0b46383fe5875fa_16-01-13.png",
+  "showcase": false,
+  "source": null,
+  "tag": "OSM, Geospatial Analysis, Density Calculation, Cambridge, Urban Planning",
+  "task_name": "Amenity Density in Cambridge"
+}
