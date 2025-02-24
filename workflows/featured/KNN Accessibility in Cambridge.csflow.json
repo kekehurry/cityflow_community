@@ -1,0 +1,1807 @@
+{
+  "nodes": [
+    {
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "author_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "basic": false,
+        "category": "chart",
+        "code": [
+          "//entrypoint.js\n\nimport React, { useEffect, useRef ,useState} from 'react';\nimport * as d3 from 'd3';\n\nconst IndexChart = (props) => {\n  const {input,config} = props\n  if (!config) return;\n\n  if(!(input && input.input)){\n    d3.select('svg').selectAll('*').remove();\n  }\n  const origData = input?.input\n  const title = \"AMENITY\"\n  const subTitle = \"WEIGHT\"\n  const width = config.pinWidth || config.width;\n  const height = width;\n  const ytickSize = \"0.8em\"\n  const xtickSize = \"1em\"\n  const margin = 50;\n  const innerRadius = 0.4;\n  const outerRadius = 1.1;\n  const radius = (height-(margin*2)) / 2;\n  const minValue = 0;\n  const maxValue = 0.6;\n  const axisLabelDistance =8;\n  const dataCircleRadius = 4.5;\n  const outerCircles = [10,15]\n\n\n  const ref = useRef(null);\n  const [data, setData] = useState(null);\n  \n  useEffect(() => {\n    if (!origData) return;\n    const radarData = [];\n    const indexList = Object.keys(origData[0])\n    indexList.forEach((key) => {\n      const dataArray = origData.map(d => d[key])\n      const item = {\n        name: key,\n        min: d3.min(dataArray),\n        max: d3.max(dataArray),\n        mean: d3.mean(dataArray),\n      }\n      radarData.push(item)});\n    setData([radarData]);\n  },[origData]);\n\n  useEffect(() => {\n    if (!ref.current) return;\n    if (!data) return;\n\n    // Create the SVG\n    const svg = d3.select(ref.current)\n      .attr('width', width)\n      .attr('height', height)\n      .attr(\"viewBox\", [-width / 2, -height / 2, width, height])\n      .append('g')\n\n    // Extract the categories and calculate the angle of each axis\n    const categories = data[0].map((d => d.name));\n    const angleSlice = (Math.PI * 2) / categories.length;\n\n    // Scale for the radius\n    const x = d3.scaleLinear()\n      .domain([0, categories.length])\n      .range([0, 2 * Math.PI]);\n\n    const y = d3.scaleLinear()\n      .domain([minValue, maxValue])\n      .range([innerRadius*radius, radius]);\n\n    // create axis\n    const axis = svg.selectAll('.axis')\n      .data(categories)\n      .enter()\n        .append('g')\n        .attr('class', 'axis');\n\n    //Draw x stick\n    svg.append(\"g\")\n    .selectAll()\n    .data(x.ticks())\n    .join(\"g\")\n      .call(g => g.append(\"path\")\n          .attr(\"stroke\", \"white\")\n          .attr(\"stroke-opacity\", 0.2)\n          .attr(\"d\", d => `\n            M${d3.pointRadial(x(d), radius*innerRadius)}\n            L${d3.pointRadial(x(d), radius*outerRadius)}\n          `))\n      .call(g => g.append(\"text\")\n          .attr(\"dy\",\"0.35em\")\n          .attr(\"x\", d => d3.pointRadial(x(d), radius*outerRadius + axisLabelDistance)[0]) \n          .attr(\"y\", (d,i) => d3.pointRadial(x(d), radius*outerRadius + axisLabelDistance)[1])\n          .attr(\"fill\", \"white\")\n          .style(\"font-size\", xtickSize)\n          .text(d => categories[d])\n          .attr(\"transform\", (d, i) => {\n            const angle = (x(d)+Math.PI/2)*180/Math.PI;\n            const position = d3.pointRadial(x(d), radius*outerRadius + axisLabelDistance)\n            return `rotate(${angle}, ${position[0]}, ${position[1]})`;\n          }));\n    //Draw y stick\n    svg.append(\"g\")\n    .attr(\"text-anchor\", \"middle\")\n    .selectAll()\n    .data(y.ticks(4).reverse())\n    .join(\"g\")\n      .call(g => g.append(\"circle\")\n        .attr(\"fill\", \"none\")\n        .attr(\"stroke\", \"currentColor\")\n        .attr(\"stroke-opacity\", 0.2)\n        .attr(\"r\", y))\n      .call(g => g.append(\"text\")\n        .attr(\"y\", d => y(d))\n        .attr(\"dy\", \"0.35em\")\n        .attr(\"fill\", \"currentColor\")\n        .style(\"font-size\", ytickSize)\n          .attr(\"fill\",\"white\")\n          .attr(\"opacity\", 0.3)\n        .text((x, i) => `${x.toFixed(1)}`)\n        .clone(true)\n          .attr(\"y\", d => -y(d)));\n\n    // Draw outer circle\n    outerCircles.forEach((d) => {\n    svg.append(\"circle\")\n      .attr(\"r\", radius*outerRadius+d)\n      .attr(\"cx\", 0)\n      .attr(\"cy\", 0)\n      .attr(\"stroke\", \"white\")\n      .style(\"fill-opacity\", 0)\n      .attr(\"stroke-width\", 0.5)\n      .attr(\"opacity\", 0.7)\n    });\n\n    // Draw stakeholder\n    const draw_stakeholder = (start, end, offset, text, color) => {\n      const arc_offset = 10\n      const text_offset = 15;\n      svg.append(\"path\")\n        .attr(\"d\", () => `\n              M${d3.pointRadial(x(start), radius+arc_offset)}\n              A${radius+arc_offset},${radius+arc_offset} 0,0,1 ${d3.pointRadial(x(end), radius+arc_offset)}\n            `)\n        .attr(\"stroke\", color)\n        .attr(\"stroke-width\", 2)\n        .attr(\"stroke-opacity\", 0.6)\n        .style(\"fill\", \"none\");\n      svg.append(\"path\")\n        .attr(\"id\", 'textPath_'+text)\n        .attr(\"d\", () => `\n              M${d3.pointRadial(x(start), radius+text_offset)}\n              A${radius+text_offset},${radius+text_offset} 0,0,1 ${d3.pointRadial(x(end), radius+text_offset)}\n            `)\n        .style(\"fill\", \"none\");\n\n      svg.append(\"text\")\n        .attr(\"fill\", \"currentColor\")\n        .style(\"font-size\", \"12px\")\n        .attr(\"fill\",\"white\")\n        .attr(\"opacity\", 0.8)\n        .append(\"textPath\")\n          .attr(\"xlink:href\", \"#textPath_\"+text)\n          .attr(\"startOffset\", offset)\n          .text(text);\n    }\n    // draw_stakeholder(0, 4, \"50%\", \"Resident\", \"lightcoral\");\n    // draw_stakeholder(5, 9, \"50%\", \"Workforce\", \"skyblue\");\n    // draw_stakeholder(10, 12, \"20%\", \"Government & Developer\", \"lightgreen\");\n\n  \n    // Draw slogan\n    svg.append(\"text\")\n      .attr(\"dy\", \"-0.4em\") // align with circle's cy\n      .attr(\"text-anchor\", \"middle\") // center the text\n      .attr(\"dominant-baseline\", \"middle\") // vertically align the text\n      .style(\"font-size\", \"15px\")\n      .attr(\"fill\",\"white\")\n      .attr(\"opacity\", 0.8)\n      .append(\"tspan\")\n        .text(title)\n      .append(\"tspan\")\n        .attr(\"x\", 0)\n        .attr(\"dy\", \"1.5em\")\n        .text(subTitle);\n    \n    // Create a data layer\n    const plots = svg.append('g')\n      .selectAll('g')\n      .data(data)\n      .join('g')\n  \n    // Create a radial line generator\n    const line = d3.lineRadial()\n      .curve(d3.curveLinearClosed)\n      .angle((d, i) => x(i));\n    \n    // Create a radial area generator\n    const area = d3.areaRadial()\n      .curve(d3.curveLinearClosed)\n      .radius((d) => y(d))\n      .angle((d, i) => i * angleSlice)\n    \n    // Draw min-max data area\n    plots.append(\"path\")\n      .attr(\"fill\", \"#154C79\")\n      .attr(\"fill-opacity\", 0.3)\n      .attr(\"d\", d => area\n        .innerRadius((v) => y(v[0]))\n        .outerRadius((v) => y(v[1]))\n        (d.map((v) =>  [v.min,v.max])));\n    \n    // Draw mean data line\n    plots.append('path')\n        .attr(\"fill\", \"#F20075\")\n        .attr(\"fill-opacity\", 0)\n        .attr(\"stroke\",\"#F20075\")\n        .attr(\"stroke-width\", 3)\n        .attr(\"stroke-opacity\", 1)\n        .attr(\"d\", d => line\n          .radius((v) => y(v))\n          (d.map((v) => v.mean)))\n        .on(\"mouseover\", function(){\n            d3.select(this)\n              .attr(\"fill-opacity\", 0.2)\n          })\n        .on(\"mouseout\", function(){\n            d3.select(this)\n              .attr(\"fill-opacity\", 0)\n          });\n\n    // Draw data marks\n    plots.selectAll(\"circle\")\n      .data(d => d)\n      .join(\"circle\")\n      .attr(\"r\", dataCircleRadius)\n      .attr(\"cx\", (d,i) => d3.pointRadial(x(i), y(d.mean))[0])\n      .attr(\"cy\", (d,i) => d3.pointRadial(x(i), y(d.mean))[1])\n      .attr(\"fill\", \"#F20075\")\n      .attr(\"fill-opacity\", 1)\n      .attr(\"stroke\", \"white\")\n      .attr(\"stroke-width\", 2)\n      .attr(\"opacity\", 1)\n      .on(\"mouseover\", function(e,d){\n        d3.select(this)\n          .attr(\"r\", dataCircleRadius*1.5)\n        const hoveredCircle = d3.select(this);\n        plots.append(\"text\")\n          .attr(\"opacity\", 1)\n          .text(d.mean.toFixed(2))\n          .attr(\"fill\", \"currentColor\")\n          .style(\"font-size\", \"15px\")\n          .attr(\"fill\",\"white\")\n          .attr(\"x\", hoveredCircle.attr(\"cx\"))\n          .attr(\"y\", hoveredCircle.attr(\"cy\"))\n          .attr(\"dy\", \"-1em\");\n      })\n      .on(\"mouseout\", function(e,d){\n        d3.select(this)\n          .attr(\"r\", dataCircleRadius)\n        plots.selectAll(\"text\").remove();\n\n    });\n      \n  }, [data]);\n\n  return <svg ref={ref}></svg>;\n};\n\nexport default IndexChart;\n"
+        ],
+        "containerIsRunning": false,
+        "custom": true,
+        "description": "This module creates a radar chart using D3.js to visualize mean, min, and max values of various indices based on provided data.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "d73909c8a9d66211a9277303e5c1abdf",
+        "height": 320,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/32f8863a9c4644f48f9f6b359bf112f1",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/56be1fc495a592a1459b062e63222f68.png",
+        "id": "56be1fc495a592a1459b062e63222f68",
+        "iframeId": "8ZrQj-j5AnA9KBiadkCWy",
+        "input": [
+          "input"
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "Radar Chart",
+        "output": [
+          ""
+        ],
+        "pin": true,
+        "pinHeight": 329,
+        "pinLeft": 70,
+        "pinTop": 57,
+        "pinWidth": 328,
+        "port": null,
+        "run": false,
+        "sessionID": "A6-Pl7Jkb4CMXWXYDecjh",
+        "sessionId": "L7XWgnFQK0HpuBa6hi-ES",
+        "time": "1/24/2025, 2:16:27 AM",
+        "type": "interface",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 320
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 404,
+      "id": "56be1fc495a592a1459b062e63222f68",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "local": false,
+      "module": "builder",
+      "name": "Radar Chart",
+      "position": {
+        "x": 1026.0714237187192,
+        "y": 74.56866794163774
+      },
+      "positionAbsolute": {
+        "x": 1026.0714237187192,
+        "y": 74.56866794163774
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 352,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "author_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "basic": false,
+        "category": "Custom",
+        "code": [
+          "#entrypoint.py\n\n# Available variables:\n# input_data: input data, e.g. input1 = _input_['input1']\n# config_data: module configuration value, e.g. title = config_data['title']\n# output_data: the variable to store output data, e.g. _output_['output1'] = output1\n\nimport json\nfrom io import StringIO\nimport geopandas as gpd\nimport pandas as pd\nimport numpy as np\nimport cityflow.module as cm\n\nweight_data = cm.input['weights']\namenity_data = cm.input['amenities']\ngrid_data = cm.input['grids']\n\n# parse weights\nweights = {}\nfor d in weight_data:\n    weights[d['amenity']] = []\n    for key in ['d1', 'd2', 'd3', 'd4', 'd5']:\n        if d[key]:\n            weights[d['amenity']].append(float(d[key]))\n\n# read amenity data\n# due to the server limit, you'll need to process the data chunk by chunk\namenity_dfs = []\ntotal_features = len(amenity_data['features'])\nchunk_size = 5000\n# Loop over the features in chunks\nfor i in range(0, total_features, chunk_size):\n    # Get the chunk of features\n    chunk = amenity_data['features'][i:i+chunk_size]\n    \n    # Create a GeoDataFrame from the chunk\n    chunk_gdf = gpd.GeoDataFrame.from_features(chunk)\n    \n    # Append the chunk GeoDataFrame to the list\n    amenity_dfs.append(chunk_gdf)\n\namenity_df = gpd.GeoDataFrame(pd.concat(amenity_dfs, ignore_index=True))\namenity_df = amenity_df[['id', 'type', 'group', 'geometry']]\namenity_df = amenity_df.set_crs(epsg=4326)\n\n# read grid data\ngrid_df = gpd.GeoDataFrame.from_features(grid_data['features'])\ngrid_df = grid_df[['geometry']]\ngrid_df['grid_id'] = grid_df.index\ngrid_df = grid_df.set_crs(epsg=4326)\n\n# Spatial join\njoined_df = gpd.sjoin(amenity_df, grid_df, how='left', predicate='intersects')\njoined_df = joined_df.to_crs(epsg=3857)\njoined_df = joined_df.dropna()\njoined_df['index_right'] = joined_df['index_right'].astype(int)\njoined_df[\"grid\"] = grid_df.loc[joined_df['grid_id'], 'geometry'].values\njoined_df[\"grid\"] = joined_df[\"grid\"].to_crs(epsg=3857)\njoined_df[\"grid_centroid\"] = joined_df[\"grid\"].centroid\njoined_df[\"distance\"] = joined_df[\"grid_centroid\"].distance(\n    joined_df[\"geometry\"])\njoined_df = joined_df[['id', 'type', 'group', 'grid_id', 'distance']]\n\n# calculate KNNA\nmax_distance = 400\nbeta = 0.001\n\ngrouped_df = joined_df.groupby(['grid_id', 'group'])\nscore_df = pd.DataFrame(columns=['grid_id', 'group', 'knna_score'])\nfor (grid_id, group), group_df in grouped_df:\n    group_df = group_df.sort_values('distance')\n    knna_score = 0\n    if group not in weights:\n        continue\n    for idx, c in enumerate(weights[group]):\n        if idx < len(group_df):\n            w = 1\n            d = group_df.iloc[idx]['distance']\n            decay_rate = np.exp(beta*max(max_distance - d, 0))\n            knna_score += w*c/decay_rate\n    score_df.loc[len(score_df)] = [grid_id, group, knna_score]\n\naggregated_df = score_df.groupby('grid_id').sum()\naggregated_df = aggregated_df.reset_index()\nresult_df = pd.merge(grid_df, aggregated_df, on='grid_id', how='left')\nresult_df = result_df.fillna(0)\n\nresult_df = result_df.to_crs(epsg=4326)\n\ncm.output = {\n    \"output\": json.loads(result_df.to_json())\n}"
+        ],
+        "containerIsRunning": false,
+        "description": "This module processes input data by parsing weights, reading and aggregating amenity and grid data, performing a spatial join, and calculating a K-Nearest Neighbors (KNNA) score for each grid based on distance.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "b48b2715273237ec0a9a3680eae54075",
+        "height": 0,
+        "html": "",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/3090c381dfa6f94ca171b18a199efab2.png",
+        "id": "3090c381dfa6f94ca171b18a199efab2",
+        "iframeId": "0I16wad5XtV1QHYzHd2QU",
+        "input": [
+          "weights",
+          "amenities",
+          "grids"
+        ],
+        "language": "python",
+        "local": false,
+        "name": "KNN Accessibility",
+        "output": [
+          "output"
+        ],
+        "port": null,
+        "run": false,
+        "sessionID": "zwPZeXbWhu6lg-TEGk8pV",
+        "time": "2/7/2025, 2:34:02 PM",
+        "type": "module",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 150
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 116,
+      "id": "3090c381dfa6f94ca171b18a199efab2",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "KNN Accessibility",
+      "position": {
+        "x": 1198.5774319443092,
+        "y": 849.9439916516516
+      },
+      "positionAbsolute": {
+        "x": 1198.5774319443092,
+        "y": 849.9439916516516
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 182,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "author_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "basic": false,
+        "category": "gis",
+        "code": [
+          "//entrypoint.js\n\n//import packages from the scope\nimport React, {useEffect, useState} from 'react';\nimport {MenuItem,Box, Stack,TextField,Button} from '@mui/material';\nimport { MuiColorInput } from 'mui-color-input'\nimport {DataGrid} from \"@mui/x-data-grid\";\n\nfunction hexToRgb(hex) {\n  var result = /^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i.exec(hex);\n  return result\n    ? [\n        parseInt(result[1], 16),\n        parseInt(result[2], 16),\n        parseInt(result[3], 16),\n      ]\n    : null;\n}\n\n\n// main function\nexport default function Grouping(props) {\n\n    // load necessary variables from the scope\n    const {input,config,setConfig,setOutput} = props;\n    if(!config) return;\n    const [values,setValues] = useState({\n        property: config.property || \"\",\n    });\n    const [rows,setRows] = useState(config.rows||[]);\n    const [columns,setColumns] = useState([\n        {field: \"id\", headerName: \"ID\", editable: false, type: 'number', width: 10},\n        {field: \"value\", headerName: \"Value\", editable: false, type: 'string', width: 120},\n        {field: \"group\", headerName: \"Group\", editable: true, type: 'string', width: 120 },\n        {field: \"action\", headerName: \"Color\", editable: false, type: 'actions', width: 120,\n            cellClassName: 'actions',\n            getActions: (data) => {\n                const {id,row} = data;\n                const [color,setColor] = useState(row.color);\n                const handleColorChange = (value) => {  \n                    setRows((prev)=>prev.map(r => r.group === row.group ? {...r,color:value} : r));\n                };\n                const handleClick = ()=>{\n                    setRows(rows.map(r => r.group === row.group ? {...r,color: rows.find(r2=>r2.group===r.group)?.color} \n                    : r));\n                }\n                useEffect(() => {   \n                    row.color && setColor(row.color);\n                },[row.color]);\n                return [\n                    <>\n                    <div key = {id}>\n                        <MuiColorInput \n                        size='small'\n                        variant=\"standard\"\n                        key={`${id}-color-input`}\n                        format=\"hex\" value={color} \n                        onChange={(newValue)=>handleColorChange(newValue)}\n                        onClick = {handleClick}\n                        />\n                    </div>\n                    </>\n                ];\n            }\n        },\n    ]);\n\n    const handleValueChange = (e,k) => {\n        setValues({...values,[k]: e.target.value})\n        setConfig({...config,[k]: e.target.value});\n    }\n\n    useEffect(() => {\n        if (!(input && input.geojson && values.property )) return;\n        // Parse rows\n        const data = input.geojson.features.map(d => d.properties[values.property]);\n        const unique = [...new Set(data)];\n        const newRows = unique.map((d,i) => {\n            return {\n                id: i,\n                value: d,\n                group: config.rows && config.rows[i] && config.rows[i].group || d,\n                color: config.rows && config.rows[i] && config.rows[i].color || \"#ffffff\",\n            }\n        });\n        setRows([...newRows]);\n    }, [input,values]);\n\n    useEffect(() => {\n        if (!(input && input.geojson && config.run)) {\n            setOutput(null);\n            return\n        };\n        const newData = {...input.geojson,\n            features: input.geojson.features.map((d) => {\n                return {\n                    ...d,\n                    properties: {\n                        ...d.properties,\n                        group: d.properties[values.property] ? rows.find(r => r.value === d.properties[values.property])?.group : rows.find(r => !r.value).group,\n                        color: d.properties[values.property] ? hexToRgb(rows.find(r => r.value === d.properties[values.property])?.color) : hexToRgb(rows.find(r => !r.value).color)\n                    }\n                }\n            })\n        }\n        setOutput({geojson:newData});\n    },[config.run,config.input]);\n\n    return (\n        <>\n        <Box sx={{p:1}}>\n        <Stack spacing={1}>\n        {input && input.geojson && input.geojson.features[0] && \n            (<TextField fullWidth label=\"Property\" size=\"small\" \n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    onChange={(e)=>{handleValueChange(e,\"property\")}}\n                    value = {values.property}\n                    select\n                    >\n                    {\n                    Object.keys(input.geojson.features[0].properties).map((property) => (\n                        <MenuItem key={property} value={property}>\n                        {property}\n                        </MenuItem>\n                    )) || <MenuItem value={\"\"}>No Properties</MenuItem>\n                    }\n            </TextField>) \n            || <TextField fullWidth label=\"Property\" size=\"small\" \n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    disabled = {true}\n                />\n        }\n        {input && input.geojson && input.geojson.features[0] && \n        <DataGrid\n            rowHeight={20}\n            columnHeaderHeight = {30}\n            columnBufferPx ={50}\n            rows={rows}\n            columns={columns}\n            size=\"small\"\n            disableColumnFilter\n            hideFooter\n            editMode='cell'\n            processRowUpdate={(newRow, oldRow) => {\n                setRows(rows.map(row => row.id === oldRow.id ? newRow : row));\n                return newRow}}\n            onProcessRowUpdateError={(error, newRow, oldRow) => {console.log(error)}}\n            sx={{\n                \"& .MuiDataGrid-footerContainer\":{\n                    height:30,\n                    minHeight:30\n                },\n                \"& .MuiDataGrid-scrollbar\":{\n                    display:\"none\"\n                }\n            }}\n        />\n        }\n        <Button variant='outlined' onClick={()=>{\n            setConfig({...config,rows})\n        }}>\n            Save\n        </Button>\n        </Stack>\n        </Box>\n        </>\n    )\n}\n"
+        ],
+        "containerIsRunning": false,
+        "custom": true,
+        "description": "This module creates a React component for grouping and coloring geospatial data properties using a Material-UI interface.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "4db859c681880156009e9c352cce0345",
+        "height": 400,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/e8a582ec06ce02d9a52cce3b095dc6b7",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/299b0700adcc7f588ff38be499c4959f.png",
+        "id": "299b0700adcc7f588ff38be499c4959f",
+        "iframeId": "HJZP9-1P_I6bh1d7pEPM0",
+        "input": [
+          "geojson"
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "Grouping",
+        "output": [
+          "geojson"
+        ],
+        "port": null,
+        "property": "amenity",
+        "rows": [
+          {
+            "color": "#88c6e1",
+            "group": "transportation",
+            "id": 0,
+            "value": "ferry_terminal"
+          },
+          {
+            "color": "#76c587",
+            "group": "public_service",
+            "id": 1,
+            "value": "drinking_water"
+          },
+          {
+            "color": "#76c587",
+            "group": "public_service",
+            "id": 2,
+            "value": "toilets"
+          },
+          {
+            "color": "#d7ab78",
+            "group": "food",
+            "id": 3,
+            "value": "fast_food"
+          },
+          {
+            "color": "#cfee0d",
+            "group": "education",
+            "id": 4,
+            "value": "school"
+          },
+          {
+            "color": "#76c587",
+            "group": "public_service",
+            "id": 5,
+            "value": "social_facility"
+          },
+          {
+            "color": "#cfee0d",
+            "group": "education",
+            "id": 6,
+            "value": "university"
+          },
+          {
+            "color": "#cfee0d",
+            "group": "education",
+            "id": 7,
+            "value": "college"
+          },
+          {
+            "color": "#0cd820",
+            "group": "health_care",
+            "id": 8,
+            "value": "hospital"
+          },
+          {
+            "color": "#76c587",
+            "group": "public_service",
+            "id": 9,
+            "value": "place_of_worship"
+          },
+          {
+            "color": "#0cd820",
+            "group": "health_care",
+            "id": 10,
+            "value": "clinic"
+          },
+          {
+            "color": "#cfee0d",
+            "group": "education",
+            "id": 11,
+            "value": "research_institute"
+          },
+          {
+            "color": "#d7ab78",
+            "group": "food",
+            "id": 12,
+            "value": "restaurant"
+          },
+          {
+            "color": "#be2c2c",
+            "group": "entertainment",
+            "id": 13,
+            "value": "theatre"
+          },
+          {
+            "color": "#091ed8",
+            "group": "office",
+            "id": 14,
+            "value": "post_office"
+          },
+          {
+            "color": "#be2c2c",
+            "group": "entertainment",
+            "id": 15,
+            "value": "arts_centre"
+          },
+          {
+            "color": "#be2c2c",
+            "group": "entertainment",
+            "id": 16,
+            "value": "cinema"
+          },
+          {
+            "color": "#be2c2c",
+            "group": "entertainment",
+            "id": 17,
+            "value": "bar"
+          },
+          {
+            "color": "#76c587",
+            "group": "public_service",
+            "id": 18,
+            "value": "bench"
+          },
+          {
+            "color": "#76c587",
+            "group": "public_service",
+            "id": 19,
+            "value": "courthouse"
+          },
+          {
+            "color": "#76c587",
+            "group": "public_service",
+            "id": 20,
+            "value": "community_centre"
+          },
+          {
+            "color": "#0cd820",
+            "group": "health_care",
+            "id": 21,
+            "value": "doctors"
+          },
+          {
+            "color": "#76c587",
+            "group": "public_service",
+            "id": 22,
+            "value": "fire_station"
+          },
+          {
+            "color": "#76c587",
+            "group": "public_service",
+            "id": 23,
+            "value": "library"
+          },
+          {
+            "color": "#235122",
+            "group": "parking",
+            "id": 24,
+            "value": "parking"
+          },
+          {
+            "color": "#76c587",
+            "group": "public_service",
+            "id": 25,
+            "value": "police"
+          },
+          {
+            "color": "#76c587",
+            "group": "public_service",
+            "id": 26,
+            "value": "prison"
+          },
+          {
+            "color": "#434141",
+            "group": "others",
+            "id": 27,
+            "value": "dormitory"
+          },
+          {
+            "color": "#be2c2c",
+            "group": "entertainment",
+            "id": 28,
+            "value": "pub"
+          },
+          {
+            "color": "#235122",
+            "group": "parking",
+            "id": 29,
+            "value": "bicycle_parking"
+          },
+          {
+            "color": "#d7ab78",
+            "group": "food",
+            "id": 30,
+            "value": "ice_cream"
+          },
+          {
+            "color": "#88c6e1",
+            "group": "transportation",
+            "id": 31,
+            "value": "bicycle_rental"
+          },
+          {
+            "color": "#e70e69",
+            "group": "bank",
+            "id": 32,
+            "value": "atm"
+          },
+          {
+            "color": "#d7ab78",
+            "group": "food",
+            "id": 33,
+            "value": "cafe"
+          },
+          {
+            "color": "#edaf38",
+            "group": "grocery",
+            "id": 34,
+            "value": "telephone"
+          },
+          {
+            "color": "#76c587",
+            "group": "public_service",
+            "id": 35,
+            "value": "post_box"
+          },
+          {
+            "color": "#76c587",
+            "group": "public_service",
+            "id": 36,
+            "value": "fountain"
+          },
+          {
+            "color": "#e70e69",
+            "group": "bank",
+            "id": 37,
+            "value": "bank"
+          },
+          {
+            "color": "#235122",
+            "group": "parking",
+            "id": 38,
+            "value": "motorcycle_parking"
+          },
+          {
+            "color": "#0cd820",
+            "group": "health_care",
+            "id": 39,
+            "value": "pharmacy"
+          },
+          {
+            "color": "#be2c2c",
+            "group": "entertainment",
+            "id": 40,
+            "value": "stripclub"
+          },
+          {
+            "color": "#edaf38",
+            "group": "grocery",
+            "id": 41,
+            "value": "marketplace"
+          },
+          {
+            "color": "#235122",
+            "group": "parking",
+            "id": 42,
+            "value": "parking_entrance"
+          },
+          {
+            "color": "#76c587",
+            "group": "public_service",
+            "id": 43,
+            "value": "waste_basket"
+          },
+          {
+            "color": "#88c6e1",
+            "group": "transportation",
+            "id": 44,
+            "value": "taxi"
+          },
+          {
+            "color": "#e70e69",
+            "group": "bank",
+            "id": 45,
+            "value": "vending_machine"
+          },
+          {
+            "color": "#d7ab78",
+            "group": "food",
+            "id": 46,
+            "value": "bbq"
+          },
+          {
+            "color": "#e70e69",
+            "group": "bank",
+            "id": 47,
+            "value": "bureau_de_change"
+          },
+          {
+            "color": "#434141",
+            "group": "others",
+            "id": 48,
+            "value": "disused:restaurant"
+          },
+          {
+            "color": "#edaf38",
+            "group": "grocery",
+            "id": 49,
+            "value": "car_sharing"
+          },
+          {
+            "color": "#edaf38",
+            "group": "grocery",
+            "id": 50,
+            "value": "fuel"
+          },
+          {
+            "color": "#cfee0d",
+            "group": "education",
+            "id": 51,
+            "value": "kindergarten"
+          },
+          {
+            "color": "#0cd820",
+            "group": "health_care",
+            "id": 52,
+            "value": "dentist"
+          },
+          {
+            "color": "#0cd820",
+            "group": "health_care",
+            "id": 53,
+            "value": "veterinary"
+          },
+          {
+            "color": "#88c6e1",
+            "group": "transportation",
+            "id": 54,
+            "value": "car_rental"
+          },
+          {
+            "color": "#88c6e1",
+            "group": "transportation",
+            "id": 55,
+            "value": "bus_station"
+          },
+          {
+            "color": "#be2c2c",
+            "group": "entertainment",
+            "id": 56,
+            "value": "nightclub"
+          },
+          {
+            "color": "#be2c2c",
+            "group": "entertainment",
+            "id": 57,
+            "value": "dojo"
+          },
+          {
+            "color": "#0cd820",
+            "group": "health_care",
+            "id": 58,
+            "value": "urgent_care"
+          },
+          {
+            "color": "#be2c2c",
+            "group": "entertainment",
+            "id": 59,
+            "value": "spa"
+          },
+          {
+            "color": "#091ed8",
+            "group": "office",
+            "id": 60,
+            "value": "studio"
+          },
+          {
+            "color": "#434141",
+            "group": "others",
+            "id": 61,
+            "value": "events_venue"
+          },
+          {
+            "color": "#e70e69",
+            "group": "bank",
+            "id": 62,
+            "value": "money_transfer"
+          },
+          {
+            "color": "#be2c2c",
+            "group": "entertainment",
+            "id": 63,
+            "value": "public_bath"
+          },
+          {
+            "color": "#0cd820",
+            "group": "health_care",
+            "id": 64,
+            "value": "childcare"
+          },
+          {
+            "color": "#88c6e1",
+            "group": "transportation",
+            "id": 65,
+            "value": "boat_rental"
+          },
+          {
+            "color": "#cfee0d",
+            "group": "education",
+            "id": 66,
+            "value": "language_school"
+          },
+          {
+            "color": "#434141",
+            "group": "others",
+            "id": 67,
+            "value": "animal_boarding"
+          },
+          {
+            "color": "#be2c2c",
+            "group": "entertainment",
+            "id": 68,
+            "value": "fortune_teller"
+          },
+          {
+            "color": "#d7ab78",
+            "group": "food",
+            "id": 69,
+            "value": "food_court"
+          },
+          {
+            "color": "#edaf38",
+            "group": "grocery",
+            "id": 70,
+            "value": "clock"
+          },
+          {
+            "color": "#cfee0d",
+            "group": "education",
+            "id": 71,
+            "value": "prep_school"
+          },
+          {
+            "color": "#434141",
+            "group": "others",
+            "id": 72,
+            "value": "animal_shelter"
+          },
+          {
+            "color": "#88c6e1",
+            "group": "transportation",
+            "id": 73,
+            "value": "loading_dock"
+          },
+          {
+            "color": "#be2c2c",
+            "group": "entertainment",
+            "id": 74,
+            "value": "meditation_centre"
+          },
+          {
+            "color": "#76c587",
+            "group": "public_service",
+            "id": 75,
+            "value": "recycling"
+          },
+          {
+            "color": "#d7ab78",
+            "group": "food",
+            "id": 76,
+            "value": "biergarten"
+          },
+          {
+            "color": "#be2c2c",
+            "group": "entertainment",
+            "id": 77,
+            "value": "nail_salon"
+          },
+          {
+            "color": "#edaf38",
+            "group": "grocery",
+            "id": 78,
+            "value": "bicycle_repair_station"
+          },
+          {
+            "color": "#76c587",
+            "group": "public_service",
+            "id": 79,
+            "value": "social_centre"
+          },
+          {
+            "color": "#edaf38",
+            "group": "grocery",
+            "id": 80,
+            "value": "car_wash"
+          },
+          {
+            "color": "#434141",
+            "group": "others",
+            "id": 81,
+            "value": "disused"
+          },
+          {
+            "color": "#edaf38",
+            "group": "grocery",
+            "id": 82,
+            "value": "parcel_locker"
+          },
+          {
+            "color": "#76c587",
+            "group": "public_service",
+            "id": 83,
+            "value": "watering_place"
+          },
+          {
+            "color": "#edaf38",
+            "group": "grocery",
+            "id": 84,
+            "value": "wifi;telephone;device_charging_station"
+          },
+          {
+            "color": "#76c587",
+            "group": "public_service",
+            "id": 85,
+            "value": "ranger_station"
+          },
+          {
+            "color": "#be2c2c",
+            "group": "entertainment",
+            "id": 86,
+            "value": "music_venue"
+          },
+          {
+            "color": "#76c587",
+            "group": "public_service",
+            "id": 87,
+            "value": "binoculars"
+          },
+          {
+            "color": "#76c587",
+            "group": "public_service",
+            "id": 88,
+            "value": "planetarium"
+          },
+          {
+            "color": "#e70e69",
+            "group": "bank",
+            "id": 89,
+            "value": "payment_terminal"
+          },
+          {
+            "color": "#434141",
+            "group": "others",
+            "id": 90,
+            "value": "shelter"
+          },
+          {
+            "color": "#be2c2c",
+            "group": "entertainment",
+            "id": 91,
+            "value": "swingerclub"
+          },
+          {
+            "color": "#cfee0d",
+            "group": "education",
+            "id": 92,
+            "value": "driving_school"
+          },
+          {
+            "color": "#434141",
+            "group": "others",
+            "id": 93,
+            "value": "disused:pub"
+          },
+          {
+            "color": "#edaf38",
+            "group": "grocery",
+            "id": 94,
+            "value": "charging_station"
+          },
+          {
+            "color": "#cfee0d",
+            "group": "education",
+            "id": 95,
+            "value": "music_school"
+          },
+          {
+            "color": "#cfee0d",
+            "group": "education",
+            "id": 96,
+            "value": "training"
+          },
+          {
+            "color": "#091ed8",
+            "group": "office",
+            "id": 97,
+            "value": "graphic_design"
+          },
+          {
+            "color": "#091ed8",
+            "group": "office",
+            "id": 98,
+            "value": "coworking_space"
+          },
+          {
+            "color": "#76c587",
+            "group": "public_service",
+            "id": 99,
+            "value": "public_bookcase"
+          },
+          {
+            "color": "#ffffff",
+            "group": "compressed_air",
+            "id": 100,
+            "value": "compressed_air"
+          },
+          {
+            "color": "#ffffff",
+            "group": "karaoke_box",
+            "id": 101,
+            "value": "karaoke_box"
+          },
+          {
+            "color": "#ffffff",
+            "group": "library_dropoff",
+            "id": 102,
+            "value": "library_dropoff"
+          },
+          {
+            "color": "#ffffff",
+            "group": "cafe;bar",
+            "id": 103,
+            "value": "cafe;bar"
+          },
+          {
+            "color": "#ffffff",
+            "group": "internet_cafe",
+            "id": 104,
+            "value": "internet_cafe"
+          },
+          {
+            "color": "#ffffff",
+            "group": "waste_disposal",
+            "id": 105,
+            "value": "waste_disposal"
+          },
+          {
+            "color": "#ffffff",
+            "group": "payment_centre",
+            "id": 106,
+            "value": "payment_centre"
+          },
+          {
+            "color": "#ffffff",
+            "group": "conference_centre",
+            "id": 107,
+            "value": "conference_centre"
+          },
+          {
+            "color": "#ffffff",
+            "group": "lounger",
+            "id": 108,
+            "value": "lounger"
+          },
+          {
+            "color": "#ffffff",
+            "group": "food_sharing",
+            "id": 109,
+            "value": "food_sharing"
+          },
+          {
+            "color": "#ffffff",
+            "group": "device_charging_station",
+            "id": 110,
+            "value": "device_charging_station"
+          },
+          {
+            "color": "#ffffff",
+            "group": "mailroom",
+            "id": 111,
+            "value": "mailroom"
+          },
+          {
+            "color": "#ffffff",
+            "group": "postal_relay_box",
+            "id": 112,
+            "value": "postal_relay_box"
+          },
+          {
+            "color": "#ffffff",
+            "group": "printer",
+            "id": 113,
+            "value": "printer"
+          },
+          {
+            "color": "#ffffff",
+            "group": "karaoke",
+            "id": 114,
+            "value": "karaoke"
+          },
+          {
+            "color": "#ffffff",
+            "group": "convenience",
+            "id": 115,
+            "value": "convenience"
+          },
+          {
+            "color": "#ffffff",
+            "group": "relay_box",
+            "id": 116,
+            "value": "relay_box"
+          },
+          {
+            "color": "#ffffff",
+            "group": "shower",
+            "id": 117,
+            "value": "shower"
+          },
+          {
+            "color": "#ffffff",
+            "group": "hookah_lounge",
+            "id": 118,
+            "value": "hookah_lounge"
+          },
+          {
+            "color": "#ffffff",
+            "group": "table",
+            "id": 119,
+            "value": "table"
+          },
+          {
+            "color": "#ffffff",
+            "group": "fixme",
+            "id": 120,
+            "value": "fixme"
+          },
+          {
+            "color": "#ffffff",
+            "group": "School Supply Store",
+            "id": 121,
+            "value": "School Supply Store"
+          },
+          {
+            "color": "#ffffff",
+            "group": "monastery",
+            "id": 122,
+            "value": "monastery"
+          }
+        ],
+        "run": false,
+        "sessionID": "D8G7Sk0HShNSsY6da0SQb",
+        "time": "1/24/2025, 8:58:40 PM",
+        "type": "interface",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 350
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 484,
+      "id": "299b0700adcc7f588ff38be499c4959f",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "Grouping",
+      "position": {
+        "x": 212.28923759173313,
+        "y": 1209.7674944679504
+      },
+      "positionAbsolute": {
+        "x": 212.28923759173313,
+        "y": 1209.7674944679504
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 382,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": null,
+        "author_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "basic": false,
+        "description": "### This workflow is a simplified versioin of KNNA Score.  It's been simplified in these aspect:\n\n- $d[i,j]$  is calculated based on point-to-point distances and do not take into account the road network\n- W[j] is simply calculated by the amount of different amenities. (w=1 for each single amenity point)",
+        "discription": "this module is useful for adding text to the workspace",
+        "files": [],
+        "hash": "6bd81bd437a98f96e095a3ce23acce2b",
+        "height": 149,
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/afd1aef47689ea94e20eed9ffcbeae2e.png",
+        "id": "afd1aef47689ea94e20eed9ffcbeae2e",
+        "local": false,
+        "name": "Text",
+        "run": false,
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "value": "### This workflow is a simplified versioin of KNNA Score.  It's been simplified in these aspect:\n\n- $d[i,j]$  is calculated based on point-to-point distances and do not take into account the road network\n- W[j] is simply calculated by the amount of different amenities. (w=1 for each single amenity point)",
+        "width": 996
+      },
+      "data": {
+        "input": null,
+        "module": "annotation/text/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 149,
+      "id": "afd1aef47689ea94e20eed9ffcbeae2e",
+      "module": "text",
+      "name": "Text",
+      "position": {
+        "x": 1633.9033159373612,
+        "y": 576.4633627748573
+      },
+      "positionAbsolute": {
+        "x": 1633.9033159373612,
+        "y": 576.4633627748573
+      },
+      "resizing": false,
+      "selected": false,
+      "type": "annotation",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 996
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "author_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "basic": false,
+        "category": "Custom",
+        "code": [
+          "#entrypoint.py\nimport json\nimport cityflow.module as cm\n\nmin_series = {}\nmax_series = {}\nmean_series = {}\n\n\nfor data in cm.input['input']:\n    key = data['amenity']\n    value_list = [data['d1'],data['d2'],data['d3'],\n    data['d4'],data['d5']]\n    value_list = [float(x) if x != \"\" else 0 for x in value_list]\n    min_value = min(value_list)\n    max_value = max(value_list)\n    mean_value = sum(value_list)/len(value_list)\n    min_series[key] = min_value\n    max_series[key] = max_value\n    mean_series[key] = mean_value\n\ncm.output = {\n    \"output\":[min_series,max_series,mean_series]\n    }\n"
+        ],
+        "containerIsRunning": false,
+        "description": "This module calculates the minimum, maximum, and mean values for different amenities based on input data.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "bcfe9fcedb2bd36715b31ebd47fe2ae7",
+        "height": 0,
+        "html": "",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/cbb47dce8bfa9d240e365f44a40e45f8.png",
+        "id": "cbb47dce8bfa9d240e365f44a40e45f8",
+        "iframeId": "CbwYeTwhEDC_CkqKwkoxd",
+        "input": [
+          "input"
+        ],
+        "language": "python",
+        "local": false,
+        "name": "Parse Data",
+        "output": [
+          "output"
+        ],
+        "port": null,
+        "run": false,
+        "sessionID": "DtcPGK7OaJS_2Wvm_ONOt",
+        "time": "2/7/2025, 2:31:52 PM",
+        "type": "module",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 150
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 84,
+      "id": "cbb47dce8bfa9d240e365f44a40e45f8",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "Parse Data",
+      "position": {
+        "x": 602.4073796473613,
+        "y": 74.43364754619371
+      },
+      "positionAbsolute": {
+        "x": 602.4073796473613,
+        "y": 74.43364754619371
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 182,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "author_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "basic": false,
+        "category": "input/output",
+        "code": [
+          "//entrypoint.js\nimport React, { useState, useEffect } from 'react';\nimport * as Icon from '@mui/icons-material';\nimport { Box, Button, TextField, Stack, MenuItem } from '@mui/material';\nimport {\n  GridRowModes,\n  DataGrid,\n  GridToolbarContainer,\n  GridActionsCellItem,\n  GridRowEditStopReasons,\n} from '@mui/x-data-grid';\nimport { nanoid } from 'nanoid';\n\n\nfunction EditToolbar({ columns, rows, setRows, setRowModesModel, setColumns, config, setConfig }) {\n  const [columnFields, setColumnFields] = useState(config.columnFields || '');\n\n  const handleAddRowClick = () => {\n    const id = rows.length\n    let emptyRow = {\"id\":id}\n    columns.forEach(col=>{\n      emptyRow[col.field]=''\n    })\n    setRows((oldRows) => [...oldRows, emptyRow]);\n    setRowModesModel((oldModel) => ({\n      ...oldModel,\n      [id]: { mode: GridRowModes.Edit},\n    }));\n  };\n\n  const handleAddColumnClick = () => {\n    if (columnFields) {\n      const columns = columnFields.split(',').map( col => ({\n          field: col,\n          headerName: col,\n          width: 70,\n          editable: true,\n        })\n      )\n      setColumns(columns);\n      setRows([])\n      setConfig({...config, columnFields, columns})\n    } else {\n      alert('Please enter both field names seperate by ,');\n    }\n  };\n\n  const handleRest = ()=>{\n    setColumns([]);\n    setRows([]);\n  }\n\n  return (\n    <GridToolbarContainer>\n      <Stack direction=\"row\" spacing={0.5}  sx={{ width: '100%' }}>\n            <TextField\n            sx={{flex: 1 }}\n            label=\"columns, e.g. name,type,value\"\n            variant=\"outlined\"\n            size=\"small\"\n            value={columnFields}\n            onChange={(e) => setColumnFields(e.target.value)}\n            />\n            <Button\n            variant=\"outlined\"\n            sx={{ fontSize: 10, flex: '0 0 80px' }}\n            startIcon={<Icon.Add />}\n            onClick={handleAddColumnClick}\n            >\n            Columns\n            </Button>\n            <Button\n            variant=\"outlined\"\n            sx={{ fontSize: 10, flex: '0 0 80px' }}\n            startIcon={<Icon.Add />}\n            onClick={handleAddRowClick}\n            >\n            Row\n            </Button>\n            <Button\n            variant=\"outlined\"\n            sx={{ fontSize: 10, flex: '0 0 80px' }}\n            startIcon={<Icon.RestartAlt />}\n            onClick={handleRest}\n            >\n            Reset\n            </Button>\n      </Stack>\n    </GridToolbarContainer>\n  );\n}\n\nexport default function FormInput(props) {\n\n  const {input,config,setConfig,setOutput} = props\n  if(!config)return;\n  const initialRows = config?.rows || [\n    {\n      id: nanoid(),\n      name: 'number',\n      type: 'int',\n      value: 100,\n    },\n  ];\n\n  const actionColumn = {\n      field: 'actions',\n      type: 'actions',\n      headerName: 'Actions',\n      width: 70,\n      cellClassName: 'actions',\n      getActions: ({ id }) => {\n        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;\n\n        if (isInEditMode) {\n          return [\n            <GridActionsCellItem\n              icon={<Icon.Save />}\n              label=\"Save\"\n              sx={{\n                color: 'primary.main',\n              }}\n              onClick={handleSaveClick(id)}\n            />,\n            <GridActionsCellItem\n              icon={<Icon.Cancel />}\n              label=\"Cancel\"\n              className=\"textPrimary\"\n              onClick={handleCancelClick(id)}\n              color=\"inherit\"\n            />,\n          ];\n        }\n\n        return [\n          <GridActionsCellItem\n            icon={<Icon.Edit />}\n            label=\"Edit\"\n            className=\"textPrimary\"\n            onClick={handleEditClick(id)}\n            color=\"inherit\"\n          />,\n          <GridActionsCellItem\n            icon={<Icon.Delete />}\n            label=\"Delete\"\n            onClick={handleDeleteClick(id)}\n            color=\"inherit\"\n          />,\n        ];\n      },\n    }\n\n  const initialColumns = config.columns || [];\n\n  const [rows, setRows] = useState(initialRows);\n  const [columns, setColumns] = useState(initialColumns);\n  const [rowModesModel, setRowModesModel] = useState({});\n\n  const updateRow = () => {\n    setConfig({ ...config, rows});\n  };\n\n  useEffect(() => {\n    if (rows !== config.rows) {\n      updateRow();\n    }\n  }, [rows]);\n\n  useEffect(() => {\n    if (columns !== config.columns) {\n      setConfig({ ...config, columns });\n    }\n  }, [columns]);\n\n  useEffect(()=>{\n    setOutput({ output: rows });\n  },[rows,config.run])\n\n  const handleRowEditStop = (params, event) => {\n    if (params.reason === GridRowEditStopReasons.rowFocusOut) {\n      event.defaultMuiPrevented = true;\n    }\n  };\n\n  const handleEditClick = (id) => () => {\n    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });\n  };\n\n  const handleSaveClick = (id) => () => {\n    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });\n  };\n\n  const handleDeleteClick = (id) => () => {\n    setRows(rows.filter((row) => row.id !== id));\n  };\n\n  const handleCancelClick = (id) => () => {\n    setRowModesModel({\n      ...rowModesModel,\n      [id]: { mode: GridRowModes.View, ignoreModifications: true },\n    });\n\n    const editedRow = rows.find((row) => row.id === id);\n    if (editedRow.isNew) {\n      setRows(rows.filter((row) => row.id !== id));\n    }\n  };\n\n  const processRowUpdate = (newRow) => {\n    const updatedRow = { ...newRow, isNew: false };\n    setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));\n    return updatedRow;\n  };\n\n  const handleRowModesModelChange = (newRowModesModel) => {\n    setRowModesModel(newRowModesModel);\n  };\n\n  return (\n    <Box\n      sx={{\n        height: '100%',\n        width: '100%',\n        '& .actions': {\n          color: 'text.secondary',\n        },\n        '& .textPrimary': {\n          color: 'text.primary',\n        },\n      }}\n    >\n      <DataGrid\n        rows={rows}\n        columns={[...columns,actionColumn]}\n        size=\"small\"\n        editMode=\"row\"\n        rowHeight={20}\n        columnHeaderHeight={30}\n        columnBufferPx={50}\n        rowModesModel={rowModesModel}\n        onRowModesModelChange={handleRowModesModelChange}\n        onRowEditStop={handleRowEditStop}\n        processRowUpdate={processRowUpdate}\n        disableColumnMenu\n        disableColumnSorting\n        hideFooter\n        slots={{\n          toolbar: EditToolbar,\n        }}\n        slotProps={{\n          toolbar: { columns, rows, setRows, setRowModesModel, setColumns, config,setConfig },\n        }}\n        sx={{\n          '& .MuiDataGrid-footerContainer': {\n            height: 30,\n            minHeight: 30,\n          },\n          '& .MuiDataGrid-scrollbar': {\n            display: 'none',\n          },\n        }}\n      />\n    </Box>\n  );\n}\n"
+        ],
+        "columns": [
+          {
+            "editable": true,
+            "field": "amenity",
+            "headerName": "amenity",
+            "width": 70
+          },
+          {
+            "editable": true,
+            "field": "d1",
+            "headerName": "d1",
+            "width": 70
+          },
+          {
+            "editable": true,
+            "field": "d2",
+            "headerName": "d2",
+            "width": 70
+          },
+          {
+            "editable": true,
+            "field": "d3",
+            "headerName": "d3",
+            "width": 70
+          },
+          {
+            "editable": true,
+            "field": "d4",
+            "headerName": "d4",
+            "width": 70
+          },
+          {
+            "editable": true,
+            "field": "d5",
+            "headerName": "d5",
+            "width": 70
+          }
+        ],
+        "containerIsRunning": false,
+        "custom": true,
+        "description": "This module creates an editable table with customizable columns and rows for managing data, utilizing React and MUI components.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "5206ac961b242612cc1166b66a875227",
+        "height": 300,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/07543b411d4b04a51781dd2ee3b7aab5",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/6623a043760f68682cac51f12a727ec7.png",
+        "id": "6623a043760f68682cac51f12a727ec7",
+        "iframeId": "0EG4SDuXxQKrKVakyrJ6-",
+        "input": [
+          ""
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "Form Input",
+        "output": [
+          "output"
+        ],
+        "pin": true,
+        "pinHeight": 262,
+        "pinLeft": 73,
+        "pinTop": 392,
+        "pinWidth": 325,
+        "port": null,
+        "rows": [
+          {
+            "amenity": "transportation",
+            "d1": "0.1",
+            "d2": "0.05",
+            "d3": "",
+            "d4": "",
+            "d5": "",
+            "id": 0,
+            "isNew": false
+          },
+          {
+            "amenity": "public_service",
+            "d1": "0.3",
+            "d2": "",
+            "d3": "",
+            "d4": "",
+            "d5": "",
+            "id": 1,
+            "isNew": false
+          },
+          {
+            "amenity": "food",
+            "d1": "0.8",
+            "d2": "0.7",
+            "d3": "0.6",
+            "d4": "0.3",
+            "d5": "0.2",
+            "id": 2,
+            "isNew": false
+          },
+          {
+            "amenity": "education",
+            "d1": "0.3",
+            "d2": "0.2",
+            "d3": "",
+            "d4": "",
+            "d5": "",
+            "id": 3,
+            "isNew": false
+          },
+          {
+            "amenity": "health_care",
+            "d1": "0.2",
+            "d2": "",
+            "d3": "",
+            "d4": "",
+            "d5": "",
+            "id": 4,
+            "isNew": false
+          },
+          {
+            "amenity": "entertainment",
+            "d1": "0.7",
+            "d2": "0.6",
+            "d3": "0.5",
+            "d4": "0.5",
+            "d5": "0.5",
+            "id": 5,
+            "isNew": false
+          },
+          {
+            "amenity": "parking",
+            "d1": "0.4",
+            "d2": "0.2",
+            "d3": "",
+            "d4": "",
+            "d5": "",
+            "id": 6,
+            "isNew": false
+          },
+          {
+            "amenity": "bank",
+            "d1": "0.2",
+            "d2": "",
+            "d3": "",
+            "d4": "",
+            "d5": "",
+            "id": 7,
+            "isNew": false
+          },
+          {
+            "amenity": "grocery",
+            "d1": "0.5",
+            "d2": "0.4",
+            "d3": "0.2",
+            "d4": "0.1",
+            "d5": "",
+            "id": 8,
+            "isNew": false
+          }
+        ],
+        "run": false,
+        "sessionID": "JeNFSaO5Wfste9fFB72VU",
+        "sessionId": "tNgwOGkax3VTtFbJS-HqM",
+        "time": "1/24/2025, 1:57:30 AM",
+        "type": "interface",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 500
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 384,
+      "id": "6623a043760f68682cac51f12a727ec7",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "Form Input",
+      "position": {
+        "x": -248.32409722148975,
+        "y": 214.7120905510768
+      },
+      "positionAbsolute": {
+        "x": -248.32409722148975,
+        "y": 214.7120905510768
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 532,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": null,
+        "author_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "basic": false,
+        "description": "# KNN Accessibility Score in Cambridge\n\n $$ KNNA[i]^{r} = \\sum_{ j \\in G-\\{i\\} , d[i,j] \\leq r } \\frac {W[j]*C_k}{e^{\\beta*max(d[i,j]-plateau,0)}}  $$\n\n\n$d[i,j]$ is the lowest-cost path distance between origin $i$ and destination $j$ in network $G$.\n\n$W[j]$ is the weight of destination j, and the function of distance between i and j in the denominator represents an exponential distance decay rate that is controlled  by parameter $\\beta$.\n\n$C_k$ is a predefined coefficient for the K-th nearest destination, given in an array of the form [0.5, ..., 0.1]. \n\nAn optional  $plateau$ radius (e.g. 400 meters) to the index: a  baseline distance from origin i in which no distance decay is applied and destinations contribute their full weights towards the index. This allows treating all nearby destinations as equally accessible. The $plateau$ radius can be set to zero to ensure that distance decay is always included. If the $plateau$ distance is greater than or equal to the search radius, it has no effect.\n\nReference:  Alhassan, Abdulaziz and Sevtsuk, Andres, Madina Python Package: Scalable Urban Network Analysis for Modeling Pedestrian and Bicycle Trips in Cities. Available at SSRN: https://ssrn.com/abstract=4748255 or http://dx.doi.org/10.2139/ssrn.4748255",
+        "discription": "this module is useful for adding text to the workspace",
+        "files": [],
+        "hash": "08cfea00b539dca72240663126265d42",
+        "height": 420,
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/64a8c868577d78883409498ea38f2259.png",
+        "id": "64a8c868577d78883409498ea38f2259",
+        "local": false,
+        "name": "Text",
+        "run": false,
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "value": "# KNN Accessibility Score in Cambridge\n\n $$ KNNA[i]^{r} = \\sum_{ j \\in G-\\{i\\} , d[i,j] \\leq r } \\frac {W[j]*C_k}{e^{\\beta*max(d[i,j]-plateau,0)}}  $$\n\n\n$d[i,j]$ is the lowest-cost path distance between origin $i$ and destination $j$ in network $G$.\n\n$W[j]$ is the weight of destination j, and the function of distance between i and j in the denominator represents an exponential distance decay rate that is controlled  by parameter $\\beta$.\n\n$C_k$ is a predefined coefficient for the K-th nearest destination, given in an array of the form [0.5, ..., 0.1]. \n\nAn optional  $plateau$ radius (e.g. 400 meters) to the index: a  baseline distance from origin i in which no distance decay is applied and destinations contribute their full weights towards the index. This allows treating all nearby destinations as equally accessible. The $plateau$ radius can be set to zero to ensure that distance decay is always included. If the $plateau$ distance is greater than or equal to the search radius, it has no effect.\n\nReference:  Alhassan, Abdulaziz and Sevtsuk, Andres, Madina Python Package: Scalable Urban Network Analysis for Modeling Pedestrian and Bicycle Trips in Cities. Available at SSRN: https://ssrn.com/abstract=4748255 or http://dx.doi.org/10.2139/ssrn.4748255",
+        "width": 1272
+      },
+      "data": {
+        "input": null,
+        "module": "annotation/text/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 420,
+      "id": "64a8c868577d78883409498ea38f2259",
+      "module": "text",
+      "name": "Text",
+      "position": {
+        "x": 1637.9269460550404,
+        "y": -32.88367760497593
+      },
+      "positionAbsolute": {
+        "x": 1637.9269460550404,
+        "y": -32.88367760497593
+      },
+      "resizing": false,
+      "selected": false,
+      "type": "annotation",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 1272
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "authorId": null,
+        "author_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "#entrypoint.py\n\nimport json\nimport cityflow.module as cm\n\nwith open('cambridge.json','r') as f:\n    cm.output.data = json.load(f)\n"
+        ],
+        "custom": true,
+        "description": "This is POI data from OSM in Cambridge, MA",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [
+          {
+            "data": "https://github.com/kekehurry/cityflow_community/source//files/f4efbec83cec7bbe20a482644f449177",
+            "path": "cambridge.json",
+            "size": 1336026
+          }
+        ],
+        "hash": "92e2c96b15dba660defbb871bf175aed",
+        "height": 0,
+        "html": "",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/d47665933a1f4686ff7a76168c87aad9.png",
+        "id": "d47665933a1f4686ff7a76168c87aad9",
+        "iframeId": "c9V4QgBNEAzDS8RGG2zyK",
+        "input": [
+          ""
+        ],
+        "language": "python",
+        "local": false,
+        "name": "Cambridge Data",
+        "output": [
+          "data"
+        ],
+        "port": null,
+        "run": false,
+        "time": "2/7/2025, 2:06:09 PM",
+        "type": "module",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 150
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 84,
+      "id": "d47665933a1f4686ff7a76168c87aad9",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "Cambridge Data",
+      "position": {
+        "x": -219.33649976368656,
+        "y": 946.6501611736917
+      },
+      "positionAbsolute": {
+        "x": -219.33649976368656,
+        "y": 946.6501611736917
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 182
+    },
+    {
+      "config": {
+        "aggInfo": {
+          "property": "id",
+          "method": "count"
+        },
+        "author": "Anonymous",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "baseUrl": "",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "//entrypoint.js\n\n//import packages from the scope\nimport {Stack,MenuItem,TextField} from '@mui/material';\nimport React, { useEffect,useState} from 'react';\nimport * as turf from '@turf/turf';\n\n// main function\nexport default function GridCreator(props) {\n    // load necessary variables from the scope\n    const {input,config,setConfig,setOutput} = props;\n    const [gridType, setGridType] = useState(config?.gridType || \"hexGrid\");\n    const [gridSize, setGridSize] = useState(config?.gridSize || 100);\n    const [aggInfo, setAggInfo] = useState({\n        \"property\": config?.aggInfo?.property || \"id\",\n        \"method\":  config?.aggInfo?.method || \"count\"\n    })\n    const aggOperators = [\"count\",\"sum\",\"avg\",\"min\",\"max\",\"none\"];\n    useEffect(() => {\n        if (config?.run && input && input.boundary) {\n            let grid;\n            grid = createGrid(input.boundary);\n            if (input.geoData){\n                grid = aggGrid(grid,input.geoData)\n            }\n            setOutput({grid})\n        } else {\n            setOutput({grid:null});\n        }\n    }, [config?.run,input,gridType,gridSize,aggInfo.property,aggInfo.method]);\n\n    // save values to config\n    useEffect(() => {\n        setConfig({...config,gridType,gridSize,aggInfo});\n    }, [gridType,gridSize,aggInfo]);\n\n    const createGrid = (boundary) => {\n        let grid = null;\n        try {\n            const bbox = turf.bbox(boundary);\n            //create grid\n            switch (gridType) {\n                case \"hexGrid\":\n                    grid = turf.hexGrid(bbox,gridSize/1000);\n                    break;\n                case \"squareGrid\":\n                    grid = turf.squareGrid(bbox,gridSize/1000);\n                    break;\n                case \"triangleGrid\":\n                    grid = turf.triangleGrid(bbox,gridSize/1000);\n                    break;\n                default:\n                    break;\n            }\n            } catch (error) {\n                console.log(error);\n                return;\n        }\n        return grid;\n    }\n\n    const aggGrid = (grid,geoData) => {\n        // filter the grid outsize the hull polygon\n        if (aggInfo.property){\n            const hull = turf.convex(geoData);\n            grid.features  = grid.features.filter((feature) => turf.booleanPointInPolygon(turf.centroid(feature),hull));\n            const {property, method} = aggInfo;\n            //Convert geoData to Point\n            geoData.features = geoData.features.map((feature) => {\n                if (feature.geometry.type === \"Point\") return feature;\n                const point = turf.centerOfMass(feature.geometry);\n                feature.geometry = point.geometry;\n                feature.type = \"Point\"\n                return feature;\n            });\n            // Collect the points in each grid\n            let collection = turf.collect(grid, geoData, property, `${property}_${method}`);\n            // Aggregate the property in each grid\n            let aggFeatures = [];\n            switch (method) {\n                case \"count\":\n                    aggFeatures = collection.features.map((feature) => {\n                        feature.properties[`${property}_${method}`] = feature.properties[`${property}_${method}`].length;\n                        feature.properties['color'] = feature.properties[`${property}_${method}`] ? [255,0,0,200]:[120, 165, 120, 150]\n                        return feature;\n                    });\n                    break;\n                case \"sum\":\n                    aggFeatures = collection.features.map((feature) => {\n                        feature.properties[`${property}_${method}`] = feature.properties[`${property}_${method}`].reduce((a,b) => a+b,0);\n                        feature.properties['color'] = feature.properties[`${property}_${method}`] ? [255,0,0,200]:[120, 165, 120, 150]\n                        return feature;\n                    });\n                    break;\n                case \"avg\":\n                    aggFeatures = collection.features.map((feature) => {\n                        const numFeatures = feature.properties[`${property}_${method}`].length;\n                        if (numFeatures>0){\n                            const sum = feature.properties[`${property}_${method}`].reduce((a,b) => a+b,0);\n                            feature.properties[`${property}_${method}`] = sum/numFeatures;\n                        } else {\n                            feature.properties[`${property}_${method}`] = 0;\n                        }\n                        feature.properties['color'] = feature.properties[`${property}_${method}`] ? [255,0,0,200]:[120, 165, 120, 150]\n                        return feature;\n                    });\n                    break;\n                case \"min\":\n                    aggFeatures = collection.features.map((feature) => {\n                        feature.properties[`${property}_${method}`] = Math.min(...feature.properties[`${property}_${method}`]);\n                        feature.properties['color'] = feature.properties[`${property}_${method}`] ? [255,0,0,200]:[120, 165, 120, 150]\n                        return feature;\n                    });\n                    break;\n                case \"max\":\n                    aggFeatures = collection.features.map((feature) => {\n                        feature.properties[`${property}_${method}`] = Math.max(...feature.properties[`${property}_${method}`]);\n                        feature.properties['color'] = feature.properties[`${property}_${method}`] ? [255,0,0,200]:[120, 165, 120, 150]\n                        return feature;\n                    });\n                    break;\n                case \"none\":\n                    aggFeatures = collection.features.map((feature) => {\n                        feature.properties['color'] = [120, 165, 120, 150]\n                        return feature;\n                    });\n                    break;\n                default:\n                    aggFeatures = collection.features\n                    break;\n            }\n            grid.features = aggFeatures;\n        }\n        grid.properties = {\n            \"gridType\": gridType, \n            \"gridSize\": gridSize,\n            \"lineColor\":[255, 255, 255, 200],\n            \"lineWidth\": 500, \n            \"stroked\" : true,\n            \"wireframe\": true,\n        };\n        return grid;\n    }\n\n\n    const handleTypeChange = (e) => {\n        setGridType(e.target.value);\n    }\n    const handleValueChange = (e) => {\n        setGridSize(e.target.value);\n    }\n    const handleAggChange = (e,key) => {\n        const newAggInfo = {...aggInfo, [key]: e.target.value};\n        setAggInfo(newAggInfo);\n    }\n\n    return (\n        <>\n        <Stack spacing={1.2} sx={{p:1, paddingTop:2}}>\n            <Stack direction=\"row\" spacing={1}>\n                <TextField fullWidth label=\"Grid Type\" value={gridType} size=\"small\"\n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    onChange={handleTypeChange}\n                    select>\n                    <MenuItem value=\"hexGrid\">hexGrid</MenuItem>\n                    <MenuItem value=\"squareGrid\">squareGrid</MenuItem>\n                    <MenuItem value=\"triangleGrid\">triangleGrid</MenuItem>\n                </TextField>\n                <TextField label=\"Grid Size(m)\" type=\"number\" value={gridSize} size=\"small\" \n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    onChange={handleValueChange}\n                    >\n                </TextField>\n            </Stack>\n            {input && input.geoData && input.geoData.features[0] && \n            (<TextField label=\"Aggregate Property\" size=\"small\" \n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    onChange={(e)=>{handleAggChange(e,\"property\")}}\n                    value = {aggInfo?.property||\"\"}\n                    select\n                    >\n                    {Object.keys(input.geoData.features[0].properties).map((property) => (\n                        <MenuItem key={property} value={property}>\n                        {property}\n                        </MenuItem>\n                    )) || <MenuItem value={\"\"}>No Properties</MenuItem>\n                    }\n            </TextField>) \n            || <TextField label=\"Aggregate Property\" size=\"small\" \n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    disabled = {true}\n                />\n            }\n            <TextField fullWidth label=\"Aggregate Method\" size=\"small\"\n                    value = {aggInfo?.method || \"count\"}\n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    onChange={(e)=>{handleAggChange(e,\"method\")}}\n                    select>\n                    {aggOperators.map((operator) => (\n                        <MenuItem key={operator} value={operator}>\n                        {operator}\n                        </MenuItem>\n                    ))}\n            </TextField>\n        </Stack>\n        </>\n    );\n}"
+        ],
+        "containerIsRunning": false,
+        "custom": true,
+        "description": "This module creates and aggregates a grid based on geographic input, allowing users to specify grid type, size, and aggregation method.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "gridSize": 100,
+        "gridType": "hexGrid",
+        "hash": "801a695114e1d92092dd96370100f56f",
+        "height": 140,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/5ae67b3fb0dc86dfbffbc84e30cd6536",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/114ce8c96ff7ba963db3f6c6be3f644f.png",
+        "id": "114ce8c96ff7ba963db3f6c6be3f644f",
+        "iframeId": "5a0tWHHhBvzIhsSTdeabC",
+        "input": [
+          "boundary",
+          "geoData"
+        ],
+        "language": "javascript",
+        "local": false,
+        "model": "gpt-4o-mini",
+        "name": "GridCreator",
+        "output": [
+          "grid"
+        ],
+        "port": null,
+        "run": false,
+        "secretKey": "",
+        "sessionID": "dZh5vC16MnOXAFERk5yld",
+        "time": "1/23/2025, 6:13:39 PM",
+        "type": "interface",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 200
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 240,
+      "id": "114ce8c96ff7ba963db3f6c6be3f644f",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "GridCreator",
+      "position": {
+        "x": 767.7657285189732,
+        "y": 933.7385299631472
+      },
+      "positionAbsolute": {
+        "x": 767.7657285189732,
+        "y": 933.7385299631472
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 232
+    },
+    {
+      "config": {
+        "author": "Anonymous",
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "baseUrl": "",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "//entrypoint.js\n\n//import packages from the scope\nimport { TextField,MenuItem,Stack} from \"@mui/material\";\nimport React, { useEffect, useState } from \"react\";\nimport * as d3 from 'd3';\n\nfunction rgbToHex(r, g, b) {\n    function valToHex(c) {\n      var hex = c.toString(16);\n      return hex.length === 1 ? \"0\" + hex : hex;\n    }\n    return \"#\" + valToHex(r) + valToHex(g) + valToHex(b);\n  }\n  \n/**\n * convert hex to rgb array\n */\nfunction hexToRgb(hex) {\n  var result = /^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i.exec(hex);\n  return result\n    ? [\n        parseInt(result[1], 16),\n        parseInt(result[2], 16),\n        parseInt(result[3], 16),\n      ]\n    : null;\n}\n\n/**\n * convert rgb string to array\n */\n\nfunction rgbToArray(rgb) {\n  var result = rgb.replace(/[^\\d,]/g, \"\").split(\",\");\n  return result\n    ? [\n      parseInt(result[0], 16),\n      parseInt(result[1], 16),\n      parseInt(result[2], 16),\n    ]\n  : null;\n}\n\n\n\n// main function\nexport default function Item(props) {\n    // load necessary variables from the scope\n    const {input,config,setConfig,setOutput} = props;\n    const [range,setRange] = useState({\n        min: 0,\n        max: 1\n    });\n    \n    const [values,setValues] = useState({\n        option: config?.option || \"color\",\n        property: config?.property || \"knna_score\",\n        dataType: config?.dataType || \"continuous\",\n        numCategories: config?.numCategories || 10,\n        colorScheme: config?.colorScheme || \"interpolateSpectral\",\n        dataRange: config?.dataRange || [0,1]\n    });\n\n    const handleValueChange = (e,k) => {\n        setValues({...values,[k]: e.target.value})\n        setConfig({...config,[k]: e.target.value});\n    }\n    const handleRangeChange = (e,k) => {\n        setRange({...range,[k]: e.target.value})\n        if (k === \"min\") {\n            setValues({...values,dataRange: [e.target.value,range.max]})\n            setConfig({...config,dataRange: [e.target.value,range.max]});\n        }else{\n            setValues({...values,dataRange: [range.min,e.target.value]})\n            setConfig({...config,dataRange: [range.min,e.target.value]});\n        }\n    }\n\n    const itemList = [\"color\",\"lineColor\",\"pointRadius\",\"lineWidth\",\"height\"]\n\n    const linearSchemes = [\"interpolateRdBu\",\"interpolatePuOr\",\"interpolateSpectral\",\"interpolatePiYG\"];\n\n    const ordinalSchemes = [\"schemeRdYlBu\",\"schemeRdBu\",\"schemeSpectral\",\"schemeBrBG\"];\n\n    const mappingValue = (v) => {\n        if (!(input && input.geojson)) return\n        let scale;\n        let data = [];\n        input.geojson.features.forEach(d => {\n            data.push(d.properties[values.property]);\n        });\n        if (values.option ===\"color\" || values.option === \"lineColor\") {\n            if (!(values.colorScheme && values.dataType && d3[values.colorScheme])) return v;\n            if (values.dataType === \"continuous\" && d3[values.colorScheme](1)) {\n                scale = d3.scaleLinear()\n                    .domain(d3.extent(data))\n                    .range([d3[values.colorScheme](1),d3[values.colorScheme](0)])\n                return scale(v) && rgbToArray(scale(v));\n            }else if (d3[values.colorScheme][values.numCategories]){\n                scale = d3.scaleOrdinal()\n                    .domain([...new Set(data)])\n                    .range(d3[values.colorScheme][values.numCategories])\n            return hexToRgb(scale(v));\n            }\n        }else {\n            if (values.dataType === \"continuous\") {\n                scale = d3.scaleLinear()\n                .domain(d3.extent(data))\n                .range([parseFloat(range.min),parseFloat(range.max)])\n                return scale(v);\n            }else{\n                const min = parseFloat(range.min);\n                const max = parseFloat(range.max);\n                const stepSize = (max - min) / values.numCategories;\n                const discreteRange = Array.from({length: values.numCategories}, (_, i) => min + i * stepSize);\n                scale = d3.scaleOrdinal()\n                .domain([...new Set(data)].sort(d3.descending))\n                .range(discreteRange)\n                return scale(v);\n            }\n        }\n    }\n\n    useEffect(() => {\n        if (config?.run && input && input.geojson) {\n            const newData = {...input.geojson,\n                features: input.geojson.features.map((d) => {\n                    return {\n                        ...d,\n                        properties: {\n                            ...d.properties,\n                            [values.option]: mappingValue(d.properties[values.property])\n                        }\n                    }\n                })\n            }\n            setOutput({geojson:newData});\n        } else {\n            setOutput({geojson:null});\n        }\n        setConfig({...config,...values})\n    }, [config?.run,input,values]);\n\n    return (\n        <>\n        <Stack spacing={1} sx={{p:1}}>\n        {input && input.geojson && input.geojson.features[0] && \n            (<TextField fullWidth label=\"Aggregate Property\" size=\"small\" \n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    onChange={(e)=>{handleValueChange(e,\"property\")}}\n                    value = {values.property}\n                    select\n                    >\n                    {\n                    Object.keys(input.geojson.features[0].properties).map((property) => (\n                        <MenuItem key={property} value={property}>\n                        {property}\n                        </MenuItem>\n                    )) || <MenuItem value={\"\"}>No Properties</MenuItem>\n                    }\n            </TextField>) \n            || <TextField fullWidth label=\"Aggregate Property\" size=\"small\" \n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    disabled = {true}\n                />\n        }\n        <Stack spacing={1}>\n        <TextField fullWidth label=\"Options\" size=\"small\" select\n            InputLabelProps={{style: { fontSize: 8 }}}\n            InputProps={{style: { fontSize: 8}}}\n            onChange={(e)=>{handleValueChange(e,\"option\")}}\n            value={values.option}>\n            {itemList.map((item) => (\n                <MenuItem key={item} value={item}>\n                    {item}\n                </MenuItem>\n            ))}\n        </TextField>\n        {\n        <TextField fullWidth label=\"Data Type\" size=\"small\" select\n        InputLabelProps={{style: { fontSize: 8 }}}\n        InputProps={{style: { fontSize: 8}}}\n        onChange={(e)=>{handleValueChange(e,\"dataType\")}}\n        value={values.dataType}>\n            <MenuItem value=\"continuous\">Continuous</MenuItem>\n            <MenuItem value=\"discrete\">Discrete</MenuItem>\n        </TextField>\n        }\n        {\n        values.dataType === \"discrete\" &&\n        <TextField fullWidth label=\"Number of Categories\" size=\"small\"\n            InputLabelProps={{style: { fontSize: 8 }}} select\n            InputProps={{style: { fontSize: 8}}}\n            onChange={(e)=>{handleValueChange(e,\"numCategories\")}}\n            value={values.numCategories}\n            >\n            {\n                Array.from({length: 8}, (_, i) => (\n                    <MenuItem key={i+2} value={i+3}>\n                        {i+3}\n                    </MenuItem>\n                ))\n            }\n        </TextField>\n        }\n        {\n        (values.option === \"color\" || values.option === \"lineColor\") &&\n        (<TextField fullWidth label=\"Data Range\" size=\"small\" select\n            InputLabelProps={{style: { fontSize: 8 }}}\n            InputProps={{style: { fontSize: 8}}}\n            onChange={(e)=>{handleValueChange(e,\"colorScheme\")}}\n            value={values.colorScheme}>\n                {\n                    values.dataType === \"continuous\" && linearSchemes.map((scheme) => (\n                        <MenuItem key={scheme} value={scheme}>\n                            <div style={{ width: config?.width||200, height: 10}}>\n                            {Array.from({ length: 100 }, (_, i) => (\n                                <div\n                                    key={i}\n                                    style={{\n                                        width: (config?.width||200)/100,\n                                        height: 10,\n                                        backgroundColor: d3[scheme](1-i/100),\n                                        display: 'inline-block',\n                                    }}\n                                />\n                            ))}\n                            </div>\n                        </MenuItem>\n                    ))\n                }\n                {\n                    (values.dataType === \"discrete\" && values.numCategories) && ordinalSchemes.map((scheme) => (\n                        <MenuItem key={scheme} value={scheme} sx={{display:\"felx\", alignItems:\"center\"}}>\n                            <div style={{ width: config?.width || 200, height: 10}}>\n                                {d3[scheme][values.numCategories].slice().reverse().map((c) => (\n                                <div\n                                    key={c}\n                                    style={{\n                                    width: (config?.width||200)/values.numCategories,\n                                    height: 10,\n                                    backgroundColor: c,\n                                    display: 'inline-block',\n                                    }}\n                                />\n                                ))}\n                            </div>\n                        </MenuItem>\n                    ))\n                \n                }\n        </TextField>)\n        || (\n            <>\n            <TextField fullWidth label=\"Min\" size=\"small\"\n                InputLabelProps={{style: { fontSize: 8 }}}\n                InputProps={{style: { fontSize: 8}}}\n                onChange = {(e)=>handleRangeChange(e,\"min\")}\n                value={range.min}\n                type=\"number\"\n            />\n            <TextField fullWidth label=\"Max\" size=\"small\" \n                InputLabelProps={{style: { fontSize: 8 }}}\n                InputProps={{style: { fontSize: 8}}}\n                onChange = {(e)=>handleRangeChange(e,\"max\")}\n                value={range.max}\n                type=\"number\"\n            />\n            </>\n        )\n        }\n        </Stack>\n        </Stack>\n        </>\n    )\n}\n"
+        ],
+        "colorScheme": "interpolateSpectral",
+        "containerIsRunning": false,
+        "custom": true,
+        "dataRange": [
+          0,
+          1
+        ],
+        "dataType": "continuous",
+        "description": "This module provides a React component to configure and visualize data properties on geojson features using various mapping schemes and data types.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "b5a916a3e20fcccad1c77c5083341eef",
+        "height": 230,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/deed97914b6c6555f78e23994450b265",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/d67fe21132c3895fca943ff54dc5b9de.png",
+        "id": "d67fe21132c3895fca943ff54dc5b9de",
+        "iframeId": "pJbawbcbq-pyq76iRXBPp",
+        "input": [
+          "geojson"
+        ],
+        "language": "javascript",
+        "local": false,
+        "model": "gpt-4o-mini",
+        "name": "Mapping",
+        "numCategories": 10,
+        "option": "color",
+        "output": [
+          "geojson"
+        ],
+        "port": null,
+        "property": "knna_score",
+        "run": false,
+        "secretKey": "",
+        "sessionID": "JQv4VQ1Mm0widtIlBD0n0",
+        "time": "1/23/2025, 6:08:36 PM",
+        "type": "interface",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 200
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 314,
+      "id": "d67fe21132c3895fca943ff54dc5b9de",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "Mapping",
+      "position": {
+        "x": 1731.4273647034245,
+        "y": 844.7172019432645
+      },
+      "positionAbsolute": {
+        "x": 1731.4273647034245,
+        "y": 844.7172019432645
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 232,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "config": {
+        "author": "Anonymous",
+        "authorId": null,
+        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "//entrypoint.js\nimport {GeoJsonBaseLayer, TileBaseLayer} from './layers'\nimport React, { useEffect, useState, useRef} from \"react\";\nimport DeckGL from \"@deck.gl/react\";\nimport { Box} from \"@mui/material\";\nimport { MapController} from \"@deck.gl/core\";\n\nimport * as turf from '@turf/turf'\n\nconst mapboxToken = window.secrets.MAPBOX_TOKEN;\n\nexport default function DeckGLMap(props) {\n    const {input,config,setConfig,setOutput} = props\n    const deckGLref = useRef(null);\n    const [layers, setLayers] = useState([]);\n    const [viewState, setViewState] = useState({\n        latitude: 42.3654825444308, \n        longitude: -71.09032464941119,\n        zoom:  15,\n        pitch: 0,\n        bearing: 0,\n        minZoom: 10,\n        maxZoom: 22,\n    });\n    const [bbox, setBbox] = useState(null);\n\n    const onBeforeRender = () => {\n        const layer = layers[0];\n        // fit the bounds of the layer\n        if (layer && layer.isLoaded && bbox) {\n            const viewport = layer.context.viewport;\n            // fitBounds - Bounding box in [[longitude, latitude], [longitude, latitude]] format\n            const formatedBounds = [[bbox[0], bbox[1]], [bbox[2], bbox[3]]];\n            const {longitude, latitude, zoom} = viewport.fitBounds(formatedBounds);\n            if (!(longitude === config.longtitude && latitude === config.latitude && zoom === config.zoom )){\n            setViewState({...viewState,longitude, latitude, zoom:zoom-1});\n            }\n        }\n    }\n\n    useEffect(() => {\n      const dataLayers = []\n      \n      if (mapboxToken) {\n        dataLayers.push(TileBaseLayer())\n      }\n      if(input?.input) {\n        setBbox(turf.bbox(input.input));\n        dataLayers.push(\n        GeoJsonBaseLayer({ data:input.input, opacity: 0.5 })\n        )\n      }\n      setLayers(dataLayers)\n    }, [input,mapboxToken]);\n    \n    return (\n        <Box style={{\n            minWidth:config?.width,\n            minHeight:config?.height,\n            width:\"100%\", \n            height:\"100%\", \n            margin:0,\n            padding:0}}>\n            <DeckGL\n            ref={deckGLref}\n            initialViewState={viewState}\n            onContextMenu={(e) => e.preventDefault()}\n            onBeforeRender={onBeforeRender}\n            layers={layers}\n            controller={{\n                type: MapController,\n                dragRotate: true,\n                dragPan: true,\n                scrollZoom: true,\n                touchZoom: true,\n                touchRotate: true,\n                keyboard: true,\n                doubleClickZoom: true\n            }}\n            >\n            </DeckGL>\n        </Box>\n    );\n}\n",
+          "//layers.js\n\nimport {GeoJsonLayer,BitmapLayer} from '@deck.gl/layers';\nimport {TileLayer} from '@deck.gl/geo-layers';\nimport {nanoid} from 'nanoid';\n\nconst mapboxToken = window.secrets.MAPBOX_TOKEN;\n\nexport function GeoJsonBaseLayer({data, opacity}){\n    if(data){\n        return new GeoJsonLayer({\n          id: nanoid(),\n          data: data,\n          opacity: opacity || 0.5,\n          pickable: data.properties?.pickable || true,\n          stroked: data.properties?.stroked || true,\n          filled: data.properties?.filled || true,\n          extruded: data.properties?.extruded || true,\n          wireframe: data.properties?.wireframe || true,\n          pointType: data.properties?.pointType || 'circle',\n          autoHighlight: data.properties?.autoHighlight || true,\n          highlightColor: data.properties?.highlightColor || [242, 0, 117, 120],\n          lineWidthUnits: data.properties?.lineWidthUnits || 'pixels',\n          lineWidthMinPixels: data.properties?.lineWidthMinPixels || 1,\n          getFillColor: d => d.properties?.color || data.properties?.color ||  [255, 0, 0,0],\n          getLineColor: d => d.properties?.lineColor || data.properties?.lineColor || [255, 255, 255],\n          getPointRadius: d =>   d.properties?.pointRadius || data.properties?.pointRadius || 10,\n          getLineWidth: d => d.properties?.lineWidth ||data.properties?.lineWidth ||  1,\n          getElevation: d => d.properties?.height || data.properties?.height || 1,\n          updateTriggers: {\n            getFillColor: data,\n            getLineColor: data,\n            getPointRadius: data,\n            getLineWidth: data,\n            getElevation: data,\n          },\n          transitions: {\n            getFillColor: data.properties?.duration || 500,\n            getElevation: data.properties?.duration || 500,\n            getLineWidth: data.properties?.duration || 500,\n            getPointRadius: data.properties?.duration || 500,\n            getLineColor: data.properties?.duration || 500,\n          }\n        });\n      \n      \n    }\n  }\n\nexport function TileBaseLayer() {\n  const mapStyle = {\n    Dark: 'cjs9rb33k2pix1fo833uweyjd',\n    Light: 'ck0h5xn701bpr1dqs3he2lecq',\n    Inverse: 'cjlu6w5sc1dy12rmn4kl2zljn',\n    Normal: 'cl8dv36nv000t14qik9yg4ys6',\n  };\n  return new TileLayer({\n    data:\n      `https://api.mapbox.com/styles/v1/relnox/${mapStyle.Dark}/tiles/256/{z}/{x}/{y}?access_token=` + mapboxToken +\n      '&attribution=false&logo=false&fresh=true',\n    minZoom: 0,\n    maxZoom: 21,\n    tileSize: 256,\n    id: 'MapboxTile',\n    renderSubLayers: (props) => {\n      const {\n        bbox: { west, south, east, north },\n      } = props.tile;\n\n      return new BitmapLayer(props, {\n        data: null,\n        image: props.data,\n        bounds: [west, south, east, north],\n      });\n    },\n  });\n}"
+        ],
+        "containerIsRunning": false,
+        "custom": true,
+        "description": "This module creates a React component for a map using Deck.gl, displaying GeoJSON data and Mapbox tiles with customizable styles and interactions.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "404ae69c9660c818115486236d4a91f9",
+        "height": 400,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/43988df8444ab7f95088241d14e7efec",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/ef970d7d5432108c0c82508c3eabb348.png",
+        "id": "ef970d7d5432108c0c82508c3eabb348",
+        "iframeId": "xP6V1448NXdXAXFrI-rLr",
+        "input": [
+          "input"
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "GeoJson Map",
+        "output": [
+          ""
+        ],
+        "pin": true,
+        "pinHeight": 597,
+        "pinLeft": 404,
+        "pinTop": 58,
+        "pinWidth": 782,
+        "port": null,
+        "run": false,
+        "sessionID": "JF5f8wIsPemc3MFwlgdb2",
+        "time": "2/7/2025, 1:25:03 PM",
+        "type": "interface",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 600
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 484,
+      "id": "ef970d7d5432108c0c82508c3eabb348",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "GeoJson Map",
+      "position": {
+        "x": 2281.188426633543,
+        "y": 846.9558172004128
+      },
+      "positionAbsolute": {
+        "x": 2281.188426633543,
+        "y": 846.9558172004128
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 632,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "5CZKm1",
+      "selected": false,
+      "source": "6623a043760f68682cac51f12a727ec7",
+      "sourceHandle": "6623a043760f68682cac51f12a727ec7||output",
+      "target": "cbb47dce8bfa9d240e365f44a40e45f8",
+      "targetHandle": "cbb47dce8bfa9d240e365f44a40e45f8||input",
+      "type": "base"
+    },
+    {
+      "id": "JCOeSj",
+      "source": "6623a043760f68682cac51f12a727ec7",
+      "sourceHandle": "6623a043760f68682cac51f12a727ec7||output",
+      "target": "3090c381dfa6f94ca171b18a199efab2",
+      "targetHandle": "3090c381dfa6f94ca171b18a199efab2||weights",
+      "type": "base"
+    },
+    {
+      "id": "WvKqZU",
+      "source": "299b0700adcc7f588ff38be499c4959f",
+      "sourceHandle": "299b0700adcc7f588ff38be499c4959f||geojson",
+      "target": "3090c381dfa6f94ca171b18a199efab2",
+      "targetHandle": "3090c381dfa6f94ca171b18a199efab2||amenities",
+      "type": "base"
+    },
+    {
+      "id": "qiNrwI",
+      "source": "d47665933a1f4686ff7a76168c87aad9",
+      "sourceHandle": "d47665933a1f4686ff7a76168c87aad9||data",
+      "target": "299b0700adcc7f588ff38be499c4959f",
+      "targetHandle": "299b0700adcc7f588ff38be499c4959f||geojson",
+      "type": "base"
+    },
+    {
+      "id": "iXG4uE",
+      "source": "d47665933a1f4686ff7a76168c87aad9",
+      "sourceHandle": "d47665933a1f4686ff7a76168c87aad9||data",
+      "target": "114ce8c96ff7ba963db3f6c6be3f644f",
+      "targetHandle": "114ce8c96ff7ba963db3f6c6be3f644f||boundary",
+      "type": "base"
+    },
+    {
+      "id": "0HNjsd",
+      "source": "299b0700adcc7f588ff38be499c4959f",
+      "sourceHandle": "299b0700adcc7f588ff38be499c4959f||geojson",
+      "target": "114ce8c96ff7ba963db3f6c6be3f644f",
+      "targetHandle": "114ce8c96ff7ba963db3f6c6be3f644f||geoData",
+      "type": "base"
+    },
+    {
+      "id": "vnlxNN",
+      "source": "114ce8c96ff7ba963db3f6c6be3f644f",
+      "sourceHandle": "114ce8c96ff7ba963db3f6c6be3f644f||grid",
+      "target": "3090c381dfa6f94ca171b18a199efab2",
+      "targetHandle": "3090c381dfa6f94ca171b18a199efab2||grids",
+      "type": "base"
+    },
+    {
+      "id": "8uKEN6",
+      "source": "3090c381dfa6f94ca171b18a199efab2",
+      "sourceHandle": "3090c381dfa6f94ca171b18a199efab2||output",
+      "target": "d67fe21132c3895fca943ff54dc5b9de",
+      "targetHandle": "d67fe21132c3895fca943ff54dc5b9de||geojson",
+      "type": "base"
+    },
+    {
+      "id": "7MYp4r",
+      "source": "d67fe21132c3895fca943ff54dc5b9de",
+      "sourceHandle": "d67fe21132c3895fca943ff54dc5b9de||geojson",
+      "target": "ef970d7d5432108c0c82508c3eabb348",
+      "targetHandle": "ef970d7d5432108c0c82508c3eabb348||input",
+      "type": "base"
+    },
+    {
+      "id": "-iWkpS",
+      "source": "cbb47dce8bfa9d240e365f44a40e45f8",
+      "sourceHandle": "cbb47dce8bfa9d240e365f44a40e45f8||output",
+      "target": "56be1fc495a592a1459b062e63222f68",
+      "targetHandle": "56be1fc495a592a1459b062e63222f68||input",
+      "type": "base"
+    }
+  ],
+  "globalScale": 0.01,
+  "viewport": {
+    "x": 131.50829148063212,
+    "y": 161.35165234413313,
+    "zoom": 0.23689154027692655
+  },
+  "flowId": "f27c8683d6388b35a1ea310a9f50db6a",
+  "author": "user_db241",
+  "flowInited": false,
+  "logs": "Using defaults and conda-forge.\r\n\nNo conda packages to install.\r\nNo npm packages to install.\r\nNo pip packages to install.\r\nSetup Completed!\r\n\n",
+  "isAlive": true,
+  "loading": false,
+  "authorId": "d29545ce164c0b53b65671d6c1ebe6ac",
+  "author_id": "db24189989302b1c4faacf164c434c7e",
+  "basic": false,
+  "city": "Cambridge",
+  "description": "This workflow calculates the K-Nearest Neighbors (KNNA) score for amenities in New York, visualizing accessibility and data properties using various components and tools.",
+  "hash": "f27c8683d6388b35a1ea310a9f50db6a",
+  "image": "ghcr.io/kekehurry/cityflow_runner:full",
+  "name": "KNN Accessibility in Cambridge",
+  "packages": "",
+  "private": true,
+  "screenShot": "/images/452e01c1849dd0ab1c8776ad84cdd985_10-52-54.png",
+  "showcase": false,
+  "source": "3fd21cd24e5e54e7b4bd4fe2482d7b14",
+  "tag": "GIS, Accessibility, Urban Planning, Data Visualization, Map Analysis"
+}

@@ -1,0 +1,908 @@
+{
+  "nodes": [
+    {
+      "config": {
+        "author": "Kai Hu",
+        "authorId": null,
+        "author_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "basic": false,
+        "category": "input/output",
+        "code": [
+          "//entrypoint.js\n\nimport React, {useEffect} from 'react';\nimport {Accordion,AccordionDetails,AccordionSummary,Box,Typography} from '@mui/material';\nimport ExpandMoreIcon from '@mui/icons-material/ExpandMore'\n\nexport default function DataViewer(props){\n    const {input,config,setConfig,setOutput} = props\n\n    // DataViewer only inspects top 10 datapoints\n    useEffect(() => {\n        if (!(input && input.input)) return;\n        setOutput({output:input.input})\n    }, [input]);\n    \n    if (input && input.input){\n        if (typeof input.input === 'object' && Object.keys(input).length > 0){\n            return (\n                <>\n                {Object.entries(input.input).slice(0,10).map(([key, value]) => {\n                    return (\n                        <Accordion key={key} variant='outlined' sx={{p:1,m:0}} disableGutters>\n                            <AccordionSummary\n                                expandIcon={<ExpandMoreIcon />}\n                                sx ={{ width:\"100%\",height:10, m:0, p:0,paddingLeft:1, minHeight:10, borderRadius:0}}\n                            >\n                                <Typography variant='caption'>{key}</Typography>\n                            </AccordionSummary>\n                            <AccordionDetails sx={{ width:\"100%\",height:200,overflow:\"auto\"}}>\n                                <Typography variant='caption' sx={{fontSize:10,whiteSpace: 'pre-wrap',wordBreak: 'break-word'}}>\n                                    {JSON.stringify(value, null, 2)}\n                                </Typography>\n                            </AccordionDetails>\n                        </Accordion>\n                    );\n                })\n                }\n                </>\n            )\n        } else {\n            return (\n            <Box sx={{height:\"100%\",width:\"100%\"}}>\n                <Typography sx={{fontSize:10,whiteSpace: 'pre-wrap',wordBreak: 'break-word'}}>\n                    {input?.input ? \n                    (typeof input.input == 'object') ?\n                    JSON.stringify(input.input, null, 2) \n                    : input.input \n                    : ''}\n                </Typography>\n            </Box>)\n        }\n    }\n}\n"
+        ],
+        "custom": true,
+        "description": "This module displays the top 10 data points from an input object using an expandable Accordion component, and provides a detailed view of each key-value pair.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "DataViewer",
+        "height": 200,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/f0da1724e2820b76a1d203109934e746",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/952cfb879c974e3866e11f5afad16993.png",
+        "id": "952cfb879c974e3866e11f5afad16993",
+        "iframeId": "O9A5I0uqjISPkXklZg9ab",
+        "input": [
+          "input"
+        ],
+        "language": "javascript",
+        "name": "DataViewer",
+        "output": [
+          "output"
+        ],
+        "port": null,
+        "run": false,
+        "sessionId": "F7xzVS3PVAvsabsEfZtpx",
+        "time": "1/27/2025, 12:20:16 AM",
+        "type": "interface",
+        "width": 200,
+        "local": false
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 284,
+      "id": "952cfb879c974e3866e11f5afad16993",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "a3b41",
+      "position": {
+        "x": 61.77582079216097,
+        "y": 96.5383627944676
+      },
+      "positionAbsolute": {
+        "x": 61.77582079216097,
+        "y": 96.5383627944676
+      },
+      "selected": false,
+      "type": "expand",
+      "version": "0.0.1",
+      "width": 232,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "config": {
+        "author": "Kai Hu",
+        "authorId": null,
+        "author_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "basic": false,
+        "category": "input/output",
+        "code": [
+          "//entrypoint.js\nimport React,{useState} from 'react';\nimport {ToggleButton,ToggleButtonGroup} from '@mui/material'\n\nexport default  function Boolnput(props){\n    const {input,config,setConfig,setOutput} = props\n\n    const [value, setValue] = useState(config?.value || \"true\");\n    const handleSwitch = (event) => {\n        setValue(event.target.value);\n        setConfig({...config,value:event.target.value})\n        setOutput({output: event.target.value});\n    };\n    return (\n        <ToggleButtonGroup\n        value={value}\n        exclusive\n        onChange={handleSwitch}\n        aria-label=\"text alignment\"\n        sx={{\n            width: \"100%\",\n            height: \"100%\",\n            minHeight:0\n        }}\n        >\n\n        <ToggleButton fullWidth value=\"true\">\n            True\n        </ToggleButton>\n        <ToggleButton fullWidth value=\"false\">\n            False\n        </ToggleButton>\n\n        </ToggleButtonGroup>\n    );\n}\n"
+        ],
+        "custom": true,
+        "description": "This module creates a React component that allows users to toggle between \"True\" and \"False\" values, updating the module's configuration and output accordingly.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "BoolInput",
+        "height": 30,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/f562494bd31cc2f4039b0137d81ea947",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/b9a4dce447bfbba0540a2f4297d673fa.png",
+        "id": "b9a4dce447bfbba0540a2f4297d673fa",
+        "iframeId": "gQVp1awsuW_RzH2prPmwy",
+        "input": [
+          ""
+        ],
+        "language": "javascript",
+        "name": "BoolInput",
+        "output": [
+          "output"
+        ],
+        "port": null,
+        "run": false,
+        "sessionId": "w2JkE1LirqCTkTfwjhAD4",
+        "time": "1/24/2025, 1:29:00 AM",
+        "type": "interface",
+        "value": "false",
+        "width": 150,
+        "local": false
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 114,
+      "id": "b9a4dce447bfbba0540a2f4297d673fa",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "020de",
+      "position": {
+        "x": 69.98791753766886,
+        "y": -101.36602136468863
+      },
+      "positionAbsolute": {
+        "x": 69.98791753766886,
+        "y": -101.36602136468863
+      },
+      "selected": false,
+      "type": "expand",
+      "version": "0.0.1",
+      "width": 182,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "config": {
+        "author": "Kai Hu",
+        "authorId": null,
+        "author_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "basic": false,
+        "category": "input/output",
+        "code": [
+          "//entrypoint.js\nimport React, { useEffect} from 'react';\n\nexport default function ImageViewer(props){\n\n    const {input,config,setConfig,setOutput} = props\n\n    useEffect(() => {\n        if (input && input.input) {\n            let img = new Image();\n            img.onload = function() {\n                setConfig({...config,width: this.naturalWidth/2, height: this.naturalHeight/2});\n            }\n            img.src = input.input;\n        }\n    }, [input]);\n\n    return (\n        <>\n        {input && input.input &&\n            <img src={input.input} alt=\"data\" style={{width: \"100%\"}}/>\n        }\n        </>\n    );\n}"
+        ],
+        "custom": true,
+        "description": "This module renders an image and halves its dimensions based on the input URL.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "Image Viewer",
+        "height": 300,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/b28dcb00cec752faaa0583579b6fb81e",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/61291ad161f3b624c7473aaaf9ad0b5e.png",
+        "id": "61291ad161f3b624c7473aaaf9ad0b5e",
+        "iframeId": "wixo74YKFqZtZXqQrI6t3",
+        "input": [
+          "input"
+        ],
+        "language": "javascript",
+        "name": "Image Viewer",
+        "output": [
+          ""
+        ],
+        "port": null,
+        "run": false,
+        "sessionId": "_AmPaCKIYwjhZ4CtUvGNv",
+        "time": "1/24/2025, 1:31:50 AM",
+        "type": "interface",
+        "width": 400,
+        "local": false
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 384,
+      "id": "61291ad161f3b624c7473aaaf9ad0b5e",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "772b3",
+      "position": {
+        "x": 367.8201490100778,
+        "y": -92.88210575360168
+      },
+      "positionAbsolute": {
+        "x": 367.8201490100778,
+        "y": -92.88210575360168
+      },
+      "selected": false,
+      "type": "expand",
+      "version": "0.0.1",
+      "width": 432,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "config": {
+        "author": "Kai Hu",
+        "authorId": null,
+        "author_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "basic": false,
+        "category": "input/output",
+        "code": [
+          "//entrypoint.js\nimport { Slider, Typography,Box,Stack,TextField } from \"@mui/material\";\nimport React, { useEffect,useState } from \"react\";\n\n\nexport default function TextInput(props){\n    \n    const {input,config,setConfig,setOutput} = props\n\n    const [value, setValue] = useState(config?.value||500);\n    const [editable, setEditable] = useState(false);\n\n    const handleChange = (e) => {\n        setValue(e.target.value);\n        setOutput({output:value});\n    }\n\n    const handleSubmit = (e) => {\n        setConfig({...config, value:value});\n    }\n    \n    return (\n        <Box sx={{p:1}} width=\"100%\">\n            <Stack direction=\"row\" spacing={2} \n            onMouseLeave={handleSubmit}\n            sx={{display:\"flex\", \n            alignItems:\"center\"\n            }}>\n            <Slider \n                onChange={handleChange}\n                value = {value}\n                sx={{marginRight:5}}\n                size=\"small\"\n                min={0}\n                shiftStep={100}\n                max={1000}\n                step={1}\n                // valueLabelDisplay=\"auto\"\n            >\n            </Slider>\n            {\n                editable ? \n                <TextField size=\"small\" value={value} \n                    onMouseLeave={()=>setEditable(false)}\n                    onChange={handleChange} sx={{width:100}}\n                    inputProps={{style: { fontSize: 8 }}}\n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    autoFocus={true}\n                    variant=\"standard\"\n                    >\n                </TextField>\n                :<Typography variant=\"caption\" onDoubleClick={()=>setEditable(!editable)} >{value}</Typography>\n\n            }\n            </Stack>\n            \n        </Box>\n    );\n}"
+        ],
+        "custom": true,
+        "description": "This module creates an interactive input field that uses a slider and text field to adjust a value, which can be submitted to update configuration and output.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "Number Input",
+        "height": 40,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/c1f1a04a8aaa9d84e7504140244b10bc",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/8807daaea1d215d4ef86555d467f42ac.png",
+        "id": "8807daaea1d215d4ef86555d467f42ac",
+        "iframeId": "bXtujjKCnQ79i8S0nI_C7",
+        "input": [
+          ""
+        ],
+        "language": "javascript",
+        "name": "Number Input",
+        "output": [
+          "output"
+        ],
+        "port": null,
+        "run": false,
+        "sessionId": "mI9ziPFw75WCV4UxE6Shk",
+        "time": "1/24/2025, 1:31:05 AM",
+        "type": "interface",
+        "value": 500,
+        "width": 150,
+        "local": false
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 124,
+      "id": "8807daaea1d215d4ef86555d467f42ac",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "af333",
+      "position": {
+        "x": -494.6357802995704,
+        "y": 123.25675874186726
+      },
+      "positionAbsolute": {
+        "x": -494.6357802995704,
+        "y": 123.25675874186726
+      },
+      "selected": false,
+      "type": "expand",
+      "version": "0.0.1",
+      "width": 182,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "config": {
+        "author": "Kai Hu",
+        "authorId": null,
+        "author_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "basic": false,
+        "category": "input/output",
+        "code": [
+          "//entrypoint.js\nimport { TextField} from \"@mui/material\";\nimport React, { useEffect,useState} from \"react\";\n\n\n\nexport default function TextInput(props){\n\n    const {input,config,setConfig,setOutput} = props\n\n    const [value,setValue]=useState(config?.value||\"\")\n    const handleChange = (e) => {\n        setValue(e.target.value);\n    }\n    const handleCommit = (e)=> {\n        setConfig({...config,value:value});\n        setOutput({output:value})\n    }\n    return (\n        <TextField type=\"text\"\n            value={value}\n            onChange={handleChange}\n            onMouseLeave = {handleCommit}\n            sx={{\n                width: \"100%\", \n                height: \"100%\", \n                padding: \"5px\"\n            }}\n            placeholder=\"Type something here\"\n            size=\"small\"\n            multiline\n            rows={5}\n            InputProps={{style: { fontSize: 10}}}\n        />\n    );\n}"
+        ],
+        "custom": true,
+        "description": "This module creates a text input component with React and Material-UI, allowing users to enter text that is updated and committed to state upon input or mouse leave.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "Text Input",
+        "height": 100,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/c9ad995589cdbfd3ea36dadb506f64bb",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/4ac4a858c8aaa11669d7a009bb1db344.png",
+        "id": "4ac4a858c8aaa11669d7a009bb1db344",
+        "iframeId": "mAw0k-rz_C4Fc2j9daIcQ",
+        "input": [
+          ""
+        ],
+        "language": "javascript",
+        "name": "Text Input",
+        "output": [
+          "output"
+        ],
+        "port": null,
+        "run": false,
+        "sessionId": "sUrPjbmVvFDPj4vm6qGrd",
+        "time": "1/24/2025, 1:31:27 AM",
+        "type": "interface",
+        "value": "",
+        "width": 150,
+        "local": false
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 184,
+      "id": "4ac4a858c8aaa11669d7a009bb1db344",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "910d0",
+      "position": {
+        "x": -499.56510277157736,
+        "y": -93.16321887171168
+      },
+      "positionAbsolute": {
+        "x": -499.56510277157736,
+        "y": -93.16321887171168
+      },
+      "selected": false,
+      "type": "expand",
+      "version": "0.0.1",
+      "width": 182,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "config": {
+        "author": "Kai Hu",
+        "authorId": null,
+        "author_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "basic": false,
+        "category": "input/output",
+        "code": [
+          "//entrypoint.js\nimport React, { useEffect, useState} from \"react\";\nimport {Typography,TextField, Stack} from '@mui/material';\nimport CloudDownloadIcon from '@mui/icons-material/CloudDownload';\nimport {LoadingButton} from \"@mui/lab\";\n\n\n\nexport default function FileDownloader(props) {\n\n    const {input,config,setConfig,setOutput} = props\n\n    const [loading, setLoading] = useState(false);\n    const [fileName, setFileName] = useState(\"data.json\")\n\n    const handleValueChange = (e)=>{\n        setFileName(e.target.value)\n    }\n    const handleDownload = () => {\n        if (!(input && input.input)) return;\n        setLoading(true);\n        // Convert input JSON to a Blob\n        const blob = new Blob([JSON.stringify(input.input, null, 2)], { type: \"application/json\" });\n        const url = URL.createObjectURL(blob);\n\n        // Create a temporary anchor element and trigger download\n        const link = document.createElement(\"a\");\n        link.href = url;\n        link.download = fileName;\n        document.body.appendChild(link);\n        link.click();\n\n        // Cleanup\n        document.body.removeChild(link);\n        URL.revokeObjectURL(url);\n\n        setLoading(false);\n    };\n\n    return (\n        <>\n        <Stack spacing={1} p={1}>\n            <TextField \n            label = \"file name\"\n            size=\"small\"\n            value ={fileName}\n            onChange = {handleValueChange}\n            >\n            </TextField>\n            <LoadingButton loading={loading}\n                component=\"label\" \n                variant=\"outlined\" \n                fullWidth \n                startIcon={<CloudDownloadIcon/>}\n                onClick={handleDownload}>\n                <Typography variant=\"caption\">\n                    Download\n                </Typography>\n            </LoadingButton>\n        </Stack>\n        </>\n    );\n}"
+        ],
+        "containerIsRunning": false,
+        "custom": true,
+        "description": "This module creates a React component for downloading a JSON file from a given input using a Material-UI interface.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "File Downloader",
+        "height": 100,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/0450b8e80065844e91171fdcfeefc399",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/e9512df4e1e43999bcfe9d2895c756b0.png",
+        "id": "e9512df4e1e43999bcfe9d2895c756b0",
+        "iframeId": "LYwyn5tQgrQw0hLXKtWSX",
+        "input": [
+          "input"
+        ],
+        "language": "javascript",
+        "name": "File Downloader",
+        "output": [
+          ""
+        ],
+        "port": null,
+        "run": false,
+        "sessionID": "PIS0Iwhb4E7bBNo6jtXLD",
+        "time": "1/24/2025, 1:30:12 AM",
+        "type": "interface",
+        "width": 150,
+        "local": false
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 184,
+      "id": "e9512df4e1e43999bcfe9d2895c756b0",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "bc4e8",
+      "position": {
+        "x": -229.8591057735698,
+        "y": -101.28435077719212
+      },
+      "positionAbsolute": {
+        "x": -229.8591057735698,
+        "y": -101.28435077719212
+      },
+      "selected": false,
+      "type": "expand",
+      "version": "0.0.1",
+      "width": 182,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "type": "expand",
+      "module": "builder",
+      "version": "0.0.1",
+      "config": {
+        "author": "Kai Hu",
+        "authorId": null,
+        "author_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "base": {
+          "id": "101bccac4d5427df3b39c86aba503a8f",
+          "name": "File Input",
+          "user_id": "84b6b6bb7c0cfb896e345854b9cf5735"
+        },
+        "basic": false,
+        "category": "input/output",
+        "code": [
+          "//entrypoint.js\nimport React, { useEffect, useState} from \"react\";\nimport {Typography,ListItem} from '@mui/material';\nimport CloudUploadIcon from '@mui/icons-material/CloudUpload';\nimport {LoadingButton} from \"@mui/lab\";\n\nexport default function FileInput(props) {\n    const {input,config,setConfig,setOutput} = props\n    const [loading, setLoading] = useState(false);\n\n    const readFile = (file) => {\n        return new Promise((resolve, reject) => {\n            const reader = new FileReader();\n            reader.onload = (event) => {\n                if (file.name.endsWith('.json') || file.name.endsWith('.geojson')) {\n                    const jsonData = JSON.parse(event.target.result);\n                    resolve(jsonData);\n                } else {\n                    const textData = event.target.result;\n                    resolve(textData);\n                }\n            };\n            reader.onerror = (error) => {\n                reject(error);\n            };\n            reader.readAsText(file);\n        });\n    };\n    const handleFileChange = (e) =>{\n        const files = e.target.files;\n        setLoading(true);\n        setTimeout(() => {\n            readFile(files[0])\n                .then(jsonData => {\n                    setConfig({data:jsonData})\n                    setLoading(false);\n                })\n                .finally(()=>setLoading(false))\n        }, 2000);\n    }\n\n    useEffect(()=>{\n        setOutput({output:config?.data})\n    },[config?.data])\n\n    return (\n        <ListItem>\n        <LoadingButton loading={loading} \n            component=\"label\" \n            variant=\"outlined\" \n            fullWidth \n            startIcon={<CloudUploadIcon/>}>\n            <input type=\"file\" onChange ={handleFileChange}\n            style={{\n                clip: 'rect(0 0 0 0)',\n                clipPath: 'inset(50%)',\n                height: 1,\n                overflow: 'hidden',\n                position: 'absolute',\n                bottom: 0,\n                left: 0,\n                whiteSpace: 'nowrap',\n                width: 1,\n            }}\n            accept=\".geojson,.json,.csv,.txt\"/>\n            <Typography variant=\"caption\">\n                Upload\n            </Typography>\n        </LoadingButton>\n        </ListItem>\n    );\n}"
+        ],
+        "custom": true,
+        "description": "This module creates a React component for uploading and processing various file types (JSON, GeoJSON, CSV, and text), with a loading indicator and integration of Material-UI components.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "8b99d88c96258a638f79fba41b2d6f4b",
+        "height": 50,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/2bf4e7370de4598568418e11ad8bdb38",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/cjgb3RRoySmKR0VcFdxwx.png",
+        "id": "101bccac4d5427df3b39c86aba503a8f",
+        "iframeId": "dxIx3nj8F4rz2Si51aDf8",
+        "input": [
+          ""
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "File Input",
+        "output": [
+          "output"
+        ],
+        "port": null,
+        "run": false,
+        "sessionId": "Hreyc_N1bxIRGuEcuxZJg",
+        "time": "2/9/2025, 12:15:20 AM",
+        "type": "interface",
+        "user_id": "84b6b6bb7c0cfb896e345854b9cf5735",
+        "width": 150
+      },
+      "entrypoint": "index.js",
+      "interface": "interface.js",
+      "data": {
+        "input": null,
+        "output": null,
+        "module": "core/builder/index.js"
+      },
+      "id": "cjgb3RRoySmKR0VcFdxwx",
+      "position": {
+        "x": -227.47591837682756,
+        "y": 123.55817002184006
+      },
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "width": 182,
+      "height": 134,
+      "positionAbsolute": {
+        "x": -227.47591837682756,
+        "y": 123.55817002184006
+      },
+      "dragging": false,
+      "selected": false,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "Kai Hu",
+        "author_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "baseUrl": "",
+        "basic": false,
+        "category": "gis",
+        "code": [
+          "//entrypoint.js\n\n//import packages from the scope\nimport {Typography,List, Stack,TextField ,MenuItem} from '@mui/material';\nimport {DataGrid} from \"@mui/x-data-grid\";\nimport React, { useEffect,useState } from 'react';\nimport * as Icon from '@mui/icons-material';\nimport {nanoid} from 'nanoid';\n\n// Filter\nconst Filter = ({idx,columns,handleUpdateFilter,filter})=>{\n    const logicOperators = [\"AND\",\"OR\",\"NOT\"];\n    const stringOperators = [\"contains\",\"starts with\",\"ends with\"];\n    const numberOperators = [\"==\",\">=\",\">\",\"<=\",\"<\",\"!=\"];\n\n    const [value, setValue] = useState({\n        Logic: filter?.Logic||\"AND\",\n        Columns: filter?.Columns||\"\",\n        Operator: filter?.Operator||\"\",\n        Value: filter?.Value||\"\"\n    });\n    const [selectedColumn, setSelectedColumn] = useState({ \n        field: '', \n        type: 'string'\n    });\n    const handleValueChange = (e, key) => {\n        setValue({\n            ...value,\n            [key]: e.target.value\n        });\n    };\n    \n    return(\n        <>\n        {columns && columns.length>0 &&\n        <Stack direction=\"row\" spacing={1} sx={{display:\"flex\",width:\"100%\"}}>\n            <TextField id=\"Logic\" label=\"Logic\" variant=\"outlined\" size=\"small\"\n            onChange={(e)=>handleValueChange(e,\"Logic\")}\n            InputLabelProps={{style: { fontSize: 10 }}}\n            InputProps={{style: { fontSize: 8 }}}\n            value = {value.Logic}\n            sx={{width:\"100%\"}}\n            select>\n                {logicOperators.map((operator) => (\n                    <MenuItem key={operator} value={operator}>\n                    {operator}\n                    </MenuItem>\n                ))}\n            </TextField>\n            <TextField id=\"Columns\" label=\"Columns\" variant=\"outlined\" size=\"small\"\n            onChange={(e)=>{\n                handleValueChange(e,\"Columns\");\n                setSelectedColumn(columns.find(column => column.field === e.target.value));\n            }}\n            InputLabelProps={{style: { fontSize: 10 }}}\n            InputProps={{style: { fontSize: 8 }}}\n            value = {value.Columns}\n            sx={{width:\"100%\"}}\n            select>\n                {columns.map((column) => (\n                    <MenuItem key={column.field} value={column.field}>\n                    {column.field}\n                    </MenuItem>\n                ))}\n            </TextField> \n            <TextField id=\"Operator\" label=\"Operator\" variant=\"outlined\" size=\"small\"\n            onChange={(e)=>handleValueChange(e,\"Operator\")}\n            InputLabelProps={{style: { fontSize: 10 }}}\n            InputProps={{style: { fontSize: 8 }}}\n            value={value.Operator}\n            sx={{width:\"100%\"}}\n            select>\n                {selectedColumn && selectedColumn.type===\"string\"&&\n                stringOperators.map((operator) => (\n                    <MenuItem key={operator} value={operator}>\n                    {operator}\n                    </MenuItem>\n                ))}\n                {selectedColumn && selectedColumn.type===\"number\"&&\n                numberOperators.map((operator) => (\n                    <MenuItem key={operator} value={operator}>\n                    {operator}\n                    </MenuItem>\n                ))}\n            </TextField>\n            <TextField id=\"Value\" label=\"Value\" variant=\"outlined\" size=\"small\"\n            value={value.Value}\n            onChange={(e)=>{handleValueChange(e,\"Value\")}}\n            onKeyDown={(e)=>{\n                if (e.key === 'Enter') {\n                    handleUpdateFilter(idx,value);\n                }}\n            }\n            onBlur={(e)=>handleUpdateFilter(idx,value)}\n            InputLabelProps={{style: { fontSize: 10 }}}\n            InputProps={{style: { fontSize: 8 }, autoComplete: 'off'}}\n            sx={{width:\"100%\"}}\n            />\n        </Stack>\n         } \n        </>   \n    )\n}\n\n\n\n\n// main function\nexport default function GeoJsonEditor(props) {\n    // load necessary variables from the scope\n    const {input,config,setConfig,setOutput} = props;\n    const [columns, setColumns] = useState([]);\n    const [origRows, setOrigRows] = useState([]);\n    const [rows, setRows] = useState([]);\n    const [filteredIds, setFilteredIds] = useState([]);\n    const [filters, setFilters] = useState(config?.filters||[]);\n\n    const filterValue = {\n        \"Logic\":\"AND\",\n        \"Columns\":\"id\",\n        \"Operator\":\"\",\n        \"Value\":\"\"\n    };\n    const handleAddFilter = () => { \n        setFilters([...filters, filterValue])\n        setConfig({...config, run:false})\n    }\n    const handleDeleteFilter = () => {\n        setFilters(filters.slice(0,-1));\n    }\n    const handleUpdateFilter = (idx,newFilter) => {\n        const newFilters = filters.map((filter,i) => \n            i === idx ? \n            newFilter : filter\n        )\n        setFilters(newFilters);\n    }\n\n    // save filters to config\n    useEffect(() => {   \n        setConfig({...config,filters:filters});\n    }, [filters]);\n    \n    useEffect(() => {\n        if (!(input && input.input)) return;\n        let columns = [];\n        let rows = [];\n        const geoData = input.input;\n        if (geoData){\n            const {features} = geoData; \n            const properties = features.length>0 ? features[0].properties : {};\n            if (!(Object.keys(properties).includes(\"id\"))){\n                columns = [{field: \"id\", headerName: \"ID\", editable: false, type: 'number', width: 30}];\n            };\n            for (let key in properties) {\n                const type = typeof properties[key];\n                columns.push({\n                    field: key,\n                    headerName: key,\n                    width:70,\n                    type: type==='number'? 'number' : 'string',\n                    editable: true,\n                })\n            }\n            features.forEach((feature,idx) => {\n                const properties = feature.properties;\n                let row = {};\n                if (!(Object.keys(properties).includes(\"id\"))){\n                    row.id = idx;\n                };\n                for (let key in properties) {\n                    row[key] = properties[key];\n                }\n                rows.push(row);\n            });\n        }\n        setColumns([...columns]);\n        setRows([...rows]);\n        setOrigRows([...rows]);\n    }, [input]);\n\n    const filterRows = (filter)=>{\n        const {Columns,Operator,Value} = filter;\n        if (Columns==='' || Operator==='' || Value==='' || !origRows || columns.length===0){\n            return rows\n        };\n        const column = columns.find(column => column.field === Columns);\n        const type = column.type;\n        switch (type){\n            case \"number\":\n                return origRows.filter(row => {\n                    switch (Operator){\n                        case \"==\":\n                            return (row[Columns] == Value);\n                        case \">=\":\n                            return (row[Columns] >= Value);\n                        case \">\":\n                            return (row[Columns] > Value);\n                        case \"<=\":\n                            return (row[Columns] <= Value);\n                        case \"<\":\n                            return (row[Columns] < Value);\n                        case \"!=\":\n                            return (row[Columns] != Value);\n                    }\n                });\n            case \"string\":\n                return origRows.filter(row => {\n                    switch (Operator){\n                        case \"contains\":\n                            return JSON.stringify(row[Columns])?.includes(Value);\n                        case \"starts with\":\n                            return JSON.stringify(row[Columns])?.startsWith(Value);\n                        case \"ends with\":\n                            return JSON.stringify(row[Columns])?.endsWith(Value);\n                    }\n                });\n        }\n\n    }\n\n    useEffect(() => {\n        if (origRows.length===0) return\n        if (!filters || filters && filters.length === 0){\n            setRows(origRows);\n        }else{\n        let currentRows = [...origRows]\n        filters.forEach(filter => {\n            const {Logic} = filter;\n            const result = filterRows(filter);\n            switch (Logic){\n                case \"AND\":\n                    currentRows = result ? currentRows.filter(row => result?.includes(row)):currentRows;\n                    break;\n                case \"OR\":\n                    currentRows = result ? currentRows.concat(result):currentRows;\n                    break;\n                case \"NOT\":\n                    currentRows= result ? currentRows.filter(row => !result?.includes(row)):currentRows;\n                    break;\n            }\n        });\n        setRows(currentRows);\n        }\n    }, [filters,config?.run,origRows]);\n\n    useEffect(() => {\n        if (!(input && input.input && rows.length>0 && config?.run)) {\n            setOutput(null);\n            return;\n        };\n        const geoData = input.input;\n        let filteredRows = [...rows];\n        if (filteredIds && filteredIds.length>0){\n            filteredRows = rows.filter(row => filteredIds.includes(row.id))\n        };\n        const filteredFeatures = geoData.features.filter((feature,idx) => {\n            if (!(Object.keys(feature.properties).includes(\"id\"))) {\n                return filteredRows.find(row => row.id === idx);\n            }else{\n                return filteredRows.find(row => row.id === feature.properties.id);\n            }\n        });\n        setOutput({\"output\":{type:\"FeatureCollection\",features:filteredFeatures}});\n    }, [rows, config?.run, input && input.input]);\n\n    return (\n        <List>\n            <Stack spacing={1} p={1} sx= {{paddingBottom:0}}>\n                {filters.map((filter,idx) => (\n                <Filter key={nanoid()} idx={idx} \n                columns={columns} \n                handleUpdateFilter={handleUpdateFilter} \n                filter={filter}\n                run = {config?.run}\n                />\n                ))}\n            <Stack direction=\"row\" spacing={1} sx={{alignItems:\"right\"}}>\n                <Typography variant=\"caption\">Filters</Typography>\n                <Icon.AddCircle onClick={handleAddFilter} sx={{width:\"15px\",height:\"15px\",cursor:\"pointer\"}}/>\n                <Icon.RemoveCircle onClick={handleDeleteFilter} sx={{width:\"15px\",height:\"15px\",cursor:\"pointer\"}}/>\n            </Stack>\n            </Stack>\n            <Stack p={1}>\n            <DataGrid\n                rowHeight={20}\n                columnHeaderHeight = {30}\n                columnBufferPx ={50}\n                rows={rows}\n                columns={columns}\n                size=\"small\"\n                initialState={{\n                    pagination: {\n                        paginationModel: { page: 0, pageSize: 20 },\n                    },\n                    }}\n                pageSizeOptions={[20, 40]}\n                checkboxSelection\n                disableColumnFilter\n                onRowSelectionModelChange={(ids) => {setFilteredIds(ids)}}\n                processRowUpdate={(newRow, oldRow) => {setRows(rows.map(row => row.id === oldRow.id ? newRow : row));return newRow}}\n                onProcessRowUpdateError={(error, newRow, oldRow) => {console.log(error)}}\n                editMode='cell'\n                sx={{\n                    \"& .MuiDataGrid-footerContainer\":{\n                        height:30,\n                        minHeight:30\n                    },\n                    \"& .MuiDataGrid-scrollbar\":{\n                        display:\"none\"\n                    }\n                }}\n            />\n            </Stack>\n        </List>\n    );\n}"
+        ],
+        "containerIsRunning": false,
+        "custom": true,
+        "description": "This module provides a React component for editing GeoJSON data, allowing users to add, update, and delete filters to display specific rows based on criteria.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "filters": [],
+        "hash": "3218bd1c8fa32f680d24ecbb76639e64",
+        "height": 300,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/c90d5d83cc5a2c064b9f31b683e055e3",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/k7jPfnyfLseJuA29kQYPD.png",
+        "id": "e9d2fb47439098b9f0c615ee8075c5fd",
+        "iframeId": "XhezhbVzYUnU7ohGNvLvt",
+        "input": [
+          "input"
+        ],
+        "language": "javascript",
+        "local": false,
+        "model": "gpt-4o-mini",
+        "name": "GeojsonEditor",
+        "output": [
+          "output"
+        ],
+        "port": null,
+        "run": false,
+        "secretKey": "",
+        "sessionID": "eVoRuX1-1V4JRHbCAYC1D",
+        "time": "1/23/2025, 5:14:16 PM",
+        "type": "interface",
+        "user_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "width": 500
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 384,
+      "id": "k7jPfnyfLseJuA29kQYPD",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "GeojsonEditor",
+      "position": {
+        "x": -620.6790783221564,
+        "y": 479.125527078186
+      },
+      "positionAbsolute": {
+        "x": -620.6790783221564,
+        "y": 479.125527078186
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+      "version": "0.0.1",
+      "width": 532,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      },
+      "local": false
+    },
+    {
+      "basic": false,
+      "config": {
+        "aggInfo": {
+          "property": "id",
+          "method": "count"
+        },
+        "author": "Kai Hu",
+        "author_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "baseUrl": "",
+        "basic": false,
+        "category": "gis",
+        "code": [
+          "//entrypoint.js\n\n//import packages from the scope\nimport {Stack,MenuItem,TextField} from '@mui/material';\nimport React, { useEffect,useState} from 'react';\nimport * as turf from '@turf/turf';\n\n// main function\nexport default function GridCreator(props) {\n    // load necessary variables from the scope\n    const {input,config,setConfig,setOutput} = props;\n    const [gridType, setGridType] = useState(config?.gridType || \"hexGrid\");\n    const [gridSize, setGridSize] = useState(config?.gridSize || 100);\n    const [aggInfo, setAggInfo] = useState({\n        \"property\": config?.aggInfo?.property || \"id\",\n        \"method\":  config?.aggInfo?.method || \"count\"\n    })\n    const aggOperators = [\"count\",\"sum\",\"avg\",\"min\",\"max\",\"none\"];\n    useEffect(() => {\n        if (config?.run && input && input.boundary) {\n            let grid;\n            grid = createGrid(input.boundary);\n            if (input.geoData){\n                grid = aggGrid(grid,input.geoData)\n            }\n            setOutput({grid})\n        } else {\n            setOutput({grid:null});\n        }\n    }, [config?.run,input,gridType,gridSize,aggInfo.property,aggInfo.method]);\n\n    // save values to config\n    useEffect(() => {\n        setConfig({...config,gridType,gridSize,aggInfo});\n    }, [gridType,gridSize,aggInfo]);\n\n    const createGrid = (boundary) => {\n        let grid = null;\n        try {\n            const bbox = turf.bbox(boundary);\n            //create grid\n            switch (gridType) {\n                case \"hexGrid\":\n                    grid = turf.hexGrid(bbox,gridSize/1000);\n                    break;\n                case \"squareGrid\":\n                    grid = turf.squareGrid(bbox,gridSize/1000);\n                    break;\n                case \"triangleGrid\":\n                    grid = turf.triangleGrid(bbox,gridSize/1000);\n                    break;\n                default:\n                    break;\n            }\n            } catch (error) {\n                console.log(error);\n                return;\n        }\n        return grid;\n    }\n\n    const aggGrid = (grid,geoData) => {\n        // filter the grid outsize the hull polygon\n        if (aggInfo.property){\n            const hull = turf.convex(geoData);\n            grid.features  = grid.features.filter((feature) => turf.booleanPointInPolygon(turf.centroid(feature),hull));\n            const {property, method} = aggInfo;\n            //Convert geoData to Point\n            geoData.features = geoData.features.map((feature) => {\n                if (feature.geometry.type === \"Point\") return feature;\n                const point = turf.centerOfMass(feature.geometry);\n                feature.geometry = point.geometry;\n                feature.type = \"Point\"\n                return feature;\n            });\n            // Collect the points in each grid\n            let collection = turf.collect(grid, geoData, property, `${property}_${method}`);\n            // Aggregate the property in each grid\n            let aggFeatures = [];\n            switch (method) {\n                case \"count\":\n                    aggFeatures = collection.features.map((feature) => {\n                        feature.properties[`${property}_${method}`] = feature.properties[`${property}_${method}`].length;\n                        feature.properties['color'] = feature.properties[`${property}_${method}`] ? [255,0,0,200]:[120, 165, 120, 150]\n                        return feature;\n                    });\n                    break;\n                case \"sum\":\n                    aggFeatures = collection.features.map((feature) => {\n                        feature.properties[`${property}_${method}`] = feature.properties[`${property}_${method}`].reduce((a,b) => a+b,0);\n                        feature.properties['color'] = feature.properties[`${property}_${method}`] ? [255,0,0,200]:[120, 165, 120, 150]\n                        return feature;\n                    });\n                    break;\n                case \"avg\":\n                    aggFeatures = collection.features.map((feature) => {\n                        const numFeatures = feature.properties[`${property}_${method}`].length;\n                        if (numFeatures>0){\n                            const sum = feature.properties[`${property}_${method}`].reduce((a,b) => a+b,0);\n                            feature.properties[`${property}_${method}`] = sum/numFeatures;\n                        } else {\n                            feature.properties[`${property}_${method}`] = 0;\n                        }\n                        feature.properties['color'] = feature.properties[`${property}_${method}`] ? [255,0,0,200]:[120, 165, 120, 150]\n                        return feature;\n                    });\n                    break;\n                case \"min\":\n                    aggFeatures = collection.features.map((feature) => {\n                        feature.properties[`${property}_${method}`] = Math.min(...feature.properties[`${property}_${method}`]);\n                        feature.properties['color'] = feature.properties[`${property}_${method}`] ? [255,0,0,200]:[120, 165, 120, 150]\n                        return feature;\n                    });\n                    break;\n                case \"max\":\n                    aggFeatures = collection.features.map((feature) => {\n                        feature.properties[`${property}_${method}`] = Math.max(...feature.properties[`${property}_${method}`]);\n                        feature.properties['color'] = feature.properties[`${property}_${method}`] ? [255,0,0,200]:[120, 165, 120, 150]\n                        return feature;\n                    });\n                    break;\n                case \"none\":\n                    aggFeatures = collection.features.map((feature) => {\n                        feature.properties['color'] = [120, 165, 120, 150]\n                        return feature;\n                    });\n                    break;\n                default:\n                    aggFeatures = collection.features\n                    break;\n            }\n            grid.features = aggFeatures;\n        }\n        grid.properties = {\n            \"gridType\": gridType, \n            \"gridSize\": gridSize,\n            \"lineColor\":[255, 255, 255, 200],\n            \"lineWidth\": 500, \n            \"stroked\" : true,\n            \"wireframe\": true,\n        };\n        return grid;\n    }\n\n\n    const handleTypeChange = (e) => {\n        setGridType(e.target.value);\n    }\n    const handleValueChange = (e) => {\n        setGridSize(e.target.value);\n    }\n    const handleAggChange = (e,key) => {\n        const newAggInfo = {...aggInfo, [key]: e.target.value};\n        setAggInfo(newAggInfo);\n    }\n\n    return (\n        <>\n        <Stack spacing={1.2} sx={{p:1, paddingTop:2}}>\n            <Stack direction=\"row\" spacing={1}>\n                <TextField fullWidth label=\"Grid Type\" value={gridType} size=\"small\"\n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    onChange={handleTypeChange}\n                    select>\n                    <MenuItem value=\"hexGrid\">hexGrid</MenuItem>\n                    <MenuItem value=\"squareGrid\">squareGrid</MenuItem>\n                    <MenuItem value=\"triangleGrid\">triangleGrid</MenuItem>\n                </TextField>\n                <TextField label=\"Grid Size(m)\" type=\"number\" value={gridSize} size=\"small\" \n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    onChange={handleValueChange}\n                    >\n                </TextField>\n            </Stack>\n            {input && input.geoData && input.geoData.features[0] && \n            (<TextField label=\"Aggregate Property\" size=\"small\" \n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    onChange={(e)=>{handleAggChange(e,\"property\")}}\n                    value = {aggInfo?.property||\"\"}\n                    select\n                    >\n                    {Object.keys(input.geoData.features[0].properties).map((property) => (\n                        <MenuItem key={property} value={property}>\n                        {property}\n                        </MenuItem>\n                    )) || <MenuItem value={\"\"}>No Properties</MenuItem>\n                    }\n            </TextField>) \n            || <TextField label=\"Aggregate Property\" size=\"small\" \n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    disabled = {true}\n                />\n            }\n            <TextField fullWidth label=\"Aggregate Method\" size=\"small\"\n                    value = {aggInfo?.method || \"count\"}\n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    onChange={(e)=>{handleAggChange(e,\"method\")}}\n                    select>\n                    {aggOperators.map((operator) => (\n                        <MenuItem key={operator} value={operator}>\n                        {operator}\n                        </MenuItem>\n                    ))}\n            </TextField>\n        </Stack>\n        </>\n    );\n}"
+        ],
+        "containerIsRunning": false,
+        "custom": true,
+        "description": "This module creates and aggregates a grid based on geographic input, allowing users to specify grid type, size, and aggregation method.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "gridSize": 100,
+        "gridType": "hexGrid",
+        "hash": "4a50f962906d6c48583756697b4fdae7",
+        "height": 140,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/1d95a62bbd4bbf39b8bcc307bf19e986",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/83ebrc4pnHpSnKUOb6Sw4.png",
+        "id": "c7dfd4058449d89f5a26fff6729e0cab",
+        "iframeId": "5a0tWHHhBvzIhsSTdeabC",
+        "input": [
+          "boundary",
+          "geoData"
+        ],
+        "language": "javascript",
+        "local": false,
+        "model": "gpt-4o-mini",
+        "name": "GridCreator",
+        "output": [
+          "grid"
+        ],
+        "port": null,
+        "run": false,
+        "secretKey": "",
+        "sessionID": "dZh5vC16MnOXAFERk5yld",
+        "time": "1/23/2025, 6:13:39 PM",
+        "type": "interface",
+        "user_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "width": 200
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 240,
+      "id": "83ebrc4pnHpSnKUOb6Sw4",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "GridCreator",
+      "position": {
+        "x": -10.72230730560068,
+        "y": 480.4891733273387
+      },
+      "positionAbsolute": {
+        "x": -10.72230730560068,
+        "y": 480.4891733273387
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+      "version": "0.0.1",
+      "width": 232,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      },
+      "local": false
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "Kai Hu",
+        "authorId": null,
+        "author_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "basic": false,
+        "category": "gis",
+        "code": [
+          "//entrypoint.js\nimport {GeoJsonBaseLayer, TileBaseLayer} from './layers'\nimport React, { useEffect, useState, useRef} from \"react\";\nimport DeckGL from \"@deck.gl/react\";\nimport { Box} from \"@mui/material\";\nimport { MapController} from \"@deck.gl/core\";\n\nimport * as turf from '@turf/turf'\n\nconst mapboxToken = window.secrets.MAPBOX_TOKEN;\n\nexport default function DeckGLMap(props) {\n    const {input,config,setConfig,setOutput} = props\n    const deckGLref = useRef(null);\n    const [layers, setLayers] = useState([]);\n    const [viewState, setViewState] = useState({\n        latitude: 42.3654825444308, \n        longitude: -71.09032464941119,\n        zoom:  15,\n        pitch: 0,\n        bearing: 0,\n        minZoom: 10,\n        maxZoom: 22,\n    });\n    const [bbox, setBbox] = useState(null);\n\n    const onBeforeRender = () => {\n        const layer = layers[0];\n        // fit the bounds of the layer\n        if (layer && layer.isLoaded && bbox) {\n            const viewport = layer.context.viewport;\n            // fitBounds - Bounding box in [[longitude, latitude], [longitude, latitude]] format\n            const formatedBounds = [[bbox[0], bbox[1]], [bbox[2], bbox[3]]];\n            const {longitude, latitude, zoom} = viewport.fitBounds(formatedBounds);\n            if (!(longitude === config.longtitude && latitude === config.latitude && zoom === config.zoom )){\n            setViewState({...viewState,longitude, latitude, zoom:zoom-1});\n            }\n        }\n    }\n\n    useEffect(() => {\n      const dataLayers = []\n      \n      if (mapboxToken) {\n        dataLayers.push(TileBaseLayer())\n      }\n      if(input?.input) {\n        setBbox(turf.bbox(input.input));\n        dataLayers.push(\n        GeoJsonBaseLayer({ data:input.input, opacity: 0.5 })\n        )\n      }\n      setLayers(dataLayers)\n    }, [input,mapboxToken]);\n    \n    return (\n        <Box style={{\n            minWidth:config?.width,\n            minHeight:config?.height,\n            width:\"100%\", \n            height:\"100%\", \n            margin:0,\n            padding:0}}>\n            <DeckGL\n            ref={deckGLref}\n            initialViewState={viewState}\n            onContextMenu={(e) => e.preventDefault()}\n            onBeforeRender={onBeforeRender}\n            layers={layers}\n            controller={{\n                type: MapController,\n                dragRotate: true,\n                dragPan: true,\n                scrollZoom: true,\n                touchZoom: true,\n                touchRotate: true,\n                keyboard: true,\n                doubleClickZoom: true\n            }}\n            >\n            </DeckGL>\n        </Box>\n    );\n}\n",
+          "//layers.js\n\nimport {GeoJsonLayer,BitmapLayer} from '@deck.gl/layers';\nimport {TileLayer} from '@deck.gl/geo-layers';\nimport {nanoid} from 'nanoid';\n\nconst mapboxToken = window.secrets.MAPBOX_TOKEN;\n\nexport function GeoJsonBaseLayer({data, opacity}){\n    if(data){\n        return new GeoJsonLayer({\n          id: nanoid(),\n          data: data,\n          opacity: opacity || 0.5,\n          pickable: data.properties?.pickable || true,\n          stroked: data.properties?.stroked || true,\n          filled: data.properties?.filled || true,\n          extruded: data.properties?.extruded || true,\n          wireframe: data.properties?.wireframe || true,\n          pointType: data.properties?.pointType || 'circle',\n          autoHighlight: data.properties?.autoHighlight || true,\n          highlightColor: data.properties?.highlightColor || [242, 0, 117, 120],\n          lineWidthUnits: data.properties?.lineWidthUnits || 'pixels',\n          lineWidthMinPixels: data.properties?.lineWidthMinPixels || 1,\n          getFillColor: d => d.properties?.color || data.properties?.color ||  [255, 0, 0],\n          getLineColor: d => d.properties?.lineColor || data.properties?.lineColor || [255, 255, 255],\n          getPointRadius: d =>   d.properties?.pointRadius || data.properties?.pointRadius || 10,\n          getLineWidth: d => d.properties?.lineWidth ||data.properties?.lineWidth ||  1,\n          getElevation: d => d.properties?.height || data.properties?.height || 1,\n          updateTriggers: {\n            getFillColor: data,\n            getLineColor: data,\n            getPointRadius: data,\n            getLineWidth: data,\n            getElevation: data,\n          },\n          transitions: {\n            getFillColor: data.properties?.duration || 500,\n            getElevation: data.properties?.duration || 500,\n            getLineWidth: data.properties?.duration || 500,\n            getPointRadius: data.properties?.duration || 500,\n            getLineColor: data.properties?.duration || 500,\n          }\n        });\n      \n      \n    }\n  }\n\nexport function TileBaseLayer() {\n  const mapStyle = {\n    Dark: 'cjs9rb33k2pix1fo833uweyjd',\n    Light: 'ck0h5xn701bpr1dqs3he2lecq',\n    Inverse: 'cjlu6w5sc1dy12rmn4kl2zljn',\n    Normal: 'cl8dv36nv000t14qik9yg4ys6',\n  };\n  return new TileLayer({\n    data:\n      `https://api.mapbox.com/styles/v1/relnox/${mapStyle.Dark}/tiles/256/{z}/{x}/{y}?access_token=` + mapboxToken +\n      '&attribution=false&logo=false&fresh=true',\n    minZoom: 0,\n    maxZoom: 21,\n    tileSize: 256,\n    id: 'MapboxTile',\n    renderSubLayers: (props) => {\n      const {\n        bbox: { west, south, east, north },\n      } = props.tile;\n\n      return new BitmapLayer(props, {\n        data: null,\n        image: props.data,\n        bounds: [west, south, east, north],\n      });\n    },\n  });\n}"
+        ],
+        "containerIsRunning": false,
+        "custom": true,
+        "description": "This module creates a React component for a map using Deck.gl, displaying GeoJSON data and Mapbox tiles with customizable styles and interactions.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "3c10d1db5643fca085f49dd884172207",
+        "height": 400,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/9728dd8566ec3fbe67f0d3603c760039",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/6SzWnshbA-Zgtj5buwCjR.png",
+        "id": "a029935adcc567edfbf4de3ddb8c45dd",
+        "iframeId": "xP6V1448NXdXAXFrI-rLr",
+        "input": [
+          "input"
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "GeoJson Map",
+        "output": [
+          ""
+        ],
+        "pin": false,
+        "pinHeight": 627,
+        "pinLeft": 255,
+        "pinTop": 86,
+        "pinWidth": 1073,
+        "port": null,
+        "run": false,
+        "sessionID": "JF5f8wIsPemc3MFwlgdb2",
+        "time": "2/7/2025, 1:25:03 PM",
+        "type": "interface",
+        "user_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "width": 600
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 484,
+      "id": "6SzWnshbA-Zgtj5buwCjR",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "GeoJson Map",
+      "position": {
+        "x": 644.0711094238791,
+        "y": 479.6086021508101
+      },
+      "positionAbsolute": {
+        "x": 644.0711094238791,
+        "y": 479.6086021508101
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+      "version": "0.0.1",
+      "width": 632,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      },
+      "local": false
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "Kai Hu",
+        "author_id": "d29545ce164c0b53b65671d6c1ebe6ac",
+        "baseUrl": "",
+        "basic": false,
+        "category": "gis",
+        "code": [
+          "//entrypoint.js\n\n//import packages from the scope\nimport { TextField,MenuItem,Stack} from \"@mui/material\";\nimport React, { useEffect, useState } from \"react\";\nimport * as d3 from 'd3';\n\nfunction rgbToHex(r, g, b) {\n    function valToHex(c) {\n      var hex = c.toString(16);\n      return hex.length === 1 ? \"0\" + hex : hex;\n    }\n    return \"#\" + valToHex(r) + valToHex(g) + valToHex(b);\n  }\n  \n/**\n * convert hex to rgb array\n */\nfunction hexToRgb(hex) {\n  var result = /^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i.exec(hex);\n  return result\n    ? [\n        parseInt(result[1], 16),\n        parseInt(result[2], 16),\n        parseInt(result[3], 16),\n      ]\n    : null;\n}\n\n/**\n * convert rgb string to array\n */\n\nfunction rgbToArray(rgb) {\n  var result = rgb.replace(/[^\\d,]/g, \"\").split(\",\");\n  return result\n    ? [\n      parseInt(result[0], 16),\n      parseInt(result[1], 16),\n      parseInt(result[2], 16),\n    ]\n  : null;\n}\n\n\n\n// main function\nexport default function Item(props) {\n    // load necessary variables from the scope\n    const {input,config,setConfig,setOutput} = props;\n    const [range,setRange] = useState({\n        min: 0,\n        max: 1\n    });\n    \n    const [values,setValues] = useState({\n        option: config?.option || \"color\",\n        property: config?.property || \"weighted_value\",\n        dataType: config?.dataType || \"continuous\",\n        numCategories: config?.numCategories || 10,\n        colorScheme: config?.colorScheme || \"interpolateSpectral\",\n        dataRange: config?.dataRange || [0,1]\n    });\n\n    const handleValueChange = (e,k) => {\n        setValues({...values,[k]: e.target.value})\n        setConfig({...config,[k]: e.target.value});\n    }\n    const handleRangeChange = (e,k) => {\n        setRange({...range,[k]: e.target.value})\n        if (k === \"min\") {\n            setValues({...values,dataRange: [e.target.value,range.max]})\n            setConfig({...config,dataRange: [e.target.value,range.max]});\n        }else{\n            setValues({...values,dataRange: [range.min,e.target.value]})\n            setConfig({...config,dataRange: [range.min,e.target.value]});\n        }\n    }\n\n    const itemList = [\"color\",\"lineColor\",\"pointRadius\",\"lineWidth\",\"height\"]\n\n    const linearSchemes = [\"interpolateRdBu\",\"interpolatePuOr\",\"interpolateSpectral\",\"interpolatePiYG\"];\n\n    const ordinalSchemes = [\"schemeRdYlBu\",\"schemeRdBu\",\"schemeSpectral\",\"schemeBrBG\"];\n\n    const mappingValue = (v) => {\n        if (!(input && input.geojson)) return\n        let scale;\n        let data = [];\n        input.geojson.features.forEach(d => {\n            data.push(d.properties[values.property]);\n        });\n        if (values.option ===\"color\" || values.option === \"lineColor\") {\n            if (!(values.colorScheme && values.dataType && d3[values.colorScheme])) return v;\n            if (values.dataType === \"continuous\" && d3[values.colorScheme](1)) {\n                scale = d3.scaleLinear()\n                    .domain(d3.extent(data))\n                    .range([d3[values.colorScheme](1),d3[values.colorScheme](0)])\n                return scale(v) && rgbToArray(scale(v));\n            }else if (d3[values.colorScheme][values.numCategories]){\n                scale = d3.scaleOrdinal()\n                    .domain([...new Set(data)])\n                    .range(d3[values.colorScheme][values.numCategories])\n            return hexToRgb(scale(v));\n            }\n        }else {\n            if (values.dataType === \"continuous\") {\n                scale = d3.scaleLinear()\n                .domain(d3.extent(data))\n                .range([parseFloat(range.min),parseFloat(range.max)])\n                return scale(v);\n            }else{\n                const min = parseFloat(range.min);\n                const max = parseFloat(range.max);\n                const stepSize = (max - min) / values.numCategories;\n                const discreteRange = Array.from({length: values.numCategories}, (_, i) => min + i * stepSize);\n                scale = d3.scaleOrdinal()\n                .domain([...new Set(data)].sort(d3.descending))\n                .range(discreteRange)\n                return scale(v);\n            }\n        }\n    }\n\n    useEffect(() => {\n        if (config?.run && input && input.geojson) {\n            const newData = {...input.geojson,\n                features: input.geojson.features.map((d) => {\n                    return {\n                        ...d,\n                        properties: {\n                            ...d.properties,\n                            [values.option]: mappingValue(d.properties[values.property])\n                        }\n                    }\n                })\n            }\n            setOutput({geojson:newData});\n        } else {\n            setOutput({geojson:null});\n        }\n        setConfig({...config,...values})\n    }, [config?.run,input,values]);\n\n    return (\n        <>\n        <Stack spacing={1} sx={{p:1}}>\n        {input && input.geojson && input.geojson.features[0] && \n            (<TextField fullWidth label=\"Aggregate Property\" size=\"small\" \n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    onChange={(e)=>{handleValueChange(e,\"property\")}}\n                    value = {values.property}\n                    select\n                    >\n                    {\n                    Object.keys(input.geojson.features[0].properties).map((property) => (\n                        <MenuItem key={property} value={property}>\n                        {property}\n                        </MenuItem>\n                    )) || <MenuItem value={\"\"}>No Properties</MenuItem>\n                    }\n            </TextField>) \n            || <TextField fullWidth label=\"Aggregate Property\" size=\"small\" \n                    InputLabelProps={{style: { fontSize: 8 }}}\n                    InputProps={{style: { fontSize: 8}}}\n                    disabled = {true}\n                />\n        }\n        <Stack spacing={1}>\n        <TextField fullWidth label=\"Options\" size=\"small\" select\n            InputLabelProps={{style: { fontSize: 8 }}}\n            InputProps={{style: { fontSize: 8}}}\n            onChange={(e)=>{handleValueChange(e,\"option\")}}\n            value={values.option}>\n            {itemList.map((item) => (\n                <MenuItem key={item} value={item}>\n                    {item}\n                </MenuItem>\n            ))}\n        </TextField>\n        {\n        <TextField fullWidth label=\"Data Type\" size=\"small\" select\n        InputLabelProps={{style: { fontSize: 8 }}}\n        InputProps={{style: { fontSize: 8}}}\n        onChange={(e)=>{handleValueChange(e,\"dataType\")}}\n        value={values.dataType}>\n            <MenuItem value=\"continuous\">Continuous</MenuItem>\n            <MenuItem value=\"discrete\">Discrete</MenuItem>\n        </TextField>\n        }\n        {\n        values.dataType === \"discrete\" &&\n        <TextField fullWidth label=\"Number of Categories\" size=\"small\"\n            InputLabelProps={{style: { fontSize: 8 }}} select\n            InputProps={{style: { fontSize: 8}}}\n            onChange={(e)=>{handleValueChange(e,\"numCategories\")}}\n            value={values.numCategories}\n            >\n            {\n                Array.from({length: 8}, (_, i) => (\n                    <MenuItem key={i+2} value={i+3}>\n                        {i+3}\n                    </MenuItem>\n                ))\n            }\n        </TextField>\n        }\n        {\n        (values.option === \"color\" || values.option === \"lineColor\") &&\n        (<TextField fullWidth label=\"Data Range\" size=\"small\" select\n            InputLabelProps={{style: { fontSize: 8 }}}\n            InputProps={{style: { fontSize: 8}}}\n            onChange={(e)=>{handleValueChange(e,\"colorScheme\")}}\n            value={values.colorScheme}>\n                {\n                    values.dataType === \"continuous\" && linearSchemes.map((scheme) => (\n                        <MenuItem key={scheme} value={scheme}>\n                            <div style={{ width: config?.width||200, height: 10}}>\n                            {Array.from({ length: 100 }, (_, i) => (\n                                <div\n                                    key={i}\n                                    style={{\n                                        width: (config?.width||200)/100,\n                                        height: 10,\n                                        backgroundColor: d3[scheme](1-i/100),\n                                        display: 'inline-block',\n                                    }}\n                                />\n                            ))}\n                            </div>\n                        </MenuItem>\n                    ))\n                }\n                {\n                    (values.dataType === \"discrete\" && values.numCategories) && ordinalSchemes.map((scheme) => (\n                        <MenuItem key={scheme} value={scheme} sx={{display:\"felx\", alignItems:\"center\"}}>\n                            <div style={{ width: config?.width || 200, height: 10}}>\n                                {d3[scheme][values.numCategories].slice().reverse().map((c) => (\n                                <div\n                                    key={c}\n                                    style={{\n                                    width: (config?.width||200)/values.numCategories,\n                                    height: 10,\n                                    backgroundColor: c,\n                                    display: 'inline-block',\n                                    }}\n                                />\n                                ))}\n                            </div>\n                        </MenuItem>\n                    ))\n                \n                }\n        </TextField>)\n        || (\n            <>\n            <TextField fullWidth label=\"Min\" size=\"small\"\n                InputLabelProps={{style: { fontSize: 8 }}}\n                InputProps={{style: { fontSize: 8}}}\n                onChange = {(e)=>handleRangeChange(e,\"min\")}\n                value={range.min}\n                type=\"number\"\n            />\n            <TextField fullWidth label=\"Max\" size=\"small\" \n                InputLabelProps={{style: { fontSize: 8 }}}\n                InputProps={{style: { fontSize: 8}}}\n                onChange = {(e)=>handleRangeChange(e,\"max\")}\n                value={range.max}\n                type=\"number\"\n            />\n            </>\n        )\n        }\n        </Stack>\n        </Stack>\n        </>\n    )\n}\n"
+        ],
+        "colorScheme": "interpolateSpectral",
+        "containerIsRunning": false,
+        "custom": true,
+        "dataRange": [
+          0,
+          1
+        ],
+        "dataType": "continuous",
+        "description": "This module provides a React component to configure and visualize data properties on geojson features using various mapping schemes and data types.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "3ac9dce3e67a87d7c7e725d4ff5b6c70",
+        "height": 230,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/6a552080b4a994be619a4bc40af77e62",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/_XBalpi71SFhnBXgXVab4.png",
+        "id": "773a57302cdee7c0a99636ad19965dd1",
+        "iframeId": "pJbawbcbq-pyq76iRXBPp",
+        "input": [
+          "geojson"
+        ],
+        "language": "javascript",
+        "local": false,
+        "model": "gpt-4o-mini",
+        "name": "Mapping",
+        "numCategories": 10,
+        "option": "color",
+        "output": [
+          "geojson"
+        ],
+        "port": null,
+        "property": "weighted_value",
+        "run": false,
+        "secretKey": "",
+        "sessionID": "JQv4VQ1Mm0widtIlBD0n0",
+        "time": "1/23/2025, 6:08:36 PM",
+        "type": "interface",
+        "user_id": "84b6b6bb7c0cfb896e345854b9cf5735",
+        "width": 200
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 314,
+      "id": "_XBalpi71SFhnBXgXVab4",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "local": false,
+      "module": "builder",
+      "name": "Building Color",
+      "position": {
+        "x": 309.0403958477343,
+        "y": 478.0318704755802
+      },
+      "positionAbsolute": {
+        "x": 309.0403958477343,
+        "y": 478.0318704755802
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "84b6b6bb7c0cfb896e345854b9cf5735",
+      "version": "0.0.1",
+      "width": 232,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    }
+  ],
+  "edges": [],
+  "globalScale": 0.1,
+  "viewport": {
+    "x": 398.4951256915166,
+    "y": 188.394129983144,
+    "zoom": 0.5569334555432123
+  },
+  "flowId": "b259e91ed373f0015cf3f25fa1bd736a",
+  "author": "Kai Hu",
+  "flowInited": false,
+  "authorId": "84b6b6bb7c0cfb896e345854b9cf5735",
+  "basic": false,
+  "city": "",
+  "description": "",
+  "hash": "b259e91ed373f0015cf3f25fa1bd736a",
+  "id": "b259e91ed373f0015cf3f25fa1bd736a",
+  "image": "ghcr.io/kekehurry/cityflow_runner:full",
+  "isAlive": false,
+  "loading": false,
+  "logs": "",
+  "name": "Basic",
+  "packages": "",
+  "screenShot": "/images/fa989d525369e3fa1414873a981bc59a_10-52-53.png",
+  "showcase": false,
+  "source": "8347c0b09a2befaed505b1abb134f60c",
+  "tag": "",
+  "autoSave": true
+}

@@ -1,0 +1,1598 @@
+{
+  "nodes": [
+    {
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "//entrypoint.js\n\nimport React, {useState, useEffect, useRef} from 'react';\nimport ChatBot from './chatbot'\nimport Assistant from './assistant'\nimport {chatPrompt, actionPrompt} from './prompt'\nimport { CircularProgress } from '@mui/material';\n\nconst parseMemories = (memories)=>{\n    if(!memories) return {\n        lastMemory : null,\n        historyMemory :null\n    }\n    const steps = Object.keys({...memories}).map(Number)\n    const lastStep = Math.max(...steps)\n    const historyMemory = []\n    Object.entries(memories).forEach(([step,value])=>{\n        if (value && step != lastStep){\n            const {scene, ...memo} = value\n            historyMemory.push({[`step_${step}`]:memo})\n        }\n    });\n    const lastMemory = {step:lastStep, ...memories[lastStep]}\n    return {lastMemory,historyMemory}\n}\n\n// main function\nexport default function TravelAgent(props){\n    \n    const {input,config,setConfig,setOutput} = props;\n    const BASEURL = window.secrets[\"LLM_BASE_URL\"];\n    const APIKEY = window.secrets[\"LLM_API_KEY\"];\n    const MODEL = window.secrets[\"LLM_MODEL\"];\n    const memories = input?.memories;\n    const persona = input?.persona;\n    const task = input?.task;\n    const currentStep = useRef(0)\n    const {lastMemory,historyMemory} = parseMemories(memories);\n    const [loading,setLoading] = useState(false)\n    const [response, setResponse] = useState(null)\n\n    const context = []\n    if (historyMemory) {\n        context.push(`history meomories: ${JSON.stringify(historyMemory)}`)\n    }\n    if(lastMemory?.scene){\n        context.push(`current scene you see:`);\n        context.push(lastMemory?.scene);\n    }\n\n    const chatAssistant = new Assistant({\n        baseUrl: BASEURL,\n        model : MODEL,\n        apiKey: APIKEY,\n        systemPrompt : chatPrompt({persona,task}),\n        context: context,\n        responseFormat: \"text\"\n    })\n    \n    const actionAssistant = new Assistant({\n        baseUrl: BASEURL,\n        model : MODEL,\n        apiKey: APIKEY,\n        systemPrompt : actionPrompt({persona,task}),\n        responseFormat: \"json_object\"\n    })\n\n    useEffect(()=>{\n        if(!(persona && task))return;\n        if(lastMemory && lastMemory.step>currentStep.current){\n        const {scene, ...lastAction} = lastMemory;\n        const inputMessage = [\n            `history meomories: ${JSON.stringify(historyMemory)}`,\n            `last action: ${lastAction && JSON.stringify(lastAction) || null}`,\n            `current scene you see:`,\n            scene, \n            \"What's your next action?:\"\n        ];\n        setLoading(true);\n        actionAssistant.chat(inputMessage)\n            .then((response) => {\n                const answer = JSON.parse(response);\n                answer[\"step\"] = lastMemory.step + 1;\n                setOutput({\n                    output: answer\n                })\n                setResponse(JSON.stringify(answer))\n                setLoading(false)\n            })\n            .catch((e)=>{\n                setOutput(null);\n                setLoading(false);\n                console.error(e);\n            });\n        currentStep.current += 1;\n        }\n    },[lastMemory,historyMemory])\n\n    return (\n    <div style={{\n        display:\"flex\",\n        height:\"400px\",\n        alignItems:\"center\",\n        justifyContent:\"center\"\n    }}>\n    {\n        loading ? \n        (<CircularProgress sx={{color:\"white\"}}/>)\n        :\n        (<ChatBot \n            assistant = {chatAssistant} \n            response = {response}\n        />)\n    }\n    </div>\n    )\n}\n",
+          "//prompt.js\n\nexport const actionPrompt = ({persona,task})=>{\n    return (`You are ${persona}, navigating a 3D virtual environment with the goal of completing a task.\n\n    Task: ${task}.\n\n    Controls:\n        - \"w\": Move forward.\n        - \"s\": Move backward.\n        - \"a\": Move left.\n        - \"d\": Move right.\n        - \"q\": Turn left 45 degrees.\n        - \"e\": Turn right 45 degrees.\n\n    Requirements:\n        - As you navigate, provide feedback in the following JSON format:\n        {\n        \"observation\": \"<What do you see in the environment? Describe the surroundings, objects, or features around you.>\",\n        \"evaluation\": {\n            \"greenery\": <Rate the level of greenery (0-1)>,\n            \"health\": <Rate the health of the environment (0-1), where 0 is unhealthy and 1 is healthy>,\n            \"comfort\": <Rate the level of comfort (0-1), where 0 is uncomfortable and 1 is highly comfortable>,\n            \"aesthetic\": <Rate the aesthetic appeal (0-1), where 0 is unattractive and 1 is beautiful>,\n            \"safety\": <Rate the safety of the environment (0-1), where 0 is unsafe and 1 is safe>\n        },\n        \"emotion\": <Rate your emotional state from -2 (negative) to 2 (positive) based on the environment>,\n        \"plan\": \"<Outline your plan to proceed towards completing the task. What’s your next step? Be brief.>\",\n        \"action\": \"<Choose the next action. Must be one of 'w', 's', 'a', 'd', 'q', 'e'>\"\n        }\n    \n    Environment Context:\n    You are in a dynamic, 3D space that is constantly evolving. Your goal is to explore this environment while making decisions based on your observations to progress toward completing the given task. Each action should be chosen carefully based on your observations and the task at hand.\n\n    Evaluation Criteria:\n    The environment will be assessed on:\n        - Greenery (greenery): The presence of plants or natural elements.\n        - Health (health): The overall vitality and quality of the environment.\n        - Comfort (comfort): How comfortable or pleasing the environment feels to navigate.\n        - Aesthetic (aesthetic): The visual beauty or attractiveness of the surroundings.\n        - Safety (safety): How secure the environment feels for exploration.\n\n    You should take into account your emotional state based on the environment’s feedback, and develop a plan to achieve your task step by step, making sure each move is strategic.\n    `\n    );\n}\n\n\nexport const chatPrompt = ({persona,task})=>{\n    return `You are ${persona|| \"a yound student\"}, exploring a 3D virtual environment.\n    Your Goal: ${task}\n    Based on the 3D environment image you’ve encountered, respond to any questions related to the space, including details about the layout, objects, and overall atmosphere. Share insights about your experience navigating this environment and how it influences your understanding or feelings toward the space.\n    `\n}",
+          "//assistant.js\n\nconst parseMessage = (messages) => {\n  if (!messages) {\n    return [];\n  }\n  return messages.map((msg) => {\n    if (msg.role === 'AI') {\n      return { role: 'assistant', content: msg.message };\n    } else if (msg.role === 'system') {\n      return { role: 'system', content: msg.message };\n    } else {\n      return { role: 'user', content: msg.message };\n    }\n  });\n};\n\nconst isBase64Image = (str) => {\n    return /^data:image\\/[a-zA-Z]+;base64,/.test(str);\n};\n\nexport default class Assistant {\n  constructor(props) {\n    // requried props: systemPrompt, apiKey, model, responseFormat \n    if (!props) return;\n    this.props = props;\n  }\n\n  async chat(inputMessage, messageHistory = null) {\n\n    const messages = [\n      {\n        role: 'system',\n        content: this.props.systemPrompt || 'you are a helpful assistant',\n      },\n    ];\n    if (messageHistory) {\n      messages.push(...parseMessage(messageHistory));\n    }\n    if (this.props?.context){\n        const contextToPush = Array.isArray(this.props?.context) ? this.props?.context : [this.props?.context];\n\n      contextToPush.forEach((msg) => {\n        messages.push(\n          isBase64Image(msg)\n            ? {\n                role: 'user',\n                content: [\n                  { type: 'image_url', image_url: { url: msg } },\n                ],\n              }\n            : { role: 'user', content: msg || '' }\n        );\n      });\n    }\n    if (inputMessage) {\n      const messagesToPush = Array.isArray(inputMessage) ? inputMessage : [inputMessage];\n\n      messagesToPush.forEach((msg) => {\n        messages.push(\n          isBase64Image(msg)\n            ? {\n                role: 'user',\n                content: [\n                  { type: 'image_url', image_url: { url: msg } },\n                ],\n              }\n            : { role: 'user', content: msg || '' }\n        );\n      });\n    }\n    try {\n      const response = await fetch(`${this.props?.baseUrl}/chat/completions`, {\n        method: 'POST',\n        headers: {\n          'Content-Type': 'application/json',\n          Authorization: `Bearer ${this.props?.apiKey}`,\n        },\n        body: JSON.stringify({\n          model: this.props?.model || 'gpt-4o-mini',\n          messages: messages,\n          response_format: this.props?.responseFormat\n            ? {\n                type: this.props?.responseFormat,\n              }\n            : { type: 'text' },\n          max_tokens: this.props?.maxTokens || 4096,\n          temperature: this.props?.temperature || 0.8,\n          presence_penalty: this.props?.presencePenalty || 0.0,\n          frequency_penalty: this.props?.frequencyPenalty || 0.0,\n        }),\n      }).catch((error) => {\n        throw new Error(error);\n      });\n      if (!response.ok) {\n        throw new Error(response.status);\n      }\n      const data = await response.json();\n      return data.choices[0].message.content;\n    } catch (error) {\n      return error;\n    }\n  }\n\n  async *stream(inputMessage, messageHistory, signal) {\n    const messages = [\n      {\n        role: 'system',\n        content: this.props.systemPrompt || 'you are a helpful assistant',\n      },\n    ];\n    if (messageHistory) {\n      messages.push(...parseMessage(messageHistory));\n    }\n    if (this.props?.context){\n        const contextToPush = Array.isArray(this.props?.context) ? this.props?.context : [this.props?.context];\n      contextToPush.forEach((msg) => {\n        messages.push(\n          isBase64Image(msg)\n            ? {\n                role: 'user',\n                content: [\n                  { type: 'image_url', image_url: { url: msg } },\n                ],\n              }\n            : { role: 'user', content: msg || '' }\n        );\n      });\n    }\n    if (inputMessage) {\n      const messagesToPush = Array.isArray(inputMessage) ? inputMessage : [inputMessage];\n      messagesToPush.forEach((msg) => {\n        messages.push(\n          isBase64Image(msg)\n            ? {\n                role: 'user',\n                content: [\n                  { type: 'image_url', image_url: { url: msg } },\n                ],\n              }\n            : { role: 'user', content: msg || '' }\n        );\n      });\n    }\n    try {\n      const response = await fetch(`${this.props?.baseUrl}/chat/completions`, {\n        method: 'POST',\n        headers: {\n          'Content-Type': 'application/json',\n          Authorization: `Bearer ${this.props?.apiKey}`,\n        },\n        body: JSON.stringify({\n          model: this.props?.model || 'gpt-4o-mini',\n          messages: messages,\n          response_format: this.props?.responseFormat\n            ? {\n                type: this.props?.responseFormat,\n              }\n            : { type: 'text' },\n          max_tokens: this.props?.maxTokens || 4096,\n          temperature: this.props?.temperature || 0.8,\n          presence_penalty: this.props?.presencePenalty || 0.0,\n          frequency_penalty: this.props?.frequencyPenalty || 0.0,\n          stream: true,\n        }),\n        signal,\n      }).catch((error) => {\n        throw new Error(error);\n      });\n\n      if (!response.ok) {\n        throw new Error(response.status);\n      }\n\n      const reader = response.body.getReader();\n      const decoder = new TextDecoder('utf-8');\n      let buffer = '';\n\n      while (true) {\n        // Check if the signal is aborted\n        if (signal.aborted) {\n          reader.cancel(); // Cancel the reader\n          return; // Exit the generator\n        }\n\n        const { done, value } = await reader.read();\n        if (done) break;\n        const chunk = decoder.decode(value, { stream: true });\n        buffer += chunk;\n\n        let boundary = buffer.indexOf('\\n');\n        while (boundary !== -1) {\n          const line = buffer.slice(0, boundary).trim();\n          buffer = buffer.slice(boundary + 1);\n\n          if (line.startsWith('data:')) {\n            const jsonData = line.slice(5).trim();\n            if (jsonData === '[DONE]') {\n              return; // End of the stream\n            }\n            if (jsonData) {\n              try {\n                const parsed = JSON.parse(jsonData);\n                const content = parsed.choices[0]?.delta?.content;\n                if (content) {\n                  yield content; // Stream output to the caller\n                }\n              } catch (e) {}\n            }\n          }\n          boundary = buffer.indexOf('\\n');\n        }\n      }\n    } catch (error) {\n      yield error;\n    }\n  }\n}\n",
+          "//chatbot.js\n\nimport React, { useState, useEffect, useRef } from 'react';\nimport {\n  Box,\n  Stack,\n  IconButton,\n  InputAdornment,\n  OutlinedInput,\n} from '@mui/material';\nimport SendIcon from '@mui/icons-material/Send';\nimport StopCircleIcon from '@mui/icons-material/StopCircle';\nimport AddCircleIcon from '@mui/icons-material/AddCircle';\nimport { MessageLeft, MessageRight } from './MessageBox';\n\nexport default function ChatBot({assistant, response}) {\n  const [isLoading, setIsLoading] = useState(false);\n  const [historyMessages, setHistoryMessages] = useState([]);\n  const [greedingMessage, setGreedingMessage] = useState('');\n  const [inputMessage, setInputMessage] = useState('');\n  const [currentMessage, setCurrentMessage] = useState('');\n  const [controller, setController] = useState(null);\n\n  const messageEndRef = useRef(null);\n\n  const handleAbort = () => {\n    try {\n      controller.abort();\n      setController(null);\n      setIsLoading(false);\n    } catch (e) {\n      console.log(e);\n    }\n  };\n\n  useEffect(()=>{\n    setGreedingMessage(response)\n  },[response])\n\n  useEffect(() => {\n    if (\n      historyMessages.length > 0 &&\n      historyMessages[historyMessages.length - 1].role === 'human'\n    ) {\n      setIsLoading(true);\n      const inputMessage = historyMessages[historyMessages.length - 1].message;\n      const newController = new AbortController();\n      setController(newController);\n      const signal = newController.signal;\n      const readStream = async () => {\n        let reply = '';\n        try {\n          for await (const chunk of await assistant.stream(\n            inputMessage,\n            historyMessages.slice(0,historyMessages.length - 1),\n            signal\n          )) {\n            reply += chunk;\n            setCurrentMessage({ role: 'AI', message: reply });\n          }\n          setIsLoading(false);\n        } catch (e) {\n          setIsLoading(false);\n          setCurrentMessage({ role: 'AI', message: e });\n        } finally {\n          setHistoryMessages([\n            ...historyMessages,\n            { role: 'AI', message: reply },\n          ]);\n          setCurrentMessage('');\n        }\n      };\n      readStream();\n    }\n  }, [historyMessages]);\n\n  useEffect(() => {\n    isLoading &&\n      setCurrentMessage({\n        role: 'AI',\n        message: `thinking...`,\n      });\n  }, [isLoading]);\n\n  useEffect(() => {\n    messageEndRef.current?.scrollIntoView({\n      behavior: 'smooth',\n      block: 'nearest',\n    });\n  }, [historyMessages, currentMessage]);\n\n  return (\n    <Stack spacing={1} \n    width=\"100%\" \n    height=\"100%\"\n    overflow={'auto'}\n    padding={2}\n    >\n    <Stack\n    spacing={1}\n    sx={{\n        overflowY: 'auto',\n        width: '100%',\n        height: '100%',\n        p: 0,\n        m: 0,\n        userSelect: 'text',\n        cursor: 'auto',\n    }}\n    className=\"nowheel\"\n    >\n    <MessageLeft\n    key=\"greeding\"\n    message={greedingMessage || `Hi~`}\n    name={\"AI\"}\n    avatar={null}\n    />\n    {historyMessages &&\n        historyMessages.map((message, index) => {\n        return message['role'] === 'human' ? (\n            <MessageRight\n            key={index}\n            message={message['message']}\n            name=\"human\"\n            avatar={null}\n            />\n        ) : (\n            <MessageLeft\n            key={index}\n            message={message['message']}\n            name={\"travel agent\"}\n            avatar={null}\n            />\n        );\n        })}\n    {currentMessage && currentMessage.role === 'AI' && (\n        <MessageLeft\n        message={currentMessage.message}\n        name={\"travel agent\"}\n        avatar={null}\n        />\n    )}\n    <div ref={messageEndRef} />\n    </Stack>\n    <OutlinedInput\n    placeholder=\"Chat with Travel Agent...\"\n    width=\"100%\"\n    size=\"small\"\n    value={inputMessage}\n    onChange={(e) => setInputMessage(e.target.value)}\n    onKeyDown={(e) => {\n        if (e.key === 'Enter' && !e.shiftKey) {\n        setHistoryMessages([\n            ...historyMessages,\n            { role: 'human', message: inputMessage },\n        ]);\n        setInputMessage('');\n        }\n    }}\n    endAdornment={\n        <InputAdornment position=\"end\">\n        <Stack direction=\"row\" spacing={1}>\n            {isLoading ? (\n            <IconButton size=\"small\" onClick={handleAbort}>\n                <StopCircleIcon />\n            </IconButton>\n            ) : (\n            <IconButton\n                size=\"small\"\n                onClick={() => {\n                setHistoryMessages([\n                    ...historyMessages,\n                    { role: 'human', message: inputMessage },\n                ]);\n                setInputMessage('');\n                }}\n            >\n                <SendIcon />\n            </IconButton>\n            )}\n            <IconButton\n            size=\"small\"\n            onClick={() => {\n                setGreedingMessage('');\n                setHistoryMessages([]);\n                setInputMessage('');\n            }}\n            >\n            <AddCircleIcon />\n            </IconButton>\n        </Stack>\n        </InputAdornment>\n    }\n    />\n    </Stack>\n  );\n}\n",
+          "//MessageBox.js\n\nimport React,{ memo }  from 'react';\nimport { Avatar, Box, Typography } from '@mui/material';\nimport { styled } from '@mui/material/styles';\n\nconst MessageRowRight = styled(Box)({\n  display: 'flex',\n  justifyContent: 'flex-end',\n  paddingLeft: '10px',\n});\nconst MessageNoFrame = styled(Box)({\n  position: 'relative',\n  marginLeft: '20px',\n  marginBottom: '10px',\n  padding: '2px',\n  paddingLeft: '10px',\n  paddingRight: '10px',\n  width: '100%',\n  textAlign: 'left',\n  font: \"400 .9em 'Open Sans', sans-serif\",\n  pointer: 'text',\n});\n\nconst MessageGreen = styled(Box)({\n  position: 'relative',\n  marginRight: '20px',\n  marginBottom: '10px',\n  padding: '2px',\n  paddingLeft: '10px',\n  paddingRight: '10px',\n  backgroundColor: '#263238',\n  width: '100%',\n  textAlign: 'left',\n  font: \"400 .9em 'Open Sans', sans-serif\",\n  border: '1px solid #263238',\n  borderRadius: '10px',\n  pointer: 'text',\n  '&:after': {\n    content: \"''\",\n    position: 'absolute',\n    width: '0',\n    height: '0',\n    borderTop: '15px solid #263238',\n    borderLeft: '15px solid transparent',\n    borderRight: '15px solid transparent',\n    top: '0',\n    right: '-15px',\n  },\n  '&:before': {\n    content: \"''\",\n    position: 'absolute',\n    width: '0',\n    height: '0',\n    borderTop: '17px solid #263238',\n    borderLeft: '16px solid transparent',\n    borderRight: '16px solid transparent',\n    top: '-1px',\n    right: '-17px',\n  },\n});\n\nconst MessageContent = styled(Box)({\n  padding: 0,\n  margin: 0,\n});\n\nconst ChatAvatar = styled(Avatar)(({ theme }) => ({\n  color: theme.palette.getContrastText('#FFC400'),\n  // backgroundColor: \"#FFC400\",\n  width: theme.spacing(4),\n  height: theme.spacing(4),\n}));\n\nexport const MessageRight = memo(({ message, name, avatar }) => {\n  return (\n    <MessageRowRight>\n      <MessageGreen>\n        <MessageContent>\n          <Typography>\n            {message}\n          </Typography>\n        </MessageContent>\n      </MessageGreen>\n      <ChatAvatar alt={name} src={avatar || ''} />\n    </MessageRowRight>\n  );\n});\n\nexport const MessageLeft = memo(({ message, name, avatar}) => {\n  return (\n    <MessageNoFrame>\n      <ChatAvatar alt={name} src={avatar || ''} />\n      <Typography sx={{marginTop:\"5px\"}}>\n        {message}\n      </Typography>\n    </MessageNoFrame>\n  );\n});\n"
+        ],
+        "description": "No description",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "adb8d0f6ed6ebe7e917dcfbb36a7c93c",
+        "height": 400,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/421754b0e0fb6f1b6b2038b85c630754",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/c77fbb4384bb97c0b8a2a2849497a255.png",
+        "id": "c77fbb4384bb97c0b8a2a2849497a255",
+        "input": [
+          "memories",
+          "persona",
+          "task"
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "Travel Agent",
+        "output": [
+          "output"
+        ],
+        "pin": true,
+        "pinHeight": 450,
+        "pinLeft": 1185,
+        "pinTop": 250,
+        "pinWidth": 261,
+        "port": null,
+        "run": false,
+        "type": "interface",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 300
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 516,
+      "id": "c77fbb4384bb97c0b8a2a2849497a255",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "local": false,
+      "module": "builder",
+      "name": "Travel Agent",
+      "position": {
+        "x": 957.5250600284351,
+        "y": 591.9653448419107
+      },
+      "positionAbsolute": {
+        "x": 957.5250600284351,
+        "y": 591.9653448419107
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 332,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "authorId": null,
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "//entrypoint.js\n\nimport React, {useEffect} from 'react';\nimport {Accordion,AccordionDetails,AccordionSummary,Box,Typography} from '@mui/material';\nimport * as Icon from '@mui/icons-material'\n\nexport default function DataViewer(props){\n    const {input,config,setConfig,setOutput} = props\n\n    // DataViewer only inspects top 10 datapoints\n    useEffect(() => {\n        if (!(input && input.input)) return;\n        setOutput({output:input.input})\n    }, [input]);\n    \n    if (input && input.input){\n        if (typeof input.input === 'object' && Object.keys(input).length > 0){\n            return (\n                <>\n                {Object.entries(input.input).slice(0,10).map(([key, value]) => {\n                    return (\n                        <Accordion key={key} variant='outlined' sx={{p:1,m:0}} disableGutters>\n                            <AccordionSummary\n                                expandIcon={<Icon.ExpandMore />}\n                                sx ={{ width:\"100%\",height:10, m:0, p:0,paddingLeft:1, minHeight:10, borderRadius:0}}\n                            >\n                                <Typography variant='caption'>{key}</Typography>\n                            </AccordionSummary>\n                            <AccordionDetails sx={{ width:\"100%\",height:200,overflow:\"auto\"}}>\n                                <Typography variant='caption' sx={{fontSize:10,whiteSpace: 'pre-wrap',wordBreak: 'break-word'}}>\n                                    {JSON.stringify(value, null, 2)}\n                                </Typography>\n                            </AccordionDetails>\n                        </Accordion>\n                    );\n                })\n                }\n                </>\n            )\n        } else {\n            return (\n            <Box sx={{height:\"100%\",width:\"100%\"}}>\n                <Typography sx={{fontSize:10,whiteSpace: 'pre-wrap',wordBreak: 'break-word'}}>\n                    {input?.input ? \n                    (typeof input.input == 'object') ?\n                    JSON.stringify(input.input, null, 2) \n                    : input.input \n                    : ''}\n                </Typography>\n            </Box>)\n        }\n    }\n}\n"
+        ],
+        "custom": true,
+        "description": "This module displays the top 10 data points from an input object using an expandable Accordion component, and provides a detailed view of each key-value pair.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "fd7425db812691bb017965912127dbea",
+        "height": 200,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/63c30010faec8530405c465c32fb60c9",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/0b9c478f13998f2263c1d7ae2d57aa3d.png",
+        "id": "0b9c478f13998f2263c1d7ae2d57aa3d",
+        "iframeId": "O9A5I0uqjISPkXklZg9ab",
+        "input": [
+          "input"
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "Response",
+        "output": [
+          "output"
+        ],
+        "port": null,
+        "run": false,
+        "sessionId": "F7xzVS3PVAvsabsEfZtpx",
+        "time": "1/27/2025, 12:20:16 AM",
+        "type": "interface",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 200
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 284,
+      "id": "0b9c478f13998f2263c1d7ae2d57aa3d",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "local": false,
+      "module": "builder",
+      "name": "Response",
+      "position": {
+        "x": 1434.2088588130694,
+        "y": 538.4631230859918
+      },
+      "positionAbsolute": {
+        "x": 1434.2088588130694,
+        "y": 538.4631230859918
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 232,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "# entrypoint.py\n\nimport cityflow.module as cm\nimport cityflow.database as cdb\n\n\ntry:\n    data = cm.input[\"input\"]\n    step = data[\"step\"]\n    observation = data[\"observation\"]\n    evaluation = data[\"evaluation\"]\n    emotion = data[\"emotion\"]\n    plan = data[\"plan\"]\n    action = data[\"action\"]\n\n    # update last step obsevation\n    if cdb.key_exists(step-1):\n        updated_data = cdb.get_data(step-1)\n        updated_data[\"observation\"] = observation\n        updated_data[\"evaluation\"] = evaluation\n        updated_data[\"emotion\"] = emotion\n        updated_data[\"plan\"] = plan\n        cdb.add_data(step-1,updated_data)\n\n    # output next action\n    cm.output.action = {\n        \"step\" : step,\n        \"action\": action\n    }\n\nexcept Exception as e:\n    print(e)\n"
+        ],
+        "description": "No description",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "65c6880dcecebc3bb5803a15a4308e37",
+        "height": 0,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/4b7045eb853b5554de08b11c74bda0ea",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/da3f08098b6c278cb67210b8d8ea6a77.png",
+        "id": "da3f08098b6c278cb67210b8d8ea6a77",
+        "input": [
+          "input"
+        ],
+        "language": "python",
+        "local": false,
+        "name": "Update Memories",
+        "output": [
+          "action"
+        ],
+        "port": null,
+        "run": false,
+        "time": "2/12/2025, 3:57:54 PM",
+        "type": "module",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 180
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 84,
+      "id": "da3f08098b6c278cb67210b8d8ea6a77",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "local": false,
+      "module": "builder",
+      "name": "Update Memories",
+      "position": {
+        "x": 1760.5876942011369,
+        "y": 1028.850743953519
+      },
+      "positionAbsolute": {
+        "x": 1760.5876942011369,
+        "y": 1028.850743953519
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 212,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "import React, { useEffect, useRef } from 'react';\nimport * as echarts from 'echarts';\n\nexport default function RadarChart(props) {\n    const { input, config, setConfig, setOutput } = props;\n    const chartRef = useRef(null);\n\n    useEffect(() => {\n        const chartInstance = echarts.init(chartRef.current);\n\n        // Example data\n        const evaluationData = input?.input && input.input?.evaluation || {\n            \"greenery\": 0.5,\n            \"health\": 0.2,\n            \"comfort\": 0.2,\n            \"aesthetic\": 0.2,\n            \"safety\": 0.5\n        };\n\n        const categories = Object.keys(evaluationData);\n        const values = Object.values(evaluationData);\n\n        const option = {\n            backgroundColor: window.theme.node.background, // 深色背景\n            tooltip: {\n                trigger: 'item',\n                backgroundColor: 'rgba(0, 0, 0, 0.7)', // 提示框背景色\n                borderColor: '#555', // 提示框边框颜色\n                textStyle: {\n                    color: '#fff', // 提示框文字颜色\n                },\n            },\n            radar: {\n                indicator: categories.map((category) => ({ name: category, max: 1 })),\n                radius: '70%',\n                splitArea: {\n                    areaStyle: {\n                        color: ['#212121','#313131'], // 分割区颜色\n                    },\n                },\n                axisLine: {\n                    lineStyle: {\n                        color: '#777', // 轴线颜色\n                    },\n                },\n                splitLine: {\n                    lineStyle: {\n                        color: '#777', // 分割线颜色\n                    },\n                },\n            },\n            series: [{\n                name: 'Evaluation Data',\n                type: 'radar',\n                areaStyle: {\n                    color: window.theme.primary.main, // 填充颜色\n                    opacity:0.3\n                },\n                lineStyle: {\n                    color: window.theme.primary.main, // 雷达图线条颜色\n                    width: 2, // 线条宽度\n                },\n                symbol: 'circle', // 点的形状，可以是 'circle'、'rect'、'roundRect' 等\n                symbolSize: 8, // 点的大小\n                itemStyle: {\n                    color: window.theme.primary.main, // 点的颜色\n                },\n                data: [{\n                    value: values,\n                    name: 'Evaluation'\n                }]\n            }],\n            textStyle: {\n                color: '#fff', // 图表文字颜色\n            },\n        };\n\n        chartInstance.setOption(option);\n\n        // Cleanup on unmount\n        return () => {\n            chartInstance.dispose();\n        };\n    }, [input]);\n\n    return (\n        <div style={{ display: \"flex\", justifyContent: \"center\", alignItems: \"center\" }}>\n            <div ref={chartRef} style={{ width: 280, height: 280 }} />\n        </div>\n    );\n}"
+        ],
+        "description": "No description",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "73332cd971d0ebb90d1bc0ae8f19d761",
+        "height": 300,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/bb87f55db86ce49197e57e66f4c6e6a5",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/7a385db5a0869055f4e0090f4f755e13.png",
+        "id": "7a385db5a0869055f4e0090f4f755e13",
+        "input": [
+          "input"
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "Index",
+        "output": [
+          "output"
+        ],
+        "pin": true,
+        "pinHeight": 269,
+        "pinLeft": 57,
+        "pinTop": 70,
+        "pinWidth": 274,
+        "port": null,
+        "run": false,
+        "type": "interface",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 300
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 384,
+      "id": "7a385db5a0869055f4e0090f4f755e13",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "local": false,
+      "module": "builder",
+      "name": "Index",
+      "position": {
+        "x": 1755.6719097293615,
+        "y": 170.55611281444902
+      },
+      "positionAbsolute": {
+        "x": 1755.6719097293615,
+        "y": 170.55611281444902
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 332,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "// entrypoint.js\nimport React, { useState, useEffect } from 'react';\nimport Slider from '@mui/material/Slider';\nimport Box from '@mui/material/Box';\n\nconst iconSize = 80;\n\nconst SadIcon = () => (\n  <svg width={iconSize} height={iconSize} viewBox=\"0 0 24 24\" fill=\"#F44336\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle cx=\"12\" cy=\"12\" r=\"10\" stroke=\"black\" strokeWidth=\"2\" fill=\"#F44336\" />\n    <circle cx=\"9\" cy=\"10\" r=\"1.5\" fill=\"black\" />\n    <circle cx=\"15\" cy=\"10\" r=\"1.5\" fill=\"black\" />\n    <path d=\"M8 16c1.5-2 6.5-2 8 0\" stroke=\"black\" strokeWidth=\"2\" strokeLinecap=\"round\" />\n  </svg>\n);\n\nconst UnhappyIcon = () => (\n  <svg width={iconSize} height={iconSize} viewBox=\"0 0 24 24\" fill=\"#FF9800\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle cx=\"12\" cy=\"12\" r=\"10\" stroke=\"black\" strokeWidth=\"2\" fill=\"#FF9800\" />\n    <circle cx=\"9\" cy=\"10\" r=\"1.5\" fill=\"black\" />\n    <circle cx=\"15\" cy=\"10\" r=\"1.5\" fill=\"black\" />\n    <path d=\"M8 16c2-1.5 6-1.5 8 0\" stroke=\"black\" strokeWidth=\"2\" strokeLinecap=\"round\" />\n  </svg>\n);\n\nconst NeutralIcon = () => (\n  <svg width={iconSize} height={iconSize} viewBox=\"0 0 24 24\" fill=\"#FFEB3B\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle cx=\"12\" cy=\"12\" r=\"10\" stroke=\"black\" strokeWidth=\"2\" fill=\"#FFEB3B\" />\n    <circle cx=\"9\" cy=\"10\" r=\"1.5\" fill=\"black\" />\n    <circle cx=\"15\" cy=\"10\" r=\"1.5\" fill=\"black\" />\n    <line x1=\"8\" y1=\"16\" x2=\"16\" y2=\"16\" stroke=\"black\" strokeWidth=\"2\" strokeLinecap=\"round\" />\n  </svg>\n);\n\nconst HappyIcon = () => (\n  <svg width={iconSize} height={iconSize} viewBox=\"0 0 24 24\" fill=\"#8BC34A\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle cx=\"12\" cy=\"12\" r=\"10\" stroke=\"black\" strokeWidth=\"2\" fill=\"#8BC34A\" />\n    <circle cx=\"9\" cy=\"10\" r=\"1.5\" fill=\"black\" />\n    <circle cx=\"15\" cy=\"10\" r=\"1.5\" fill=\"black\" />\n    <path d=\"M8 14c2 2 6 2 8 0\" stroke=\"black\" strokeWidth=\"2\" strokeLinecap=\"round\" />\n  </svg>\n);\n\nconst VeryHappyIcon = () => (\n  <svg width={iconSize} height={iconSize} viewBox=\"0 0 24 24\" fill=\"#4CAF50\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle cx=\"12\" cy=\"12\" r=\"10\" stroke=\"black\" strokeWidth=\"2\" fill=\"#4CAF50\" />\n    <circle cx=\"9\" cy=\"10\" r=\"1.5\" fill=\"black\" />\n    <circle cx=\"15\" cy=\"10\" r=\"1.5\" fill=\"black\" />\n    <path d=\"M8 14c2 3 6 3 8 0\" stroke=\"black\" strokeWidth=\"2\" strokeLinecap=\"round\" />\n  </svg>\n);\n\nconst MoodSlider = (props) => {\n  const { input } = props;\n  const [mood, setMood] = useState(2); // Default to neutral mood\n\n  const handleChange = (e, newValue) => {\n    const value = Math.floor(newValue / 25); // Mapping slider value to mood index (0-4)\n    setMood(value);\n  };\n\n  const moodIcons = [\n    <SadIcon />, // Sad\n    <UnhappyIcon />, // Unhappy\n    <NeutralIcon />, // Neutral\n    <HappyIcon />, // Happy\n    <VeryHappyIcon /> // Very Happy\n  ];\n\n  const moodColors = [\n    '#F44336', // Red (Sad)\n    '#FF9800', // Orange (Unhappy)\n    '#FFEB3B', // Yellow (Neutral)\n    '#8BC34A', // Green (Happy)\n    '#4CAF50'  // Dark Green (Very Happy)\n  ];\n\n  // 动态生成渐变颜色\n  const generateGradient = (index) => {\n    const color1 = moodColors[index];\n    const color2 = moodColors[Math.min(index + 1, moodColors.length - 1)];\n    return `linear-gradient(to right, ${color1}, ${color2})`;\n  };\n\n  useEffect(() => {\n    if (input?.input) {\n      setMood(input.input?.emotion);\n    }\n  }, [input]);\n\n  return (\n    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: 1 }}>\n      <Box sx={{ marginBottom: 1 }}>{moodIcons[mood]}</Box>\n      <Slider\n        value={mood * 25}\n        onChange={handleChange}\n        min={0}\n        max={100}\n        step={1}\n        sx={{\n          width: '80%',\n          '& .MuiSlider-track': { background: generateGradient(mood), border: \"none\", height: 20 },\n          '& .MuiSlider-rail': { background: generateGradient(mood), height: 20 },\n          '& .MuiSlider-thumb': { width: 25, height: 25, borderRadius: '50%', backgroundColor: moodColors[mood], border: '4px solid white', transition: 'background-color 0.3s ease' }\n        }}\n      />\n    </Box>\n  );\n};\n\nexport default MoodSlider;\n",
+          "//emotion.js\n\n\nexport const Sad = (\n  <svg width=\"100\" height=\"100\" xmlns=\"http://www.w3.org/2000/svg\">\n  <circle cx=\"50\" cy=\"50\" r=\"40\" fill=\"yellow\" />\n  <circle cx=\"35\" cy=\"40\" r=\"5\" fill=\"black\" />\n  <circle cx=\"65\" cy=\"40\" r=\"5\" fill=\"black\" />\n  <path d=\"M 30 70 Q 50 60 70 70\" stroke=\"black\" stroke-width=\"3\" fill=\"none\" />\n  </svg>\n)"
+        ],
+        "description": "No description",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "f7550afc508b6ade0194eadd1d3ed838",
+        "height": 150,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/dc04dd7235124764faf533243324102d",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/bb138e0f0a52a7921746f2025e317b93.png",
+        "id": "bb138e0f0a52a7921746f2025e317b93",
+        "input": [
+          "input"
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "Emotion",
+        "output": [
+          ""
+        ],
+        "pin": true,
+        "pinHeight": 169,
+        "pinLeft": 1183,
+        "pinTop": 73,
+        "pinWidth": 261,
+        "port": null,
+        "run": false,
+        "type": "interface",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 200
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 234,
+      "id": "bb138e0f0a52a7921746f2025e317b93",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "Emotion",
+      "position": {
+        "x": 1807.1724848350339,
+        "y": 604.5097814788727
+      },
+      "positionAbsolute": {
+        "x": 1807.1724848350339,
+        "y": 604.5097814788727
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 232,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": null,
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "discription": "this module is useful to listen to a custom event",
+        "eventType": "step",
+        "files": [],
+        "hash": "7775b80a9d572812acb8ab6889cb6029",
+        "height": 50,
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/5ce3e18a2421991533d8301bca5194b2.png",
+        "id": "5ce3e18a2421991533d8301bca5194b2",
+        "input": [
+          "message"
+        ],
+        "local": false,
+        "name": "Event Sender",
+        "run": false,
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 150
+      },
+      "data": {
+        "input": null,
+        "module": "core/eventSender/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 131,
+      "id": "5ce3e18a2421991533d8301bca5194b2",
+      "module": "eventSender",
+      "name": "Event Sender",
+      "position": {
+        "x": 2125.522911593051,
+        "y": 1031.832741927359
+      },
+      "positionAbsolute": {
+        "x": 2125.522911593051,
+        "y": 1031.832741927359
+      },
+      "selected": false,
+      "type": "base",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 183
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "authorId": null,
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "//entrypoint.js\nimport React,{useState} from 'react';\nimport {ToggleButton,ToggleButtonGroup} from '@mui/material'\n\nexport default  function Boolnput(props){\n    const {input,config,setConfig,setOutput} = props\n\n    const [value, setValue] = useState(config?.value || \"true\");\n    const handleSwitch = (event) => {\n        setValue(event.target.value);\n        setConfig({...config,value:event.target.value})\n        setOutput({output: event.target.value});\n    };\n    return (\n        <ToggleButtonGroup\n        value={value}\n        exclusive\n        onChange={handleSwitch}\n        aria-label=\"text alignment\"\n        sx={{\n            width: \"100%\",\n            height: \"100%\",\n            minHeight:0\n        }}\n        >\n\n        <ToggleButton fullWidth value=\"true\">\n            True\n        </ToggleButton>\n        <ToggleButton fullWidth value=\"false\">\n            False\n        </ToggleButton>\n\n        </ToggleButtonGroup>\n    );\n}\n"
+        ],
+        "custom": true,
+        "description": "This module creates a React component that allows users to toggle between \"True\" and \"False\" values, updating the module's configuration and output accordingly.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "68863e666ba794eb2498734b4f0fc82a",
+        "height": 30,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/e7f4c81b27846862b427397960efdbe6",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/a3565f7f542068a4a7d7c6337d66631b.png",
+        "id": "a3565f7f542068a4a7d7c6337d66631b",
+        "iframeId": "gQVp1awsuW_RzH2prPmwy",
+        "input": [
+          ""
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "BoolInput",
+        "output": [
+          "output"
+        ],
+        "port": null,
+        "run": false,
+        "sessionId": "w2JkE1LirqCTkTfwjhAD4",
+        "time": "1/24/2025, 1:29:00 AM",
+        "type": "interface",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "value": "true",
+        "width": 150
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 114,
+      "id": "a3565f7f542068a4a7d7c6337d66631b",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "BoolInput",
+      "position": {
+        "x": 294.51615145204323,
+        "y": 360.4918629661453
+      },
+      "positionAbsolute": {
+        "x": 294.51615145204323,
+        "y": 360.4918629661453
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 182
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "# entrypoint.py\n\nimport cityflow.module as cm\nimport cityflow.database as cdb\n\n\ntry:\n    clear = cm.input[\"input\"]\n    print(clear)\n    if clear == \"true\":\n        cdb.clear_data()\nexcept Exception as e:\n    print(e)\n    pass\n"
+        ],
+        "description": "No description",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "b596a4a9291f5ecb10c4c43c67c6707e",
+        "height": 0,
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/45d4ee71d3eb91844405d3d056262ee7.png",
+        "id": "45d4ee71d3eb91844405d3d056262ee7",
+        "input": [
+          "input"
+        ],
+        "language": "python",
+        "local": false,
+        "name": "Clear Memories",
+        "output": [
+          ""
+        ],
+        "port": null,
+        "run": false,
+        "time": "2/12/2025, 6:15:30 PM",
+        "type": "module",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 150
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 84,
+      "id": "45d4ee71d3eb91844405d3d056262ee7",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "Clear Memories",
+      "position": {
+        "x": 557.2175573496731,
+        "y": 361.6215004750773
+      },
+      "positionAbsolute": {
+        "x": 557.2175573496731,
+        "y": 361.6215004750773
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 182,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "authorId": null,
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "//entrypoint.js\nimport { TextField} from \"@mui/material\";\nimport React, { useEffect,useState} from \"react\";\n\n\n\nexport default function TextInput(props){\n\n    const {input,config,setConfig,setOutput} = props\n\n    const [value,setValue]=useState(config?.value||\"You want to meet a friend in front of the library\")\n    const handleChange = (e) => {\n        setValue(e.target.value);\n    }\n    const handleCommit = (e)=> {\n        setConfig({...config,value:value});\n        setOutput({output:value})\n    }\n    useEffect(()=>{\n        setOutput({output:value})\n    },[config?.run,value])\n    return (\n        <TextField type=\"text\"\n            value={value}\n            onChange={handleChange}\n            onMouseLeave = {handleCommit}\n            sx={{\n                width: \"100%\", \n                height: \"100%\", \n                padding: \"5px\"\n            }}\n            placeholder=\"Type something here\"\n            size=\"small\"\n            multiline\n            rows={2}\n            InputProps={{style: { fontSize: 8}}}\n        />\n    );\n}"
+        ],
+        "custom": true,
+        "description": "This module creates a text input component with React and Material-UI, allowing users to enter text that is updated and committed to state upon input or mouse leave.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "a82aed225889ec998f30accd0e9c0fdf",
+        "height": 60,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/01f083aa7bc83334e3691f8bbdc9dae4",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/7faaa17a692dcb36cc54667dc105cc12.png",
+        "id": "7faaa17a692dcb36cc54667dc105cc12",
+        "iframeId": "mAw0k-rz_C4Fc2j9daIcQ",
+        "input": [
+          ""
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "Task",
+        "output": [
+          "output"
+        ],
+        "pin": false,
+        "pinLeft": 154,
+        "pinTop": 286,
+        "port": null,
+        "run": false,
+        "sessionId": "sUrPjbmVvFDPj4vm6qGrd",
+        "time": "1/24/2025, 1:31:27 AM",
+        "type": "interface",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "value": "You want to meet a friend in front of the library",
+        "width": 150
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 144,
+      "id": "7faaa17a692dcb36cc54667dc105cc12",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "local": false,
+      "module": "builder",
+      "name": "Task",
+      "position": {
+        "x": 581.0995143847296,
+        "y": 925.8133411058973
+      },
+      "positionAbsolute": {
+        "x": 581.0995143847296,
+        "y": 925.8133411058973
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 182,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "authorId": null,
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "//entrypoint.js\nimport { TextField} from \"@mui/material\";\nimport React, { useEffect,useState} from \"react\";\n\n\n\nexport default function TextInput(props){\n\n    const {input,config,setConfig,setOutput} = props\n\n    const [value,setValue]=useState(config?.value||\"You're a 21 year-old student in this college. Your majoy is architecture.\")\n    const handleChange = (e) => {\n        setValue(e.target.value);\n    }\n    const handleCommit = (e)=> {\n        setConfig({...config,value:value});\n    }\n    useEffect(()=>{\n        setOutput({output:value})\n    },[config?.run,value])\n    return (\n        <TextField type=\"text\"\n            value={value}\n            onChange={handleChange}\n            onMouseLeave = {handleCommit}\n            sx={{\n                width: \"100%\", \n                height: \"100%\", \n                padding: \"5px\"\n            }}\n            placeholder=\"Type something here\"\n            size=\"small\"\n            multiline\n            rows={5}\n            InputProps={{style: { fontSize: 8}}}\n        />\n    );\n}"
+        ],
+        "custom": true,
+        "description": "This module creates a text input component with React and Material-UI, allowing users to enter text that is updated and committed to state upon input or mouse leave.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "52a0f1d9e151502dd37aa7e13e2740ba",
+        "height": 100,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/f36c8376b234bbde8e65c259f63d108f",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/f483c4fb53a1b88f4f1ddc69629f7819.png",
+        "id": "f483c4fb53a1b88f4f1ddc69629f7819",
+        "iframeId": "mAw0k-rz_C4Fc2j9daIcQ",
+        "input": [
+          ""
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "Persona",
+        "output": [
+          "output"
+        ],
+        "pin": false,
+        "pinLeft": 1264,
+        "pinTop": 387,
+        "port": null,
+        "run": false,
+        "sessionId": "sUrPjbmVvFDPj4vm6qGrd",
+        "time": "1/24/2025, 1:31:27 AM",
+        "type": "interface",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "value": "You're a 21 year-old student in this college. Your majoy is architecture.",
+        "width": 150
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 184,
+      "id": "f483c4fb53a1b88f4f1ddc69629f7819",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "local": false,
+      "module": "builder",
+      "name": "Persona",
+      "position": {
+        "x": 579.3370878283813,
+        "y": 710.5367838557047
+      },
+      "positionAbsolute": {
+        "x": 579.3370878283813,
+        "y": 710.5367838557047
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 182,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": null,
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "discription": "this module is useful to listen to a custom event",
+        "eventType": "step",
+        "files": [],
+        "hash": "4d6daa8923406fc7178b01338e8a7653",
+        "height": 50,
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/aa29dc0a759e8bc5a266aced8305d63e.png",
+        "id": "aa29dc0a759e8bc5a266aced8305d63e",
+        "local": false,
+        "name": "Event Listener",
+        "output": [
+          "message"
+        ],
+        "run": false,
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 150
+      },
+      "data": {
+        "input": null,
+        "module": "core/eventListener/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 131,
+      "id": "aa29dc0a759e8bc5a266aced8305d63e",
+      "local": false,
+      "module": "eventListener",
+      "name": "Event Listener",
+      "position": {
+        "x": -697.0892574208458,
+        "y": 596.2403177507201
+      },
+      "positionAbsolute": {
+        "x": -697.0892574208458,
+        "y": 596.2403177507201
+      },
+      "selected": false,
+      "type": "base",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 183
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "authorId": null,
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "//entrypoint.js\n\nimport React, {useEffect} from 'react';\nimport {Accordion,AccordionDetails,AccordionSummary,Box,Typography} from '@mui/material';\nimport ExpandMoreIcon from '@mui/icons-material/ExpandMore'\nimport LogViewer from './logviewer.js'\n\nexport default function DataViewer(props){\n    const {input,config,setConfig,setOutput} = props\n\n    // DataViewer only inspects top 10 datapoints\n    useEffect(() => {\n        if (!(input && input.input)) return;\n        setOutput({output:input.input})\n    }, [input]);\n    \n    if (input && input.input){\n        if (typeof input.input === 'object' && Object.keys(input).length > 0){\n            return (\n                <>\n                {Object.entries(input.input).slice(-10).map(([key, value]) => {\n                    return (\n                        <Accordion key={key} variant='outlined' sx={{p:1,m:0}} disableGutters>\n                            <AccordionSummary\n                                expandIcon={<ExpandMoreIcon />}\n                                sx ={{ width:\"100%\",height:10, m:0, p:0,paddingLeft:1, minHeight:10, borderRadius:0}}\n                            >\n                                <Typography variant='caption'>{`step_${key}`}</Typography>\n                            </AccordionSummary>\n                            <AccordionDetails sx={{ width:\"100%\",height:200,overflow:\"auto\"}}>\n                                <Typography variant='caption' sx={{fontSize:10,whiteSpace: 'pre-wrap',wordBreak: 'break-word'}}>\n                                <LogViewer value={value} />\n                                </Typography>\n                            </AccordionDetails>\n                        </Accordion>\n                    );\n                })\n                }\n                </>\n            )\n        } else {\n            return (\n            <Box sx={{height:\"100%\",width:\"100%\"}}>\n                <Typography sx={{fontSize:10,whiteSpace: 'pre-wrap',wordBreak: 'break-word'}}>\n                    {input?.input ? \n                    (typeof input.input == 'object') ?\n                    JSON.stringify(input.input, null, 2) \n                    : input.input \n                    : ''}\n                </Typography>\n            </Box>)\n        }\n    }\n}\n",
+          "//logviewer.js\nimport React from 'react';\nimport {Stack, Typography} from '@mui/material';\n\nexport default function LogViewer({value}){\n    if (!value) return null;\n    const {scene, ...log} = value;\n    return (\n        <Stack spacing={0.5}>\n         <img src={scene} alt=\"data\" style={{width: \"100%\"}}/>\n            {\n                Object.entries(log).map(([k,v])=>{\n                    return (\n                        <Typography \n                        key={k}\n                        variant=\"caption\" sx={{\n                            fontSize:'6px'\n                        }}>\n                            {`${k}:  ${v}`}\n                        </Typography>\n                    \n                    )\n                })\n            }\n        </Stack>\n    )\n}"
+        ],
+        "custom": true,
+        "description": "This module displays the top 10 data points from an input object using an expandable Accordion component, and provides a detailed view of each key-value pair.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "5058308e2b9a1f9bf64480e6e17d78c6",
+        "height": 200,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/6ddf30a6808aee1ba184d87a38f5146e",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/e840e1171964be76e3185928c6079ea1.png",
+        "id": "e840e1171964be76e3185928c6079ea1",
+        "iframeId": "O9A5I0uqjISPkXklZg9ab",
+        "input": [
+          "input"
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "Logs",
+        "output": [
+          "output"
+        ],
+        "pin": true,
+        "pinHeight": 349,
+        "pinLeft": 57,
+        "pinTop": 349,
+        "pinWidth": 273,
+        "port": null,
+        "run": false,
+        "sessionId": "F7xzVS3PVAvsabsEfZtpx",
+        "time": "1/27/2025, 12:20:16 AM",
+        "type": "interface",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 200
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 284,
+      "id": "e840e1171964be76e3185928c6079ea1",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "local": false,
+      "module": "builder",
+      "name": "Logs",
+      "position": {
+        "x": 968.2305906583397,
+        "y": 191.58200357208648
+      },
+      "positionAbsolute": {
+        "x": 968.2305906583397,
+        "y": 191.58200357208648
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 232,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "# entrypoint.py\n\nimport cityflow.module as cm\nimport cityflow.database as cdb\n\n\ntry:\n    data = cm.input[\"input\"]\n    step = data[\"step\"]\n    scene = data[\"scene\"]\n    action = data[\"action\"]\n    \n    # add or update memories\n    if not cdb.key_exists(step):\n        cdb.add_data(step, {\n            \"scene\" : scene,\n            \"action\" : action\n        })\n    else: \n        updated_data = cdb.get_data(step)\n        updated_data[\"scene\"] = scene\n        updated_data[\"action\"] = action\n        cdb.add_data(step,updated_data)\n\n    # return lastest memories\n    memories = {}\n    for i in range(max(step-4,0),step):\n        memories[i] = cdb.get_data(i)\n\n    memories[step] = {\n        \"scene\": scene,\n        \"action\":action\n    }\n    cm.output.memories = memories\n\nexcept Exception as e:\n    print(e)\n"
+        ],
+        "description": "Memory",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "5ce7b1ffd0b05c2e6cd945638d43fde8",
+        "height": 0,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/b2ca3a596a2cb92cb307d563227c911a",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/8b62a1ea080c5c4fc7abba92936f6e92.png",
+        "id": "8b62a1ea080c5c4fc7abba92936f6e92",
+        "input": [
+          "input"
+        ],
+        "language": "python",
+        "local": false,
+        "name": "Memories",
+        "output": [
+          "memories"
+        ],
+        "port": null,
+        "run": false,
+        "time": "2/12/2025, 6:08:36 PM",
+        "type": "module",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 150
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 84,
+      "id": "8b62a1ea080c5c4fc7abba92936f6e92",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "local": false,
+      "module": "builder",
+      "name": "Memories",
+      "position": {
+        "x": 574.9684529068421,
+        "y": 590.3030188782512
+      },
+      "positionAbsolute": {
+        "x": 574.9684529068421,
+        "y": 590.3030188782512
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 182,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "//entrypoint.js\nimport React, { useEffect, useState, useRef } from 'react';\nimport { Canvas, useFrame, useThree } from '@react-three/fiber';\nimport { Sky,PerspectiveCamera } from '@react-three/drei';\nimport Controls from './controls'\nimport Settings from './settings'\n\nconst Model = ({ action, model, setOutput }) => {\n  const frameCounter = useRef(0);\n  const currentStep = useRef(0);\n  const { gl, camera, scene } = useThree();\n\n  //init\n  useEffect(()=>{\n    setOutput(null)\n  },[model])\n\n  useFrame(() => {\n    frameCounter.current += 1;\n    if (frameCounter.current >= 10) {\n      // Take a screenshot every 10 frames\n        if (action?.step && action.step>currentStep.current && setOutput){\n        gl.render(scene, camera);\n        const canvas = gl.domElement;\n        const dataUrl = canvas && canvas.toDataURL('image/png');\n        currentStep.current += 1\n        setOutput({\n          output: {\n            step: action.step,\n            scene: dataUrl,\n            action: action.action\n          }\n        })\n        }\n      frameCounter.current = 0; // Reset the counter\n    }\n  });\n  return <primitive object={model} />;\n};\n\nconst RhinoViewer = (props) => {\n  const {input,config, setOutput} = props;\n  const [model, setModel] = useState(null);\n  const [initSettings, setInitSettings] = useState({\n    fov: 45,\n    position: [0, 1.8, 0],\n    rotation: [0, 0, 0],\n    lookAt: [0, 3, -100],\n    sunPosition: [100, 10, 100],\n    sunIntensity: 1,\n    ambientIndensity: 0.6,\n    speed: 10,\n    turnSpeed: 0.25, //0.25*Math.PI\n  });\n\n  useEffect(()=>{\n    config?.run || setModel(null) && setOutput(null)\n  },[config?.run])\n\n  return (\n    <div style={{ width: '100%', height: '100vh', background:'balck' }}>\n    {!model ? (\n      <Settings \n      initSettings = {initSettings}\n      setInitSettings = {setInitSettings}\n      setModel={setModel} \n      />\n      ) : (\n      <Canvas\n        id=\"3dm-viewer\"\n        onCreated={({ gl, camera }) => {\n          gl.setPixelRatio(window.devicePixelRatio);\n          gl.setSize(window.innerWidth, window.innerHeight);\n          camera.lookAt(...initSettings.lookAt);\n        }}\n      >\n        <PerspectiveCamera\n          makeDefault\n          position={initSettings?.position}\n          rotation={initSettings?.rotation}\n          fov={initSettings?.fov}\n        />\n        <Sky sunPosition={initSettings?.sunPosition} />\n        <directionalLight \n          position={initSettings?.sunPosition} \n          intensity={initSettings?.sunIntensity} \n          castShadow \n        />\n        <ambientLight intensity={initSettings?.ambientIndensity} />\n        <Model \n          action={input?.action && input.action}\n          model={model} \n          setOutput={setOutput} \n        />\n        <Controls \n          model = {model}\n          speed = {initSettings?.speed}\n          turnSpeed = {initSettings?.turnSpeed}\n          action={input?.action && input.action} \n          actionTimeout={1000}\n        />\n      </Canvas>\n      )}\n    </div>\n  );\n};\n\nexport default RhinoViewer;\n",
+          "//controls.js\n\nimport React, { useEffect, useState, useRef,useMemo } from 'react';\nimport { useFrame, useThree } from '@react-three/fiber';\nimport * as THREE from 'three';\n\n\n\nconst Controls = ({ model, speed,turnSpeed, action, actionTimeout=1000})=>{\n  const { camera, scene } = useThree();\n  const currentStep = useRef(0);\n  const keysPressed = useRef({\n    w: false,\n    a: false,\n    s: false,\n    d: false,\n    q: false,\n    e: false,\n  });\n\n  const obstacles = useMemo(() => {\n    const obstacles = [];\n    if (model) {\n      model.traverse((child) => {\n        if (child.isMesh && child.userData.isObstacle) {\n          obstacles.push(child);\n        }\n      });\n    }\n    return obstacles;\n  }, [model]);\n\n  useEffect(() => {\n    const handleKeyDown = (e) => {\n      const key = e.key.toLowerCase();\n      if (Object.keys(keysPressed.current).includes(key)) {\n        keysPressed.current[key] = true;\n      }\n    };\n\n    const handleKeyUp = (e) => {\n      const key = e.key.toLowerCase();\n      if (Object.keys(keysPressed.current).includes(key)) {\n        keysPressed.current[key] = false;\n      }\n    };\n\n    window.addEventListener('keydown', handleKeyDown);\n    window.addEventListener('keyup', handleKeyUp);\n\n    return () => {\n      window.removeEventListener('keydown', handleKeyDown);\n      window.removeEventListener('keyup', handleKeyUp);\n    };\n  }, []);\n\n  useEffect(() => {\n  if (action?.step > currentStep.current && action?.action) {\n    keysPressed.current[action.action] = true;\n    currentStep.current += 1;\n    setTimeout(() => {\n      keysPressed.current[action.action] = false;\n    }, actionTimeout);\n  }\n}, [action,actionTimeout]);\n\n\n  useFrame((_, delta) => {\n    const speed_ = speed || 10;\n    const turnSpeed_ = turnSpeed*Math.PI  || Math.PI / 2; // radians per second\n\n    let moved = false;\n\n    // Handle turning first.\n    if (keysPressed.current.q) {\n      camera.rotateY(turnSpeed_ * delta);\n      moved = true;\n    }\n    if (keysPressed.current.e) {\n      camera.rotateY(-turnSpeed_ * delta);\n      moved = true;\n    }\n\n    // Recalculate forward vector after turning.\n    const forward = new THREE.Vector3();\n    camera.getWorldDirection(forward);\n    forward.y = 0;\n    forward.normalize();\n\n    const right = new THREE.Vector3();\n    right.crossVectors(camera.up, forward).normalize();\n\n    const moveWithCollisionCheck = (direction, distance) => {\n      const rayOrigin = camera.position.clone();\n      const raycaster = new THREE.Raycaster(\n        rayOrigin,\n        direction.clone().normalize(),\n        0,\n        distance\n      );\n      \n      const intersects = raycaster.intersectObjects(obstacles);\n      if (intersects.length === 0) {\n        camera.position.add(direction.multiplyScalar(distance));\n        return true;\n      } else {\n        const closest = intersects[0].distance;\n        const allowedDistance = Math.max(closest - 1, 0); // 保持 1 m的安全距离\n        camera.position.add(direction.normalize().multiplyScalar(allowedDistance));\n        return allowedDistance > 0;\n      }\n    };\n\n    if (keysPressed.current.w) {\n      moved = moveWithCollisionCheck(forward.clone(), speed_ * delta) || moved;\n    }\n    if (keysPressed.current.s) {\n      moved = moveWithCollisionCheck(forward.clone().negate(), speed_ * delta) || moved;\n    }\n    if (keysPressed.current.a) {\n      moved = moveWithCollisionCheck(right.clone(), speed_ * delta) || moved;\n    }\n    if (keysPressed.current.d) {\n      moved = moveWithCollisionCheck(right.clone().negate(), speed_ * delta) || moved;\n    }\n  });\n\n  return null;\n};\n\nexport default Controls;",
+          "//settings.js\nimport React, { useState } from 'react';\nimport { Rhino3dmLoader } from 'three/addons/loaders/3DMLoader.js';\nimport { Button, Stack, Slider, TextField, Typography, CircularProgress } from '@mui/material';\n\nconst Settings = ({ initSettings, setInitSettings, setModel }) => {\n\n  const [showSettings, setShowSettings] = useState(false)\n  const [loading, setLoading] = useState(false);\n  const [progress, setProgress] = useState(0)\n\n  // Update settings function\n  const handleSettingChange = (e, settingName) => {\n    const value = e.target.value || e.target.valueAsNumber;\n    setInitSettings({\n      ...initSettings,\n      [settingName]: value\n    });\n  };\n\n  const handleSliderChange = (settingName, newValue) => {\n    setInitSettings({\n      ...initSettings,\n      [settingName]: newValue\n    });\n  };\n\n  // Handler for file upload\n  const handleFileUpload = (event) => {\n    const file = event.target.files[0];\n    if (file) {\n      setLoading(true)\n      const url = URL.createObjectURL(file);\n      const loader = new Rhino3dmLoader();\n      loader.setLibraryPath('https://cdn.jsdelivr.net/npm/rhino3dm@8.4.0/');\n      loader.load(\n        url,\n        (object) => {\n          object.rotateX(-Math.PI / 2);\n          object.traverse((child) => {\n          if (child.isMesh) {\n            // 为所有网格添加碰撞标识\n            child.userData.isObstacle = true;\n          }\n          });\n          setModel && setModel(object);\n          setLoading(false)\n          URL.revokeObjectURL(url);\n        },\n        (progress) => {\n          setProgress(Math.floor((progress.loaded / progress.total) * 100));\n        },\n        (error) => {\n          console.error(error);\n          URL.revokeObjectURL(url);\n        }\n      );\n    }\n  };\n\n  // Trigger file input click when button is pressed\n  const handleButtonClick = () => {\n    document.getElementById('fileInput').click();\n  };\n\n  return (\n    <Stack \n    direction=\"row\"\n    spacing={4}\n    sx={{ padding: 2, \n    width:\"100%\",\n    height:\"100%\",\n    display:'flex', \n    justifyContent:\"center\", \n    alignItems:\"center\" }}>\n    {loading ? (\n      <CircularProgress value={progress} sx={{\n        color: \"white\"\n        }}\n      />\n    ): (\n      <Stack \n      spacing={2}\n      style={{\n        width:\"50%\",\n        justifyContent:\"center\",\n        alignItems:\"center\"\n      }}>\n        {/* File Upload Button */}\n        <Button variant=\"contained\" onClick={handleButtonClick}>\n          Upload RHINO 3D Model\n        </Button>\n        <input\n          type=\"file\"\n          id=\"fileInput\"\n          accept=\".3dm\"\n          onChange={handleFileUpload}\n          style={{ display: 'none' }}  // Hide the actual file input\n        />\n        <Typography \n        variant=\"caption\" \n        sx={{\n          color:\"#424242\",\n          cursor:\"pointer\"\n        }}\n        onClick={()=>{\n          setShowSettings(!showSettings)\n        }}>\n          Init Settings\n         </Typography>\n      </Stack>\n      )\n      }\n      {showSettings && \n      <Stack spacing={1} \n      style={{\n        width:\"50%\",\n        height:\"100%\",\n        overflow:\"auto\"\n      }}>\n        {/* Position */}\n        <Typography variant=\"caption\">Position (X, Y, Z)</Typography>\n        <Stack direction=\"row\" spacing={1}>\n          <TextField\n            label=\"X\"\n            size=\"small\"\n            type=\"number\"\n            value={initSettings.position[0]}\n            onChange={(e) => handleSettingChange(e, 'position')}\n            inputProps={{ step: 0.1,style: { fontSize: 10} }}\n          />\n          <TextField\n            label=\"Y\"\n            size=\"small\"\n            type=\"number\"\n            value={initSettings.position[1]}\n            onChange={(e) => handleSettingChange(e, 'position')}\n            inputProps={{ step: 0.1,style: { fontSize: 10} }}\n          />\n          <TextField\n            label=\"Z\"\n            size=\"small\"\n            type=\"number\"\n            value={initSettings.position[2]}\n            onChange={(e) => handleSettingChange(e, 'position')}\n            inputProps={{ step: 0.1 ,style: { fontSize: 10}}}\n          />\n        </Stack>\n        {/* Rotation */}\n        <Typography variant=\"caption\">Rotation (X, Y, Z)</Typography>\n        <Stack direction=\"row\" spacing={1}>\n          <TextField\n            label=\"X\"\n            size=\"small\"\n            type=\"number\"\n            value={initSettings.rotation[0]}\n            onChange={(e) => handleSettingChange(e, 'rotation')}\n            inputProps={{ step: 0.1,style: { fontSize: 10} }}\n          />\n          <TextField\n            label=\"Y\"\n            size=\"small\"\n            type=\"number\"\n            value={initSettings.rotation[1]}\n            onChange={(e) => handleSettingChange(e, 'rotation')}\n            inputProps={{ step: 0.1,style: { fontSize: 10} }}\n          />\n          <TextField\n            label=\"Z\"\n            size=\"small\"\n            type=\"number\"\n            value={initSettings.rotation[2]}\n            onChange={(e) => handleSettingChange(e, 'rotation')}\n            inputProps={{ step: 0.1,style: { fontSize: 10} }}\n          />\n        </Stack>\n\n        {/* Look At */}\n        <Typography variant=\"caption\">Look At (X, Y, Z)</Typography>\n        <Stack direction=\"row\" spacing={1}>\n          <TextField\n            label=\"X\"\n            size=\"small\"\n            type=\"number\"\n            value={initSettings.lookAt[0]}\n            onChange={(e) => handleSettingChange(e, 'lookAt')}\n            inputProps={{ step: 0.1,style: { fontSize: 10} }}\n          />\n          <TextField\n            label=\"Y\"\n            size=\"small\"\n            type=\"number\"\n            value={initSettings.lookAt[1]}\n            onChange={(e) => handleSettingChange(e, 'lookAt')}\n            inputProps={{ step: 0.1,style: { fontSize: 10} }}\n          />\n          <TextField\n            label=\"Z\"\n            size=\"small\"\n            type=\"number\"\n            value={initSettings.lookAt[2]}\n            onChange={(e) => handleSettingChange(e, 'lookAt')}\n            inputProps={{ step: 0.1,style: { fontSize: 10}}}\n          />\n        </Stack>\n\n        {/* Sun Position */}\n        <Typography variant=\"caption\">Sun Position (X, Y, Z)</Typography>\n        <Stack direction=\"row\" spacing={1}>\n          <TextField\n            label=\"X\"\n            size=\"small\"\n            type=\"number\"\n            value={initSettings.sunPosition[0]}\n            onChange={(e) => handleSettingChange(e, 'sunPosition')}\n            inputProps={{ step: 0.1,style: { fontSize: 10} }}\n          />\n          <TextField\n            label=\"Y\"\n            size=\"small\"\n            type=\"number\"\n            value={initSettings.sunPosition[1]}\n            onChange={(e) => handleSettingChange(e, 'sunPosition')}\n            inputProps={{ step: 0.1,style: { fontSize: 10} }}\n          />\n          <TextField\n            label=\"Z\"\n            size=\"small\"\n            type=\"number\"\n            value={initSettings.sunPosition[2]}\n            onChange={(e) => handleSettingChange(e, 'sunPosition')}\n            inputProps={{ step: 0.1,style: { fontSize: 10}}}\n          />\n        </Stack>\n\n        {/* Environment Intensity */}\n        <Typography variant=\"caption\">Environment Intensity</Typography>\n        <Slider\n          size=\"small\"\n          value={initSettings.sunIntensity}\n          onChange={(e, value) => handleSliderChange('sunIntensity', value)}\n          min={0}\n          max={2}\n          step={0.01}\n          valueLabelDisplay=\"auto\"\n        />\n\n        {/* Ambient Intensity */}\n        <Typography variant=\"caption\">Ambient Intensity</Typography>\n        <Slider\n          size=\"small\"\n          value={initSettings.ambientIndensity}\n          onChange={(e, value) => handleSliderChange('ambientIndensity', value)}\n          min={0}\n          max={2}\n          step={0.01}\n          valueLabelDisplay=\"auto\"\n        />\n\n        {/* Field of View (FOV) */}\n        <Typography variant=\"caption\">Field of View (FOV)</Typography>\n        <Slider\n          size=\"small\"\n          value={initSettings.fov}\n          onChange={(e, value) => handleSliderChange('fov', value)}\n          min={10}\n          max={120}\n          step={1}\n          valueLabelDisplay=\"auto\"\n          valueLabelFormat={(value) => `${value}°`}\n        />\n\n        {/* Speed */}\n        <Typography variant=\"caption\">Speed (m/s)</Typography>\n        <Slider\n          size=\"small\"\n          value={initSettings.speed}\n          onChange={(e, value) => handleSliderChange('fov', value)}\n          min={1}\n          max={100}\n          step={1}\n          valueLabelDisplay=\"auto\"\n        />\n\n        {/* Turn Speed */}\n        <Typography variant=\"caption\">Turn Speed (n*Math.PI/s)</Typography>\n        <Slider\n          size=\"small\"\n          value={initSettings.turnSpeed}\n          onChange={(e, value) => handleSliderChange('fov', value)}\n          min={0}\n          max={1}\n          step={0.1}\n          valueLabelDisplay=\"auto\"\n          valueLabelFormat={(value) => `${value}*Math.PI`}\n        />\n      </Stack>\n      }\n    </Stack>\n  );\n};\n\nexport default Settings;"
+        ],
+        "custom": true,
+        "description": "No description",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "2662300697ef58d67dee6b6115b57426",
+        "height": 400,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/339bbf29bb0b0649734cea1af7048953",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/b0a0df01f1b85f6f6112f98735214776.png",
+        "id": "b0a0df01f1b85f6f6112f98735214776",
+        "input": [
+          "action"
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "3DMViewer",
+        "output": [
+          "output"
+        ],
+        "pin": true,
+        "pinHeight": 630,
+        "pinLeft": 344,
+        "pinTop": 71,
+        "pinWidth": 829,
+        "port": null,
+        "run": false,
+        "time": "2/11/2025, 3:25:05 PM",
+        "type": "interface",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 600
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 484,
+      "id": "b0a0df01f1b85f6f6112f98735214776",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "local": false,
+      "module": "builder",
+      "name": "3DMViewer",
+      "position": {
+        "x": -154.229394467418,
+        "y": 595.6498142396988
+      },
+      "positionAbsolute": {
+        "x": -154.229394467418,
+        "y": 595.6498142396988
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 632,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "code": [
+          "//entrypoint.js\nimport React, { useState, useEffect } from 'react';\nimport {Slider,TextField,Stack } from '@mui/material';\n\n// main function\nexport default function CustomUI(props){\n    const {input,config,setConfig,setOutput} = props; \n\n    const [maxSteps, setMaxSteps] = useState(10);\n    const [value, setValue] = useState(maxSteps);\n\n    const handleChange = (e)=>{\n        setValue(e.target.value);\n    }\n\n    const handleMaxStepsChange = (e) => {\n        const newMax = Number(e.target.value);\n        setMaxSteps(newMax);\n        if (value > newMax) {\n            setValue(newMax); // Adjust value if it exceeds new max\n        }\n    }\n\n    useEffect(()=>{\n        const action = input?.input;\n        if (action && action.step < maxSteps){\n            setValue(action.step);\n            setOutput({\n                output: action\n            });\n        } else {\n            setValue(1);\n            setOutput({ output: {\n                step: 1,\n                action: 'w'\n            }});\n        }\n    },[input, value, maxSteps]);\n\n    return (\n        <Stack \n        spacing={1}\n        style={{\n            padding: 10,\n            paddingTop: 30\n        }}>\n            <TextField\n                fullWidth\n                label=\"Max Steps\"\n                size=\"small\"\n                type=\"number\"\n                variant=\"outlined\"\n                value={maxSteps}\n                onChange={handleMaxStepsChange}\n                InputProps={{style: { fontSize: 8}}}\n            />\n            <Slider\n                value={value}\n                onChange={handleChange}\n                min={0}\n                max={maxSteps}\n                step={1}\n            />\n        </Stack>\n    )\n}\n"
+        ],
+        "description": "No description",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "f484d7ed7e9454815a56880ca945c01b",
+        "height": 120,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/a9b2569e52dc233edb4d08446d575ecb",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/554e0500a1780b0a304497f54f283f38.png",
+        "id": "554e0500a1780b0a304497f54f283f38",
+        "input": [
+          "input"
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "Step",
+        "output": [
+          "output"
+        ],
+        "pin": false,
+        "pinHeight": 80,
+        "pinLeft": 64,
+        "pinTop": 64,
+        "pinWidth": 249,
+        "port": null,
+        "run": false,
+        "type": "interface",
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 150
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 204,
+      "id": "554e0500a1780b0a304497f54f283f38",
+      "interface": "interface.js",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "Step",
+      "position": {
+        "x": -425.6805094897192,
+        "y": 597.1359840514084
+      },
+      "positionAbsolute": {
+        "x": -425.6805094897192,
+        "y": 597.1359840514084
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 182,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": null,
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "discription": "this module is useful for adding text to the workspace",
+        "files": [],
+        "hash": "e509dfea65f1f27d025d7937bed26b88",
+        "height": 425,
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/8dc9c5aa0aab6c1634f2d69ca9c14e05.png",
+        "id": "8dc9c5aa0aab6c1634f2d69ca9c14e05",
+        "local": false,
+        "name": "Text",
+        "run": false,
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "value": " # Travel Agent\n\nAriel Noyman1*, Kai Hu2*, Kent Larson1\n\n1MIT Media Lab, 2South China University of Technology\n\nUnderstanding human behavior in built environments is critical for designing functional, user-centered urban spaces. We introduce TravelAgent, a novel simulation platform that models pedestrian navigation and activity patterns across diverse indoor and outdoor environments under varying contextual and environmental conditions. TravelAgent leverages generative agents integrated into 3D virtual environments, enabling agents to process multimodal sensory inputs and exhibit human-like decision-making, behavior, and adaptation.\n\nMore details: https://www.arielnoyman.com/travelAgent/\n\nCitiation:\nNoyman, Ariel, Kai Hu, and Kent Larson. \"TravelAgent: Generative Agents in the Built Environment.\" arXiv preprint arXiv:2412.18985 (2024).",
+        "width": 1067,
+        "description": " # Travel Agent\n\nAriel Noyman1*, Kai Hu2*, Kent Larson1\n\n1MIT Media Lab, 2South China University of Technology\n\nUnderstanding human behavior in built environments is critical for designing functional, user-centered urban spaces. We introduce TravelAgent, a novel simulation platform that models pedestrian navigation and activity patterns across diverse indoor and outdoor environments under varying contextual and environmental conditions. TravelAgent leverages generative agents integrated into 3D virtual environments, enabling agents to process multimodal sensory inputs and exhibit human-like decision-making, behavior, and adaptation.\n\nMore details: https://www.arielnoyman.com/travelAgent/\n\nCitiation:\nNoyman, Ariel, Kai Hu, and Kent Larson. \"TravelAgent: Generative Agents in the Built Environment.\" arXiv preprint arXiv:2412.18985 (2024)."
+      },
+      "data": {
+        "input": null,
+        "module": "annotation/text/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 425,
+      "id": "8dc9c5aa0aab6c1634f2d69ca9c14e05",
+      "module": "text",
+      "name": "Text",
+      "position": {
+        "x": -681.0045827965099,
+        "y": -230.96920156019613
+      },
+      "positionAbsolute": {
+        "x": -681.0045827965099,
+        "y": -230.96920156019613
+      },
+      "resizing": false,
+      "selected": false,
+      "type": "annotation",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 1067
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": null,
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "discription": "this module is useful for adding text to the workspace",
+        "files": [],
+        "hash": "34bb729527a013207041576ad1a5df9f",
+        "height": 242,
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/8e5432af6d1c85fe8ae7af25fc6f52ec.png",
+        "id": "8e5432af6d1c85fe8ae7af25fc6f52ec",
+        "local": false,
+        "name": "Text",
+        "run": false,
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "value": "## To RUN this workflow, you'll need to set an OPENAI API KEY in advanced settings",
+        "width": 534,
+        "description": "## To RUN this workflow, you'll need to set an OPENAI API KEY in advanced settings"
+      },
+      "data": {
+        "input": null,
+        "module": "annotation/text/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 242,
+      "id": "8e5432af6d1c85fe8ae7af25fc6f52ec",
+      "module": "text",
+      "name": "Text",
+      "position": {
+        "x": -713.2941920537813,
+        "y": 1280.103518550998
+      },
+      "positionAbsolute": {
+        "x": -713.2941920537813,
+        "y": 1280.103518550998
+      },
+      "resizing": false,
+      "selected": false,
+      "type": "annotation",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 534
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": null,
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "controlX": 132,
+        "controlY": 9,
+        "discription": "this module is useful for drawing an arrow",
+        "files": [],
+        "hash": "696b13757847777c6c1d75c592a4e8d0",
+        "height": 175,
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/f0c0a510a2f96380bb786a8712785569.png",
+        "id": "f0c0a510a2f96380bb786a8712785569",
+        "local": false,
+        "name": "Arrow",
+        "rotate": 84.88034109395075,
+        "run": false,
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 136
+      },
+      "data": {
+        "input": null,
+        "module": "annotation/arrow/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 175,
+      "id": "f0c0a510a2f96380bb786a8712785569",
+      "module": "arrow",
+      "name": "Arrow",
+      "position": {
+        "x": -636.0432612526116,
+        "y": 1411.8652492808399
+      },
+      "positionAbsolute": {
+        "x": -636.0432612526116,
+        "y": 1411.8652492808399
+      },
+      "resizing": false,
+      "selected": false,
+      "type": "annotation",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 136
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": null,
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "discription": "this module is useful for drawing an arrow",
+        "files": [],
+        "hash": "dfeee9d8cbdcf25d5c0bf5d0d5f19cd7",
+        "height": 100,
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/d7187dffe30591834954990a14b6eb28.png",
+        "id": "d7187dffe30591834954990a14b6eb28",
+        "local": false,
+        "name": "Arrow",
+        "rotate": 92.53305575568973,
+        "run": false,
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 100
+      },
+      "data": {
+        "input": null,
+        "module": "annotation/arrow/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 100,
+      "id": "d7187dffe30591834954990a14b6eb28",
+      "module": "arrow",
+      "name": "Arrow",
+      "position": {
+        "x": -363.67840665846086,
+        "y": 485.89406211395203
+      },
+      "positionAbsolute": {
+        "x": -363.67840665846086,
+        "y": 485.89406211395203
+      },
+      "selected": false,
+      "type": "annotation",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 100
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": null,
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "discription": "this module is useful for adding text to the workspace",
+        "files": [],
+        "hash": "742b60659287fa6649a54e3cdb7cc148",
+        "height": 69,
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/49f56153eb5ef94d5fd404ec8c48c817.png",
+        "id": "49f56153eb5ef94d5fd404ec8c48c817",
+        "local": false,
+        "name": "Text",
+        "run": false,
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "value": "## Change max steps here",
+        "width": 479,
+        "description": "## Change max steps here"
+      },
+      "data": {
+        "input": null,
+        "module": "annotation/text/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 69,
+      "id": "49f56153eb5ef94d5fd404ec8c48c817",
+      "module": "text",
+      "name": "Text",
+      "position": {
+        "x": -414.82473238195973,
+        "y": 405.0191969085365
+      },
+      "positionAbsolute": {
+        "x": -414.82473238195973,
+        "y": 405.0191969085365
+      },
+      "resizing": false,
+      "selected": false,
+      "type": "annotation",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 479
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": null,
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "controlX": 82,
+        "controlY": 13,
+        "discription": "this module is useful for drawing an arrow",
+        "files": [],
+        "hash": "ca9fc7fb76ebaec900a80a1d49df92b8",
+        "height": 100,
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/4aac9dfbb9d4f509f866f890cc04f74c.png",
+        "id": "4aac9dfbb9d4f509f866f890cc04f74c",
+        "local": false,
+        "name": "Arrow",
+        "run": false,
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "width": 100
+      },
+      "data": {
+        "input": null,
+        "module": "annotation/arrow/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 100,
+      "id": "4aac9dfbb9d4f509f866f890cc04f74c",
+      "module": "arrow",
+      "name": "Arrow",
+      "position": {
+        "x": 1940.9691342979784,
+        "y": 1487.4199070727993
+      },
+      "positionAbsolute": {
+        "x": 1940.9691342979784,
+        "y": 1487.4199070727993
+      },
+      "selected": false,
+      "type": "annotation",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 100
+    },
+    {
+      "basic": false,
+      "config": {
+        "author": null,
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "custom",
+        "discription": "this module is useful for adding text to the workspace",
+        "files": [],
+        "hash": "16fc66bfeacca5c555bf1aa62814d03c",
+        "height": 242,
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/a51fbf1090e13654b60ddc6428b0d8bf.png",
+        "id": "a51fbf1090e13654b60ddc6428b0d8bf",
+        "local": false,
+        "name": "Text",
+        "run": false,
+        "user_id": "db24189989302b1c4faacf164c434c7e",
+        "value": "## Use this panel for demonstration",
+        "width": 534,
+        "description": "## Use this panel for demonstration"
+      },
+      "data": {
+        "input": null,
+        "module": "annotation/text/index.js",
+        "output": null
+      },
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 242,
+      "id": "a51fbf1090e13654b60ddc6428b0d8bf",
+      "local": false,
+      "module": "text",
+      "name": "Text",
+      "position": {
+        "x": 1591.8176172694855,
+        "y": 1396.7703471272698
+      },
+      "positionAbsolute": {
+        "x": 1591.8176172694855,
+        "y": 1396.7703471272698
+      },
+      "resizing": false,
+      "selected": false,
+      "type": "annotation",
+      "user_id": "db24189989302b1c4faacf164c434c7e",
+      "version": "0.0.1",
+      "width": 534
+    }
+  ],
+  "edges": [
+    {
+      "id": "841saV",
+      "source": "b0a0df01f1b85f6f6112f98735214776",
+      "sourceHandle": "b0a0df01f1b85f6f6112f98735214776||output",
+      "target": "8b62a1ea080c5c4fc7abba92936f6e92",
+      "targetHandle": "8b62a1ea080c5c4fc7abba92936f6e92||input",
+      "type": "base"
+    },
+    {
+      "id": "wYlOQp",
+      "selected": false,
+      "source": "f483c4fb53a1b88f4f1ddc69629f7819",
+      "sourceHandle": "f483c4fb53a1b88f4f1ddc69629f7819||output",
+      "target": "c77fbb4384bb97c0b8a2a2849497a255",
+      "targetHandle": "c77fbb4384bb97c0b8a2a2849497a255||persona",
+      "type": "base"
+    },
+    {
+      "id": "_GwoHN",
+      "selected": false,
+      "source": "7faaa17a692dcb36cc54667dc105cc12",
+      "sourceHandle": "7faaa17a692dcb36cc54667dc105cc12||output",
+      "target": "c77fbb4384bb97c0b8a2a2849497a255",
+      "targetHandle": "c77fbb4384bb97c0b8a2a2849497a255||task",
+      "type": "base"
+    },
+    {
+      "id": "xVQGeU",
+      "selected": false,
+      "source": "8b62a1ea080c5c4fc7abba92936f6e92",
+      "sourceHandle": "8b62a1ea080c5c4fc7abba92936f6e92||memories",
+      "target": "e840e1171964be76e3185928c6079ea1",
+      "targetHandle": "e840e1171964be76e3185928c6079ea1||input",
+      "type": "base"
+    },
+    {
+      "id": "lDVerJ",
+      "selected": false,
+      "source": "da3f08098b6c278cb67210b8d8ea6a77",
+      "sourceHandle": "da3f08098b6c278cb67210b8d8ea6a77||action",
+      "target": "5ce3e18a2421991533d8301bca5194b2",
+      "targetHandle": "5ce3e18a2421991533d8301bca5194b2||message",
+      "type": "base"
+    },
+    {
+      "id": "qvWb7s",
+      "source": "c77fbb4384bb97c0b8a2a2849497a255",
+      "sourceHandle": "c77fbb4384bb97c0b8a2a2849497a255||output",
+      "target": "0b9c478f13998f2263c1d7ae2d57aa3d",
+      "targetHandle": "0b9c478f13998f2263c1d7ae2d57aa3d||input",
+      "type": "base"
+    },
+    {
+      "id": "mPMuGY",
+      "source": "0b9c478f13998f2263c1d7ae2d57aa3d",
+      "sourceHandle": "0b9c478f13998f2263c1d7ae2d57aa3d||output",
+      "target": "da3f08098b6c278cb67210b8d8ea6a77",
+      "targetHandle": "da3f08098b6c278cb67210b8d8ea6a77||input",
+      "type": "base"
+    },
+    {
+      "id": "sbmKse",
+      "source": "0b9c478f13998f2263c1d7ae2d57aa3d",
+      "sourceHandle": "0b9c478f13998f2263c1d7ae2d57aa3d||output",
+      "target": "7a385db5a0869055f4e0090f4f755e13",
+      "targetHandle": "7a385db5a0869055f4e0090f4f755e13||input",
+      "type": "base"
+    },
+    {
+      "id": "kK6Xbw",
+      "source": "0b9c478f13998f2263c1d7ae2d57aa3d",
+      "sourceHandle": "0b9c478f13998f2263c1d7ae2d57aa3d||output",
+      "target": "bb138e0f0a52a7921746f2025e317b93",
+      "targetHandle": "bb138e0f0a52a7921746f2025e317b93||input",
+      "type": "base"
+    },
+    {
+      "id": "4PmZo0",
+      "source": "aa29dc0a759e8bc5a266aced8305d63e",
+      "sourceHandle": "aa29dc0a759e8bc5a266aced8305d63e||message",
+      "target": "554e0500a1780b0a304497f54f283f38",
+      "targetHandle": "554e0500a1780b0a304497f54f283f38||input",
+      "type": "base"
+    },
+    {
+      "id": "c8Su9R",
+      "source": "554e0500a1780b0a304497f54f283f38",
+      "sourceHandle": "554e0500a1780b0a304497f54f283f38||output",
+      "target": "b0a0df01f1b85f6f6112f98735214776",
+      "targetHandle": "b0a0df01f1b85f6f6112f98735214776||action",
+      "type": "base"
+    },
+    {
+      "id": "qhBhgE",
+      "source": "a3565f7f542068a4a7d7c6337d66631b",
+      "sourceHandle": "a3565f7f542068a4a7d7c6337d66631b||output",
+      "target": "45d4ee71d3eb91844405d3d056262ee7",
+      "targetHandle": "45d4ee71d3eb91844405d3d056262ee7||input",
+      "type": "base"
+    },
+    {
+      "id": "w_SNTC",
+      "source": "8b62a1ea080c5c4fc7abba92936f6e92",
+      "sourceHandle": "8b62a1ea080c5c4fc7abba92936f6e92||memories",
+      "target": "c77fbb4384bb97c0b8a2a2849497a255",
+      "targetHandle": "c77fbb4384bb97c0b8a2a2849497a255||memories",
+      "type": "base"
+    }
+  ],
+  "globalScale": 0.01,
+  "viewport": {
+    "x": 302.1708132549578,
+    "y": 182.43118008145112,
+    "zoom": 0.34957894542617435
+  },
+  "flowId": "51778db71c2c6d05d7ac1f443bfa8231",
+  "author": "Kai Hu",
+  "flowInited": false,
+  "logs": "Using defaults and conda-forge.\r\n\nNo conda packages to install.\r\nNo npm packages to install.\r\nNo pip packages to install.\r\nSetup Completed!\r\n\n",
+  "isAlive": false,
+  "loading": false,
+  "authorId": "84b6b6bb7c0cfb896e345854b9cf5735",
+  "author_id": "db24189989302b1c4faacf164c434c7e",
+  "autoSave": true,
+  "basic": false,
+  "category": "showcase",
+  "city": "",
+  "description": "This workflow demonstrated a simplified version of Travel Agent. It takes a Rhino 3D model as input, and simulates the behavior and analyses the visual environment with an AI Agent",
+  "hash": "51778db71c2c6d05d7ac1f443bfa8231",
+  "image": "ghcr.io/kekehurry/cityflow_runner:full",
+  "name": "Travel Agent",
+  "packages": "",
+  "private": false,
+  "screenShot": "/api/dataset/source/images/51778db71c2c6d05d7ac1f443bfa8231_10-23-25.png",
+  "showcase": false,
+  "source": "3dfdb4183b3a34f4fa7168d0d18cc9d0",
+  "tag": ""
+}

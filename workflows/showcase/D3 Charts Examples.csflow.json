@@ -1,0 +1,432 @@
+{
+  "nodes": [
+    {
+      "author": "Kai Hu",
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "authorId": null,
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "chart",
+        "code": [
+          "//entrypoint.js\nimport React, { useEffect, useRef } from 'react';\nimport * as d3 from 'd3';\n\n\nconst exampleData = [\n  { State: 'State A', value: 5000000 },\n  { State: 'State B', value: -3000000 },\n  { State: 'State C', value: 2000000 },\n  { State: 'State D', value: -1000000 },\n  { State: 'State E', value: 60000 },\n  { State: 'State F', value: 500000 },\n  { State: 'State G', value: -3000000 },\n  { State: 'State H', value: 6000000 }\n]\n\nexport default function DivergingBarChart(props){\n  const svgRef = useRef();\n  const {input,config} = props;\n  const data = input?.input || exampleData\n\n  //settings\n  const width = config?.width || 400;\n  const height = config?.height || 200;\n  const marginTop = 30;\n  const marginRight = 15;\n  const marginBottom = 10;\n  const marginLeft = 15;\n  const metric = \"absolute\"\n\n  useEffect(() => {\n    if (!data) return\n    // Create the positional scales.\n    const barHeight = (height-marginTop-marginBottom)/Math.ceil((data.length + 0.1))\n\n    const x = d3.scaleLinear()\n      .domain(d3.extent(data, d => d.value))\n      .rangeRound([marginLeft, width - marginRight]);\n\n    const y = d3.scaleBand()\n      .domain(data.map(d => d.State))\n      .rangeRound([marginTop, height - marginBottom])\n      .padding(0.1);\n\n    // Create the format function.\n    const format = d3.format(metric === \"absolute\" ? \"+,d\" : \"+.1%\");\n    const tickFormat = metric === \"absolute\" ? d3.formatPrefix(\"+.1\", 1e6) : d3.format(\"+.0%\");\n\n    // Create the SVG container.\n    const svg = d3.select(svgRef.current)\n      .attr(\"viewBox\", `0 0 ${width} ${height}`)\n      .attr(\"style\", \"max-width: 100%; height: auto; font: 10px sans-serif;\");\n\n    svg.selectAll(\"*\").remove(); // Clear previous content\n\n    // Add a rect for each state.\n    svg.append(\"g\")\n      .selectAll(\"rect\")\n      .data(data)\n      .join(\"rect\")\n      .attr(\"fill\", (d) => d3.schemeRdBu[3][d.value > 0 ? 2 : 0])\n      .attr(\"x\", (d) => x(Math.min(d.value, 0)))\n      .attr(\"y\", (d) => y(d.State))\n      .attr(\"width\", d => Math.abs(x(d.value) - x(0)))\n      .attr(\"height\", y.bandwidth());\n\n    // Add a text label for each state.\n    svg.append(\"g\")\n      .attr(\"font-family\", \"sans-serif\")\n      .attr(\"font-size\", 10)\n      .selectAll(\"text\")\n      .data(data)\n      .join(\"text\")\n      .attr(\"text-anchor\", d => d.value < 0 ? \"end\" : \"start\")\n      .attr(\"x\", (d) => x(d.value) + Math.sign(d.value - 0) * 4)\n      .attr(\"y\", (d) => y(d.State) + y.bandwidth() / 2)\n      .attr(\"dy\", \"0.35em\")\n      .text(d => format(d.value));\n\n    // Add the axes and grid lines.\n    svg.append(\"g\")\n      .attr(\"transform\", `translate(0,${marginTop})`)\n      .call(d3.axisTop(x).ticks(width / 80).tickFormat(tickFormat))\n      .call(g => g.selectAll(\".tick line\").clone()\n        .attr(\"y2\", height - marginTop - marginBottom)\n        .attr(\"stroke-opacity\", 0.1))\n      .call(g => g.select(\".domain\").remove());\n\n    svg.append(\"g\")\n      .attr(\"transform\", `translate(${x(0)},0)`)\n      .call(d3.axisLeft(y).tickSize(0).tickPadding(6))\n      .call(g => g.selectAll(\".tick text\").filter((d, i) => data[i].value < 0)\n        .attr(\"text-anchor\", \"start\")\n        .attr(\"x\", 6));\n  }, [data]);\n\n  return (\n    <svg ref={svgRef}></svg>\n  );\n};\n"
+        ],
+        "custom": true,
+        "description": "This module creates a D3-based diverging bar chart that visualizes state-wise data values, using SVG elements and D3 scales for rendering.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "ca2ac6246d08ddefb4fec08963f72453",
+        "height": 200,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/f11b7423d87ed3d6f0382aaecd5344bc",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/f23897d003b30a21f1dd16793b0ce75f.png",
+        "id": "f23897d003b30a21f1dd16793b0ce75f",
+        "iframeId": "6RkL2eCbILAIj-_z0yQBD",
+        "input": [
+          "input"
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "Diverging Bar",
+        "output": [
+          ""
+        ],
+        "port": null,
+        "run": false,
+        "sessionId": "NPmaYAqq8kiTufGEPrQTE",
+        "time": "12/18/2024, 1:36:38 AM",
+        "type": "interface",
+        "user_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "width": 400
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "discription": "this module is useful to run simple python code",
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 284,
+      "icon": "data:image/png;base64,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",
+      "id": "f23897d003b30a21f1dd16793b0ce75f",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "Diverging Bar",
+      "position": {
+        "x": 1095.6087049240498,
+        "y": -185.44249493831407
+      },
+      "positionAbsolute": {
+        "x": 1095.6087049240498,
+        "y": -185.44249493831407
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+      "version": "0.0.1",
+      "width": 432,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "author": "Kai Hu",
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "authorId": null,
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "chart",
+        "code": [
+          "//entrypoint.js\nimport React, { useRef, useEffect } from 'react';\nimport * as d3 from 'd3';\n\n\n\nconst exampleData = [\n{name: \"<5\", value: 19912018},\n{name: \"5-9\", value: 20501982},\n{name: \"10-14\", value: 20679786},\n{name: \"15-19\", value: 21354481},\n{name: \"20-24\", value: 22604232},\n{name: \"25-29\", value: 21698010},\n{name: \"30-34\", value: 21183639},\n{name: \"35-39\", value: 19855782},\n{name: \"40-44\", value: 20796128},\n{name: \"45-49\",value: 21370368},\n{name: \"50-54\", value: 22525490},\n{name: \"55-59\", value: 21001947},\n{name: \"60-64\", value: 18415681},\n{name: \"65-69\", value: 14547446},\n{name: \"70-74\", value: 10587721},\n{name: \"75-79\", value: 7730129},\n{name: \"80-84\", value: 5811429},\n{name: \"≥85\", value: 5938752}\n]\n\n\n\nexport default function Chart(props){\n  const svgRef = useRef();\n  const {input,config} = props;\n  const width = config?.width || 400\n  const data = input?.input || exampleData\n\n  useEffect(() => {\n    if (!data) return;\n\n    const height = Math.min(width, 500);\n    const radius = Math.min(width, height) / 2;\n\n    const arc = d3.arc()\n      .innerRadius(radius * 0.67)\n      .outerRadius(radius - 1);\n\n    const pie = d3.pie()\n      .padAngle(1 / radius)\n      .sort(null)\n      .value(d => d.value);\n\n    const color = d3.scaleOrdinal()\n      .domain(data.map(d => d.name))\n      .range(d3.quantize(t => d3.interpolateSpectral(t * 0.8 + 0.1), data.length).reverse());\n\n    const svg = d3.select(svgRef.current)\n      .attr(\"width\", width)\n      .attr(\"height\", height)\n      .attr(\"viewBox\", [-width / 2, -height / 2, width, height])\n      .attr(\"style\", \"max-width: 100%; height: auto;\");\n\n    svg.selectAll(\"g\").remove(); // Clear previous renderings\n\n    svg.append(\"g\")\n      .selectAll()\n      .data(pie(data))\n      .join(\"path\")\n        .attr(\"fill\", d => color(d.data.name))\n        .attr(\"d\", arc)\n      .append(\"title\")\n        .text(d => `${d.data.name}: ${d.data.value.toLocaleString()}`);\n\n    svg.append(\"g\")\n      .attr(\"font-family\", \"sans-serif\")\n      .attr(\"font-size\", 12)\n      .attr(\"text-anchor\", \"middle\")\n      .selectAll()\n      .data(pie(data))\n      .join(\"text\")\n        .attr(\"transform\", d => `translate(${arc.centroid(d)})`)\n        .call(text => text.append(\"tspan\")\n            .attr(\"y\", \"-0.4em\")\n            .attr(\"font-weight\", \"bold\")\n            .text(d => d.data.name))\n        .call(text => text.filter(d => (d.endAngle - d.startAngle) > 0.25).append(\"tspan\")\n            .attr(\"x\", 0)\n            .attr(\"y\", \"0.7em\")\n            .attr(\"fill-opacity\", 0.7)\n            .text(d => d.data.value.toLocaleString(\"en-US\")));\n  }, [data, width]);\n\n  return (\n    <svg ref={svgRef}></svg>\n  );\n};"
+        ],
+        "custom": true,
+        "description": "This module creates a dynamic pie chart using D3.js to visualize data provided as props, with fallback to example data if none is given.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "1782416d769e0e3739dbf91035140ef8",
+        "height": 400,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/8e328d19488b01b7ba308c31445652c7",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/06f6df3f3dc8efb6d6d576e382b2f099.png",
+        "id": "06f6df3f3dc8efb6d6d576e382b2f099",
+        "iframeId": "JnBpejJFtUjv90lcoP9-D",
+        "input": [
+          "input"
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "Pie Chart",
+        "output": [
+          ""
+        ],
+        "port": null,
+        "run": false,
+        "sessionId": "5C7GHHpCVL-I419wqMYtb",
+        "time": "12/18/2024, 1:36:59 AM",
+        "type": "interface",
+        "user_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "width": 400
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "discription": "this module is useful to run simple python code",
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 484,
+      "icon": "data:image/png;base64,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",
+      "id": "06f6df3f3dc8efb6d6d576e382b2f099",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "Pie Chart",
+      "position": {
+        "x": 1092.949234551696,
+        "y": 124.10206847437425
+      },
+      "positionAbsolute": {
+        "x": 1092.949234551696,
+        "y": 124.10206847437425
+      },
+      "selected": true,
+      "type": "expand",
+      "user_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+      "version": "0.0.1",
+      "width": 432,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "author": "Kai Hu",
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "authorId": null,
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "chart",
+        "code": [
+          "//entrypoint.js\nimport React, { useState,useEffect, useRef } from 'react';\nimport * as d3 from 'd3';\n\nconst exampleData = [\n    [\n        [0, 0.36],\n        [0, 0.2],\n        [0, 0.3],\n        [0, 2.96],\n        [0, 1.17],\n        [0, 0.02],\n        [0, 0.0],\n        [0, 0.75],\n        [0, 0.0],\n        [0, 0.0]\n    ],\n    [\n        [0.36, 0.97],\n        [0.2, 0.26],\n        [0.3, 0.58],\n        [2.96, 3.93],\n        [1.17, 1.51],\n        [0.02, 0.04],\n        [0.0, 0.0],\n        [0.75, 0.75],\n        [0.0, 0.0],\n        [0.0, 0.0]\n    ],\n    [\n        [0.97, 5.4],\n        [0.26, 2.18],\n        [0.58, 0.73],\n        [3.93, 3.93],\n        [1.51, 1.51],\n        [0.04, 0.04],\n        [0.0, 0.0],\n        [0.75, 0.77],\n        [0.0, 2.81],\n        [0.0, 1.01]\n    ],\n    [\n        [5.4, 5.43],\n        [2.18, 3.6],\n        [0.73, 2.75],\n        [3.93, 4.36],\n        [1.51, 1.52],\n        [0.04, 0.04],\n        [0.0, 0.0],\n        [0.77, 0.77],\n        [2.81, 2.81],\n        [1.01, 1.01]\n    ],\n    [\n        [5.43, 5.43],\n        [3.6, 3.63],\n        [2.75, 4.27],\n        [4.36, 7.64],\n        [1.52, 3.08],\n        [0.04, 1.94],\n        [0.0, 0.24],\n        [0.77, 0.78],\n        [2.81, 2.81],\n        [1.01, 1.01]\n    ]\n]\n\n\nconst offset = d3.stackOffsetNone\n\nexport default function AreaChart (props){\n  const ref = useRef();\n  const data = input?.input || exampleData\n  const {config,input} = props\n\n  useEffect(() => {\n    if (!data) return;\n    const width = config?.width || 500;\n    const height = config?.height || 200;\n    const m = data[0]?.length\n    const n = data.length\n    const flatData = data.flat(2)\n    \n    const maxY = d3.max(flatData)\n    const x = d3.scaleLinear().domain([0, m - 1]).range([0, width]);\n    const y = d3.scaleLinear().domain([0, maxY]).range([height, 0]);\n    const z = d3.interpolateCool;\n\n    const area = d3.area()\n      .x((d, i) => x(i))\n      .y0(d => y(d[0]))\n      .y1(d => y(d[1]));\n\n    const stack = d3.stack()\n      .keys(d3.range(n))\n      .offset(offset)\n      .order(d3.stackOrderNone);\n\n    const svg = d3.select(ref.current)\n      .attr(\"viewBox\", [0, 0, width, height])\n      .attr(\"width\", width)\n      .attr(\"height\", height)\n      .attr(\"style\", \"max-width: 100%; max-height: 100%;\");\n\n    svg.selectAll(\"path\")\n      .data(data)\n      .join(\"path\")\n        .attr(\"d\", area)\n        .attr(\"fill\", (d,i) => z(i/n));\n\n  }, [data]);\n\n  return (\n    <svg ref={ref}></svg>\n  );\n}\n"
+        ],
+        "custom": true,
+        "description": "This module creates a D3.js-based area chart component in React, rendering a series of stacked area plots based on provided data or an example dataset.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "2707f0cb715946fb33a2354eb67950f4",
+        "height": 200,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/d2d80b5461e38dac728f592aab4e389c",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/a8b5ce73c7725e2d39264abb963ad2d6.png",
+        "id": "a8b5ce73c7725e2d39264abb963ad2d6",
+        "iframeId": "3fSvbpVe8z2L0Tw3Lwanq",
+        "input": [
+          "input"
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "Area Chart",
+        "output": [
+          ""
+        ],
+        "port": null,
+        "run": false,
+        "sessionId": "kRLf-F3856mX9AcWBMMq3",
+        "time": "12/18/2024, 1:36:48 AM",
+        "type": "interface",
+        "user_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "width": 500
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "discription": "this module is useful to run simple python code",
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 284,
+      "icon": "data:image/png;base64,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",
+      "id": "a8b5ce73c7725e2d39264abb963ad2d6",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "Area Chart",
+      "position": {
+        "x": -30.74023171108138,
+        "y": 174.58222618676436
+      },
+      "positionAbsolute": {
+        "x": -30.74023171108138,
+        "y": 174.58222618676436
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+      "version": "0.0.1",
+      "width": 532,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "author": "Kai Hu",
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "authorId": null,
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "chart",
+        "code": [
+          "//entrypoint.js\n\nimport React, { useEffect, useRef ,useState} from 'react';\nimport * as d3 from 'd3';\n\nconst exampleData = [\n    {\"Index1\":1,\"Index2\":0.2,\"Index3\":0.1,\"Index4\":1,\"Index5\":0.9,\"Index6\":0.2},\n    {\"Index1\":0.5,\"Index2\":0.3,\"Index3\":1,\"Index4\":1,\"Index5\":0.9,\"Index6\":1},\n    {\"Index1\":0.1,\"Index2\":0.2,\"Index3\":0.4,\"Index4\":0.3,\"Index5\":0.2,\"Index6\":0.4},\n    {\"Index1\":0.2,\"Index2\":1,\"Index3\":0.3,\"Index4\":0.1,\"Index5\":0.3,\"Index6\":0.2}\n]\n\n\nconst IndexChart = (props) => {\n\n  const {input,config} = props\n  const origData = input?.input || exampleData\n  const title = \"EXAMPLE RADAR\"\n  const subTitle = \"CHART\"\n  const width = config?.width || 500;\n  const height = width;\n  const ytickSize = \"0.8em\"\n  const xtickSize = \"1em\"\n  const margin = 50;\n  const innerRadius = 0.5;\n  const outerRadius = 1.1;\n  const radius = (height-(margin*2)) / 2;\n  const minValue = 0;\n  const maxValue = 1;\n  const axisLabelDistance =8;\n  const dataCircleRadius = 4.5;\n  const outerCircles = [10,15]\n\n  const ref = useRef(null);\n  const [data, setData] = useState(null);\n  \n  useEffect(() => {\n    if (!origData) return;\n    const radarData = [];\n    const indexList = Object.keys(origData[0])\n    indexList.forEach((key) => {\n      const dataArray = origData.map(d => d[key])\n      const item = {\n        name: key,\n        min: d3.min(dataArray),\n        max: d3.max(dataArray),\n        mean: d3.mean(dataArray),\n      }\n      radarData.push(item)});\n    setData([radarData]);\n  },[origData]);\n\n  useEffect(() => {\n    if (!ref.current) return;\n    if (!data) return;\n\n    // Create the SVG\n    const svg = d3.select(ref.current)\n      .attr('width', width)\n      .attr('height', height)\n      .attr(\"viewBox\", [-width / 2, -height / 2, width, height])\n      .append('g')\n\n    // Extract the categories and calculate the angle of each axis\n    const categories = data[0].map((d => d.name));\n    const angleSlice = (Math.PI * 2) / categories.length;\n\n    // Scale for the radius\n    const x = d3.scaleLinear()\n      .domain([0, categories.length])\n      .range([0, 2 * Math.PI]);\n\n    const y = d3.scaleLinear()\n      .domain([minValue, maxValue])\n      .range([innerRadius*radius, radius]);\n\n    // create axis\n    const axis = svg.selectAll('.axis')\n      .data(categories)\n      .enter()\n        .append('g')\n        .attr('class', 'axis');\n\n    //Draw x stick\n    svg.append(\"g\")\n    .selectAll()\n    .data(x.ticks())\n    .join(\"g\")\n      .call(g => g.append(\"path\")\n          .attr(\"stroke\", \"white\")\n          .attr(\"stroke-opacity\", 0.2)\n          .attr(\"d\", d => `\n            M${d3.pointRadial(x(d), radius*innerRadius)}\n            L${d3.pointRadial(x(d), radius*outerRadius)}\n          `))\n      .call(g => g.append(\"text\")\n          .attr(\"dy\",\"0.35em\")\n          .attr(\"x\", d => d3.pointRadial(x(d), radius*outerRadius + axisLabelDistance)[0]) \n          .attr(\"y\", (d,i) => d3.pointRadial(x(d), radius*outerRadius + axisLabelDistance)[1])\n          .attr(\"fill\", \"white\")\n          .style(\"font-size\", xtickSize)\n          .text(d => categories[d])\n          .attr(\"transform\", (d, i) => {\n            const angle = (x(d)+Math.PI/2)*180/Math.PI;\n            const position = d3.pointRadial(x(d), radius*outerRadius + axisLabelDistance)\n            return `rotate(${angle}, ${position[0]}, ${position[1]})`;\n          }));\n    //Draw y stick\n    svg.append(\"g\")\n    .attr(\"text-anchor\", \"middle\")\n    .selectAll()\n    .data(y.ticks(4).reverse())\n    .join(\"g\")\n      .call(g => g.append(\"circle\")\n        .attr(\"fill\", \"none\")\n        .attr(\"stroke\", \"currentColor\")\n        .attr(\"stroke-opacity\", 0.2)\n        .attr(\"r\", y))\n      .call(g => g.append(\"text\")\n        .attr(\"y\", d => y(d))\n        .attr(\"dy\", \"0.35em\")\n        .attr(\"fill\", \"currentColor\")\n        .style(\"font-size\", ytickSize)\n          .attr(\"fill\",\"white\")\n          .attr(\"opacity\", 0.3)\n        .text((x, i) => `${x.toFixed(1)}`)\n        .clone(true)\n          .attr(\"y\", d => -y(d)));\n\n    // Draw outer circle\n    outerCircles.forEach((d) => {\n    svg.append(\"circle\")\n      .attr(\"r\", radius*outerRadius+d)\n      .attr(\"cx\", 0)\n      .attr(\"cy\", 0)\n      .attr(\"stroke\", \"white\")\n      .style(\"fill-opacity\", 0)\n      .attr(\"stroke-width\", 0.5)\n      .attr(\"opacity\", 0.7)\n    });\n\n    // Draw stakeholder\n    const draw_stakeholder = (start, end, offset, text, color) => {\n      const arc_offset = 10\n      const text_offset = 15;\n      svg.append(\"path\")\n        .attr(\"d\", () => `\n              M${d3.pointRadial(x(start), radius+arc_offset)}\n              A${radius+arc_offset},${radius+arc_offset} 0,0,1 ${d3.pointRadial(x(end), radius+arc_offset)}\n            `)\n        .attr(\"stroke\", color)\n        .attr(\"stroke-width\", 2)\n        .attr(\"stroke-opacity\", 0.6)\n        .style(\"fill\", \"none\");\n      svg.append(\"path\")\n        .attr(\"id\", 'textPath_'+text)\n        .attr(\"d\", () => `\n              M${d3.pointRadial(x(start), radius+text_offset)}\n              A${radius+text_offset},${radius+text_offset} 0,0,1 ${d3.pointRadial(x(end), radius+text_offset)}\n            `)\n        .style(\"fill\", \"none\");\n\n      svg.append(\"text\")\n        .attr(\"fill\", \"currentColor\")\n        .style(\"font-size\", \"12px\")\n        .attr(\"fill\",\"white\")\n        .attr(\"opacity\", 0.8)\n        .append(\"textPath\")\n          .attr(\"xlink:href\", \"#textPath_\"+text)\n          .attr(\"startOffset\", offset)\n          .text(text);\n    }\n    // draw_stakeholder(0, 4, \"50%\", \"Resident\", \"lightcoral\");\n    // draw_stakeholder(5, 9, \"50%\", \"Workforce\", \"skyblue\");\n    // draw_stakeholder(10, 12, \"20%\", \"Government & Developer\", \"lightgreen\");\n\n  \n    // Draw slogan\n    svg.append(\"text\")\n      .attr(\"dy\", \"-0.4em\") // align with circle's cy\n      .attr(\"text-anchor\", \"middle\") // center the text\n      .attr(\"dominant-baseline\", \"middle\") // vertically align the text\n      .style(\"font-size\", \"15px\")\n      .attr(\"fill\",\"white\")\n      .attr(\"opacity\", 0.8)\n      .append(\"tspan\")\n        .text(title)\n      .append(\"tspan\")\n        .attr(\"x\", 0)\n        .attr(\"dy\", \"1.5em\")\n        .text(subTitle);\n    \n    // Create a data layer\n    const plots = svg.append('g')\n      .selectAll('g')\n      .data(data)\n      .join('g')\n  \n    // Create a radial line generator\n    const line = d3.lineRadial()\n      .curve(d3.curveLinearClosed)\n      .angle((d, i) => x(i));\n    \n    // Create a radial area generator\n    const area = d3.areaRadial()\n      .curve(d3.curveLinearClosed)\n      .radius((d) => y(d))\n      .angle((d, i) => i * angleSlice)\n    \n    // Draw min-max data area\n    plots.append(\"path\")\n      .attr(\"fill\", \"#154C79\")\n      .attr(\"fill-opacity\", 0.3)\n      .attr(\"d\", d => area\n        .innerRadius((v) => y(v[0]))\n        .outerRadius((v) => y(v[1]))\n        (d.map((v) =>  [v.min,v.max])));\n    \n    // Draw mean data line\n    plots.append('path')\n        .attr(\"fill\", \"#F20075\")\n        .attr(\"fill-opacity\", 0)\n        .attr(\"stroke\",\"#F20075\")\n        .attr(\"stroke-width\", 3)\n        .attr(\"stroke-opacity\", 1)\n        .attr(\"d\", d => line\n          .radius((v) => y(v))\n          (d.map((v) => v.mean)))\n        .on(\"mouseover\", function(){\n            d3.select(this)\n              .attr(\"fill-opacity\", 0.2)\n          })\n        .on(\"mouseout\", function(){\n            d3.select(this)\n              .attr(\"fill-opacity\", 0)\n          });\n\n    // Draw data marks\n    plots.selectAll(\"circle\")\n      .data(d => d)\n      .join(\"circle\")\n      .attr(\"r\", dataCircleRadius)\n      .attr(\"cx\", (d,i) => d3.pointRadial(x(i), y(d.mean))[0])\n      .attr(\"cy\", (d,i) => d3.pointRadial(x(i), y(d.mean))[1])\n      .attr(\"fill\", \"#F20075\")\n      .attr(\"fill-opacity\", 1)\n      .attr(\"stroke\", \"white\")\n      .attr(\"stroke-width\", 2)\n      .attr(\"opacity\", 1)\n      .on(\"mouseover\", function(e,d){\n        d3.select(this)\n          .attr(\"r\", dataCircleRadius*1.5)\n        const hoveredCircle = d3.select(this);\n        plots.append(\"text\")\n          .attr(\"opacity\", 1)\n          .text(d.mean.toFixed(2))\n          .attr(\"fill\", \"currentColor\")\n          .style(\"font-size\", \"15px\")\n          .attr(\"fill\",\"white\")\n          .attr(\"x\", hoveredCircle.attr(\"cx\"))\n          .attr(\"y\", hoveredCircle.attr(\"cy\"))\n          .attr(\"dy\", \"-1em\");\n      })\n      .on(\"mouseout\", function(e,d){\n        d3.select(this)\n          .attr(\"r\", dataCircleRadius)\n        plots.selectAll(\"text\").remove();\n\n    });\n      \n  }, [data]);\n\n  return <svg ref={ref}></svg>;\n};\n\nexport default IndexChart;\n"
+        ],
+        "custom": true,
+        "description": "This module creates a Radar chart using D3.js to visualize data points on a circular scale, with customizable configuration and dynamic data input.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "92891674d100f2c861af37840cf6a38e",
+        "height": 500,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/8ac876a7981d9c4a982e758f075183cd",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/169d032f8b80caaf1362fa7d7b18360d.png",
+        "id": "169d032f8b80caaf1362fa7d7b18360d",
+        "iframeId": "P3O_hIU3wVAFchwcD2PxI",
+        "input": [
+          "input"
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "Radar Chart",
+        "output": [
+          ""
+        ],
+        "port": null,
+        "run": false,
+        "sessionId": "90CkkzfG6RwGW7k6lUcLR",
+        "time": "12/18/2024, 1:36:30 AM",
+        "type": "interface",
+        "user_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "width": 500
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "discription": "this module is useful to run simple python code",
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 584,
+      "icon": "data:image/png;base64,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",
+      "id": "169d032f8b80caaf1362fa7d7b18360d",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "Radar Chart",
+      "position": {
+        "x": 538.2985586892926,
+        "y": -150.91075680671537
+      },
+      "positionAbsolute": {
+        "x": 538.2985586892926,
+        "y": -150.91075680671537
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+      "version": "0.0.1",
+      "width": 532,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    },
+    {
+      "author": "Kai Hu",
+      "basic": false,
+      "config": {
+        "author": "Anonymous",
+        "authorId": null,
+        "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "basic": false,
+        "category": "chart",
+        "code": [
+          "//entrypoint.js\nimport React, {useEffect, useRef} from 'react';\nimport * as d3 from 'd3';\n\n\n\nconst example_data = [\n    { \"group\": \"Group A\", \"name\": \"Name 1\", \"value\": 20, \"target\": 25 },\n    { \"group\": \"Group A\", \"name\": \"Name 2\", \"value\": 30, \"target\": 35 },\n    { \"group\": \"Group A\", \"name\": \"Name 3\", \"value\": 25, \"target\": 30 },\n    { \"group\": \"Group B\", \"name\": \"Name 1\", \"value\": 15, \"target\": 18 },\n    { \"group\": \"Group B\", \"name\": \"Name 2\", \"value\": 35, \"target\": 40 },\n    { \"group\": \"Group B\", \"name\": \"Name 3\", \"value\": 28, \"target\": 32 },\n    { \"group\": \"Group C\", \"name\": \"Name 1\", \"value\": 18, \"target\": 20 },\n    { \"group\": \"Group C\", \"name\": \"Name 2\", \"value\": 22, \"target\": 25 },\n    { \"group\": \"Group C\", \"name\": \"Name 3\", \"value\": 27, \"target\": 30 }\n];\n\nconst GroupBarChart = (props) => {\n\n    const ref = useRef(null);\n\n    const {input,config,setOutput,setConfig} = props\n    const width = config?.width || 500;\n    const height = config?.height || 250;\n    const margin = 20;\n    const data = input?.input || example_data\n    const title = \"Example Group Bar Chart\"\n\n    //draw chart\n    useEffect(() => {\n        if (!ref.current) return;\n        if (!data) return;\n        // Prepare the scales for positional and color encodings.\n        // Fx encodes the group.\n        const fx = d3.scaleBand()\n            .domain(new Set(data.map(d => d.group)))\n            .rangeRound([margin, width - margin])\n            .paddingInner(0.1);\n        \n        // Insaide the group, the name is encoded by x.\n        const name = new Set(data.map(d => d.name));\n        const x = d3.scaleBand()\n            .domain(name)\n            .rangeRound([0, fx.bandwidth()])\n            .padding(0.2);\n\n        const color = d3.scaleOrdinal()\n            .domain(name)\n            .range([\"#00695C\",\"#00B0FF\",\"#2979FF\",\"#689F38\",\"#512DA8\"])\n            .unknown(\"#ccc\");\n        \n        // y encodes the height of the bar.\n        const max_target = d3.max(data, d => d.target);\n        const max_value = d3.max(data, d => d.value);\n        const max_y = Math.max(max_target, max_value);\n\n        const y = d3.scaleLinear()\n            .domain([0, max_y]).nice()\n            .rangeRound([height - margin, margin*2]);\n\n        // Create the SVG\n        const svg = d3.select(ref.current)\n            .attr('width', width)\n            .attr('height', height)\n            .attr(\"viewBox\", [0, 0, width, height])\n            .attr(\"style\", \"max-width: 100%; height: auto;\")\n            .append('g')\n        \n        // Add the x-axis and label.\n        svg.append(\"g\")\n            .attr(\"transform\", `translate(0,${height - margin})`)\n            .attr(\"color\", \"#C0C0C0\")\n            .attr(\"opacity\", 0.8)\n            .call(d3.axisBottom(fx).tickSizeOuter(0))\n            .selectAll(\"text\")\n            .attr(\"fill\", \"white\")\n            .style(\"font-size\", \"12px\");\n\n        \n        // Add the y-axis and label.\n        svg.append(\"g\")\n            .selectAll()\n            .data(y.ticks(4).reverse())\n                .join(\"line\")\n                .attr(\"y1\", d => y(d))\n                .attr(\"y2\", d => y(d))\n                .attr(\"x1\", margin)\n                .attr(\"x2\", width-margin)\n                .attr(\"stroke\", \"white\")\n                .attr(\"stroke-width\", 0.5)\n                .attr(\"stroke-opacity\", 0.1);\n\n        // Draw title\n        svg.append(\"text\")\n            .attr(\"x\", width / 2)\n            .attr(\"y\", margin)\n            .attr(\"fill\", \"white\")\n            .attr(\"text-anchor\", \"middle\")\n            .attr(\"opacity\", 0.8)\n            .text(title)\n            .style(\"font-size\", \"12px\")\n        \n        // Draw data\n        const data_container =  svg.append(\"g\")\n        data_container.selectAll()\n            .data(d3.group(data, d => d.group))\n            .join(\"g\")\n                .attr(\"class\", \"group\")\n                .attr(\"transform\", ([group]) => `translate(${fx(group)},0)`)\n                .selectAll()\n                .data(([, d]) => d)\n                    .join(\"rect\")\n                        .attr(\"x\", d => x(d.name))\n                        .attr(\"y\", d => y(d.value))\n                        .attr(\"width\", x.bandwidth())\n                        .attr(\"height\", d => y(0) - y(d.value))\n                        .attr(\"fill\", d => color(d.name))\n                        .attr(\"fill-opacity\", 0.4)\n                        .attr(\"stroke\", \"white\")\n                        .attr(\"stroke-width\", 0)\n                        .on(\"mouseover\", function(event, d){\n                            d3.select(this)\n                                .attr(\"fill-opacity\", 1);\n                            data_container.append(\"text\")\n                                .attr(\"x\", x(d.name)+fx(d.group)+x.bandwidth() / 2)\n                                .attr(\"y\", y(d.value))\n                                .attr(\"dy\", \"-1em\")\n                                .attr(\"text-anchor\", \"middle\")\n                                .attr(\"font-size\", \"15px\")\n                                .attr(\"fill\", \"white\")\n                                .text(d.value.toFixed(0));\n                        })\n                        .on(\"mouseout\", function(event, d){\n                            d3.select(this)\n                                .attr(\"fill-opacity\", 0.4);\n                            data_container.selectAll(\"text\").remove();\n                        });\n\n    \n        // Add target line (polyline)\n        const target_color = \"#607D8B\";\n        const target_container = svg.append(\"g\")\n        const line = d3.line()\n            .x(d => x(d.name)+fx(d.group)+x.bandwidth()/2)\n            .y(d => y(d.target))\n        \n\n        target_container.append(\"path\")\n            .attr(\"fill\", \"none\")\n            .attr(\"stroke\", target_color)\n            .attr(\"stroke-width\", 2)\n            .attr(\"d\", line(data))\n            .attr(\"opacity\", 0.8);\n\n        // Add data markers (circles)\n        target_container.selectAll()\n            .data(data)\n            .join(\"circle\")\n                .attr(\"cx\", d => x(d.name)+fx(d.group)+x.bandwidth() / 2)\n                .attr(\"cy\", d => y(d.target))\n                .attr(\"r\", 5)\n                .attr(\"fill\", d => color(d.name))\n                .attr(\"stroke\", \"white\")\n                .attr(\"stroke-width\", 2)\n                .attr(\"opacity\", 0.5)\n                .on(\"mouseover\", function(event, d){\n                    d3.select(this)\n                        .attr(\"r\", 8)\n                        .attr(\"opacity\", 1);\n                    target_container.append(\"text\")\n                        .attr(\"x\", x(d.name)+fx(d.group)+x.bandwidth() / 2)\n                        .attr(\"y\", y(d.target))\n                        .attr(\"dy\", \"-1em\")\n                        .attr(\"text-anchor\", \"middle\")\n                        .attr(\"font-size\", \"15px\")\n                        .attr(\"fill\", \"white\")\n                        .text(d.target.toFixed(0));\n                })\n                .on(\"mouseout\", function(event, d){\n                    d3.select(this)\n                        .attr(\"r\", 5)\n                        .attr(\"opacity\", 0.5);\n                    target_container.selectAll(\"text\").remove();\n                    \n                });\n        \n        // Add legend\n        const legend_container = svg.append(\"g\")\n            .attr(\"class\", \"legend\")\n            .attr(\"transform\", `translate(${width-margin}, ${margin})`);\n\n        legend_container.selectAll(\".legend-item\")\n            .data(Array.from(name))\n            .enter().append(\"g\")\n            .attr(\"class\", \"legend-item\")\n            .attr(\"transform\", (d, i) => `translate(0, ${i * 20})`)\n            .call(g => {\n                g.append(\"circle\")\n                    // .attr(\"width\", 8)\n                    // .attr(\"height\", 8)\n                    .attr(\"r\", 4)\n                    .attr(\"stroke\", \"white\")\n                    .attr(\"fill\", d => color(d))\n                    .attr(\"opacity\", 0.5)\n                    \n                g.append(\"text\")\n                    .attr(\"x\", 15)\n                    .attr(\"y\", 4)\n                    .attr(\"dx\", \"-3em\")\n                    .attr(\"fill\", \"white\")\n                    .attr(\"font-size\", \"9px\")\n                    .attr(\"text-anchor\", \"end\")\n                    .text(d => `target ${d.split(\" \")[0]}`)\n                    .attr(\"opacity\", 0.4)\n            });\n    },[data]);\n    return (\n        <svg ref={ref}></svg>\n    )\n}\n\nexport default GroupBarChart;"
+        ],
+        "custom": true,
+        "description": "This module creates a dynamic group bar chart using D3.js, visualizing data with grouped bars and target lines, and includes interactive features like mouseover tooltips.",
+        "expand": false,
+        "expandHeight": 600,
+        "expandWidth": 800,
+        "files": [],
+        "hash": "ebf686db8fd60f8147fe693c7163bd9d",
+        "height": 250,
+        "html": "https://github.com/kekehurry/cityflow_community/source//html/a30ac8c5e953319b6d0f2661680b6dd8",
+        "icon": "https://github.com/kekehurry/cityflow_community/source//icons/db710833a3a459a4979d4f5555407098.png",
+        "id": "db710833a3a459a4979d4f5555407098",
+        "iframeId": "vS8w_djotu51I-H4yBXH1",
+        "input": [
+          "input"
+        ],
+        "language": "javascript",
+        "local": false,
+        "name": "Bar Chart",
+        "output": [
+          ""
+        ],
+        "port": null,
+        "run": false,
+        "sessionId": "Pc3p9_a_JQvP5yW2KPmjO",
+        "time": "12/18/2024, 1:36:22 AM",
+        "type": "interface",
+        "user_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+        "width": 500
+      },
+      "data": {
+        "input": null,
+        "module": "core/builder/index.js",
+        "output": null
+      },
+      "discription": "this module is useful to run simple python code",
+      "dragging": false,
+      "entrypoint": "index.js",
+      "height": 334,
+      "icon": "data:image/png;base64,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",
+      "id": "db710833a3a459a4979d4f5555407098",
+      "interfaceComponent": {
+        "key": null,
+        "ref": null,
+        "props": {},
+        "_owner": null,
+        "_store": {}
+      },
+      "module": "builder",
+      "name": "Bar Chart",
+      "position": {
+        "x": -14.731586719757615,
+        "y": -254.81794563836823
+      },
+      "positionAbsolute": {
+        "x": -14.731586719757615,
+        "y": -254.81794563836823
+      },
+      "selected": false,
+      "type": "expand",
+      "user_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+      "version": "0.0.1",
+      "width": 532,
+      "zIndex": {
+        "zIndex": {
+          "zIndex": 1000
+        }
+      }
+    }
+  ],
+  "edges": [],
+  "globalScale": 0.01,
+  "viewport": {
+    "x": 73.65617399668315,
+    "y": 308.75900621641057,
+    "zoom": 0.677873620939218
+  },
+  "flowId": "5f8c24934fb4c992715ba42d8f5faaea",
+  "author": "Kai Hu",
+  "flowInited": false,
+  "logs": "",
+  "isAlive": false,
+  "loading": false,
+  "authorId": "d29545ce164c0b53b65671d6c1ebe6ac",
+  "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
+  "basic": false,
+  "city": "Cambridge",
+  "description": "This workflow demonstrates data visualization through D3.js, utilizing React components to create dynamic charts like bar, radar, area, pie, and diverging bar charts based on user-provided or example data.",
+  "hash": "5f8c24934fb4c992715ba42d8f5faaea",
+  "image": "ghcr.io/kekehurry/cityflow_runner:latest",
+  "name": "D3 Charts Examples",
+  "packages": "npm:\n  - d3",
+  "private": false,
+  "screenShot": "/images/0e57882f14be25deb8c14e71301edfb2_10-52-55.png",
+  "showcase": false,
+  "source": null,
+  "tag": "Data Visualization, Urban Planning, City Analytics, D3.js Charts, GIS Integration",
+  "task_name": "D3 Charts Examples"
+}
