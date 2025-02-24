@@ -18,15 +18,16 @@ jobs:
         id: extract_info
         run: |
           # Extract Author
-          AUTHOR=$(echo "${{ github.event.issue.body }}" | sed -n 's/^### Author\s*\(.*\)/\1/p')
+          AUTHOR=$(echo "${{ github.event.issue.body }}" | awk -F'[][]' '/### Author:\s*/ {print $2}')
           echo "Extracted Author: $AUTHOR"
 
           # Extract Category
-          CATEGORY=$(echo "${{ github.event.issue.body }}" | sed -n 's/^### Category\s*\(.*\)/\1/p')
+          CATEGORY=$(echo "${{ github.event.issue.body }}" | awk -F'[][]' '/### Category:\s*/ {print $2}')
           echo "Extracted Category: $CATEGORY"
 
           # Extract Zip File URL
-          ZIP_URL=$(echo "${{ github.event.issue.body }}" | grep -oP 'https://github\.com/[^/]+/[^/]+/files/\d+/[^ ]+\.zip')
+          ZIP_URL=$(echo "${{ github.event.issue.body }}" | sed -n 's/.*(\(https:\/\/github\.com\/[^ ]*\.zip\)).*/\1/p')
+          
           if [ -z "$ZIP_URL" ]; then
             echo "No .zip file found in the comment."
             exit 1
