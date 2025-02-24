@@ -1,7 +1,8 @@
 {
   "showcase": [
     "https://kekehurry.github.io/cityflow_community/workflows/showcase/D3 Charts Examples.csflow.json",
-    "https://kekehurry.github.io/cityflow_community/workflows/showcase/Travel Agent.csflow.json"
+    "https://kekehurry.github.io/cityflow_community/workflows/showcase/Travel Agent.csflow.json",
+    "https://kekehurry.github.io/cityflow_community/workflows/showcase/Amenity Density in Cambridge.csflow.json"
   ],
   "tutorial": [
     "https://kekehurry.github.io/cityflow_community/workflows/tutorial/Basic Tutorial.csflow.json"

@@ -4,7 +4,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "authorId": null,
         "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
@@ -130,8 +130,7 @@
         "time": "1/23/2025, 6:08:36 PM",
         "type": "interface",
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 200,
-        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
+        "width": 200
       },
       "data": {
         "input": null,
@@ -219,8 +218,7 @@
         "time": "1/23/2025, 6:13:39 PM",
         "type": "interface",
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 200,
-        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
+        "width": 200
       },
       "data": {
         "input": null,
@@ -297,8 +295,7 @@
         "time": "1/23/2025, 5:14:16 PM",
         "type": "interface",
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 500,
-        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
+        "width": 500
       },
       "data": {
         "input": null,
@@ -351,8 +348,7 @@
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "value": "# Amenity Density in Cambridge",
-        "width": 731,
-        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
+        "width": 731
       },
       "data": {
         "input": null,
@@ -398,8 +394,7 @@
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "value": "### Filter the type of Amenity",
-        "width": 300,
-        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
+        "width": 300
       },
       "data": {
         "input": null,
@@ -444,8 +439,7 @@
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "value": "### Create Aggegate Map",
-        "width": 300,
-        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
+        "width": 300
       },
       "data": {
         "input": null,
@@ -490,8 +484,7 @@
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "value": "### Mapping density to color",
-        "width": 300,
-        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
+        "width": 300
       },
       "data": {
         "input": null,
@@ -536,8 +529,7 @@
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "value": "### Visualization",
-        "width": 300,
-        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
+        "width": 300
       },
       "data": {
         "input": null,
@@ -581,8 +573,7 @@
         "rect": true,
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 614,
-        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
+        "width": 614
       },
       "data": {
         "input": null,
@@ -629,8 +620,7 @@
         "rotate": 28.789260670368623,
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
-        "width": 100,
-        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
+        "width": 100
       },
       "data": {
         "input": null,
@@ -675,8 +665,7 @@
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "value": "Change aggregate methods if you like",
-        "width": 300,
-        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
+        "width": 300
       },
       "data": {
         "input": null,
@@ -721,8 +710,7 @@
         "run": false,
         "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "value": "Change different color mapping",
-        "width": 300,
-        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9"
+        "width": 300
       },
       "data": {
         "input": null,
@@ -753,7 +741,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
+        "authorId": null,
         "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
         "basic": false,
         "category": "custom",
@@ -882,12 +870,12 @@
     "zoom": 0.43574163729532683
   },
   "flowId": "22b3ac18e08a6825620e7bc2df9c7d02",
-  "author": "CityFlow",
+  "author": "Kai Hu",
   "flowInited": false,
-  "logs": "Using defaults and conda-forge.\r\n\nNo conda packages to install.\r\nNo npm packages to install.\r\nNo pip packages to install.\r\nSetup Completed!\r\n\n",
+  "logs": "",
   "isAlive": false,
   "loading": false,
-  "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
+  "authorId": "d29545ce164c0b53b65671d6c1ebe6ac",
   "autoSave": true,
   "basic": false,
   "category": "showcase",
@@ -898,7 +886,7 @@
   "name": "Amenity Density in Cambridge",
   "packages": "\n  \n",
   "private": false,
-  "screenShot": "/api/dataset/source/images/22b3ac18e08a6825620e7bc2df9c7d02_14-00-21.png",
+  "screenShot": "https://kekehurry.github.io/cityflow_community/source//images/f82c0ad9a987e5ab9aafbf11cc636a16_10-00-48.png",
   "showcase": false,
   "source": null,
   "tag": "OSM, Geospatial Analysis, Density Calculation, Cambridge, Urban Planning",
