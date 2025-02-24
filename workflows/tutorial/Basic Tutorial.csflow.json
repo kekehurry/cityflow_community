@@ -121,7 +121,8 @@
         "user_id": "d29545ce164c0b53b65671d6c1ebe6ac",
         "value": "2. These are annotations,\ndouble click to edit them",
         "width": 311,
-        "local": false
+        "local": false,
+        "description": "2. These are annotations,\ndouble click to edit them"
       },
       "data": {
         "input": null,
@@ -175,7 +176,8 @@
         "user_id": "d29545ce164c0b53b65671d6c1ebe6ac",
         "value": "Run",
         "width": 60,
-        "local": false
+        "local": false,
+        "description": "Run"
       },
       "data": {
         "input": null,
@@ -229,7 +231,8 @@
         "user_id": "d29545ce164c0b53b65671d6c1ebe6ac",
         "value": "Pin",
         "width": 57,
-        "local": false
+        "local": false,
+        "description": "Pin"
       },
       "data": {
         "input": null,
@@ -283,7 +286,8 @@
         "user_id": "d29545ce164c0b53b65671d6c1ebe6ac",
         "value": "Remove",
         "width": 91,
-        "local": false
+        "local": false,
+        "description": "Remove"
       },
       "data": {
         "input": null,
@@ -337,7 +341,8 @@
         "user_id": "d29545ce164c0b53b65671d6c1ebe6ac",
         "value": "1.  These are basic modules, try input something and see the results",
         "width": 404,
-        "local": false
+        "local": false,
+        "description": "1.  These are basic modules, try input something and see the results"
       },
       "data": {
         "input": null,
@@ -574,15 +579,11 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/chzFlmYaghdIjY92xI5YH.png",
         "id": "c7f981c76f584f0df103b746e707c668",
         "iframeId": "mAw0k-rz_C4Fc2j9daIcQ",
-        "input": [
-          ""
-        ],
+        "input": [""],
         "language": "javascript",
         "local": false,
         "name": "Text Input",
-        "output": [
-          "output"
-        ],
+        "output": ["output"],
         "port": null,
         "run": false,
         "sessionId": "sUrPjbmVvFDPj4vm6qGrd",
@@ -690,15 +691,11 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/Hm4CuxJqX_KjpgxD79ICW.png",
         "id": "50af4da2159996e8c15539a5be047c68",
         "iframeId": "O9A5I0uqjISPkXklZg9ab",
-        "input": [
-          "input"
-        ],
+        "input": ["input"],
         "language": "javascript",
         "local": false,
         "name": "DataViewer",
-        "output": [
-          "output"
-        ],
+        "output": ["output"],
         "port": null,
         "run": false,
         "sessionId": "F7xzVS3PVAvsabsEfZtpx",
@@ -753,27 +750,27 @@
   ],
   "globalScale": 0.01,
   "viewport": {
-    "x": -293.430471341779,
-    "y": -223.1079527831887,
-    "zoom": 1
+    "x": -154.79712834495422,
+    "y": 154.3109056905649,
+    "zoom": 0.6927937738130028
   },
   "flowId": "7ee9aa8120f7e32a260600ed23ffcc63",
   "author": "Kai Hu",
   "flowInited": false,
-  "logs": "",
-  "isAlive": false,
-  "loading": true,
+  "logs": "Using defaults and conda-forge.\r\n\nNo conda packages to install.\r\nNo npm packages to install.\r\nNo pip packages to install.\r\nSetup Completed!\r\n\n",
+  "isAlive": true,
+  "loading": false,
   "authorId": "d29545ce164c0b53b65671d6c1ebe6ac",
   "author_id": "d29545ce164c0b53b65671d6c1ebe6ac",
   "basic": false,
   "city": "Cambridge",
   "description": "This workflow shows the basic usage of cityflow modules",
   "hash": "7ee9aa8120f7e32a260600ed23ffcc63",
-  "image": "ghcr.io/kekehurry/cityflow_runner:full",
+  "image": "ghcr.io/kekehurry/cityflow_runner:latest",
   "name": "Basic Tutorial",
   "packages": "",
   "private": true,
-  "screenShot": "/images/f97b8374652c1a1603e72038d99ff343_03-10-17.png",
+  "screenShot": "/images/b8ce98e8927bb0b52fc162a5446268c5_12-06-58.png",
   "showcase": false,
   "source": null,
   "tag": "Tutorial",

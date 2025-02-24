@@ -24,15 +24,11 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/f23897d003b30a21f1dd16793b0ce75f.png",
         "id": "f23897d003b30a21f1dd16793b0ce75f",
         "iframeId": "6RkL2eCbILAIj-_z0yQBD",
-        "input": [
-          "input"
-        ],
+        "input": ["input"],
         "language": "javascript",
         "local": false,
         "name": "Diverging Bar",
-        "output": [
-          ""
-        ],
+        "output": [""],
         "port": null,
         "run": false,
         "sessionId": "NPmaYAqq8kiTufGEPrQTE",
@@ -104,15 +100,11 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/06f6df3f3dc8efb6d6d576e382b2f099.png",
         "id": "06f6df3f3dc8efb6d6d576e382b2f099",
         "iframeId": "JnBpejJFtUjv90lcoP9-D",
-        "input": [
-          "input"
-        ],
+        "input": ["input"],
         "language": "javascript",
         "local": false,
         "name": "Pie Chart",
-        "output": [
-          ""
-        ],
+        "output": [""],
         "port": null,
         "run": false,
         "sessionId": "5C7GHHpCVL-I419wqMYtb",
@@ -149,7 +141,7 @@
         "x": 1092.949234551696,
         "y": 124.10206847437425
       },
-      "selected": true,
+      "selected": false,
       "type": "expand",
       "user_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
       "version": "0.0.1",
@@ -184,15 +176,11 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/a8b5ce73c7725e2d39264abb963ad2d6.png",
         "id": "a8b5ce73c7725e2d39264abb963ad2d6",
         "iframeId": "3fSvbpVe8z2L0Tw3Lwanq",
-        "input": [
-          "input"
-        ],
+        "input": ["input"],
         "language": "javascript",
         "local": false,
         "name": "Area Chart",
-        "output": [
-          ""
-        ],
+        "output": [""],
         "port": null,
         "run": false,
         "sessionId": "kRLf-F3856mX9AcWBMMq3",
@@ -264,15 +252,11 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/169d032f8b80caaf1362fa7d7b18360d.png",
         "id": "169d032f8b80caaf1362fa7d7b18360d",
         "iframeId": "P3O_hIU3wVAFchwcD2PxI",
-        "input": [
-          "input"
-        ],
+        "input": ["input"],
         "language": "javascript",
         "local": false,
         "name": "Radar Chart",
-        "output": [
-          ""
-        ],
+        "output": [""],
         "port": null,
         "run": false,
         "sessionId": "90CkkzfG6RwGW7k6lUcLR",
@@ -344,15 +328,11 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/db710833a3a459a4979d4f5555407098.png",
         "id": "db710833a3a459a4979d4f5555407098",
         "iframeId": "vS8w_djotu51I-H4yBXH1",
-        "input": [
-          "input"
-        ],
+        "input": ["input"],
         "language": "javascript",
         "local": false,
         "name": "Bar Chart",
-        "output": [
-          ""
-        ],
+        "output": [""],
         "port": null,
         "run": false,
         "sessionId": "Pc3p9_a_JQvP5yW2KPmjO",
@@ -411,8 +391,8 @@
   "flowId": "5f8c24934fb4c992715ba42d8f5faaea",
   "author": "Kai Hu",
   "flowInited": false,
-  "logs": "",
-  "isAlive": false,
+  "logs": "Using defaults and conda-forge.\r\n\nNo conda packages to install.\r\nNo npm packages to install.\r\nNo pip packages to install.\r\nSetup Completed!\r\n\n",
+  "isAlive": true,
   "loading": false,
   "authorId": "d29545ce164c0b53b65671d6c1ebe6ac",
   "author_id": "d853da0c223a1ece8d8ecd2be1e5b6e6",
@@ -420,11 +400,11 @@
   "city": "Cambridge",
   "description": "This workflow demonstrates data visualization through D3.js, utilizing React components to create dynamic charts like bar, radar, area, pie, and diverging bar charts based on user-provided or example data.",
   "hash": "5f8c24934fb4c992715ba42d8f5faaea",
-  "image": "ghcr.io/kekehurry/cityflow_runner:latest",
+  "image": "ghcr.io/kekehurry/cityflow_runner:full",
   "name": "D3 Charts Examples",
-  "packages": "npm:\n  - d3",
+  "packages": "",
   "private": false,
-  "screenShot": "/images/9bbd3df5e76ad33c184fc5ee2c4f7ed8_03-10-14.png",
+  "screenShot": "/images/7b3754ea996f5a6473b1760c97cbc8a2_12-07-00.png",
   "showcase": false,
   "source": null,
   "tag": "Data Visualization, Urban Planning, City Analytics, D3.js Charts, GIS Integration",

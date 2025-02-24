@@ -1,4 +1,5 @@
 import os
+import shutil
 import json
 from utils.save import save_workflow
 
@@ -8,6 +9,9 @@ source_folder = os.path.join(os.getcwd(), 'source')
 raw_folder = os.path.join(os.getcwd(), 'raw')
 workflows_folder = os.path.join(os.getcwd(), 'workflows')
 
+if os.path.exists(source_folder):
+    shutil.rmtree(source_folder)
+    
 for folder in ['files','icons','images','html']:
     if not os.path.exists(os.path.join(source_folder,folder)): 
         os.makedirs(os.path.join(source_folder,folder))

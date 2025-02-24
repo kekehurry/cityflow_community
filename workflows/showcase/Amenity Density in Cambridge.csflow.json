@@ -29,15 +29,11 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/4bf3c08182287cd240c8faa4df3b7fa8.png",
         "id": "4bf3c08182287cd240c8faa4df3b7fa8",
         "iframeId": "c9V4QgBNEAzDS8RGG2zyK",
-        "input": [
-          ""
-        ],
+        "input": [""],
         "language": "python",
         "local": false,
         "name": "Cambridge Data",
-        "output": [
-          "data"
-        ],
+        "output": ["data"],
         "port": null,
         "run": false,
         "time": "2/7/2025, 2:06:09 PM",
@@ -515,16 +511,12 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/6416f0e7b2bb65dc515b3bf4b3a1c1f5.png",
         "id": "6416f0e7b2bb65dc515b3bf4b3a1c1f5",
         "iframeId": "XhezhbVzYUnU7ohGNvLvt",
-        "input": [
-          "input"
-        ],
+        "input": ["input"],
         "language": "javascript",
         "local": false,
         "model": "gpt-4o-mini",
         "name": "GeojsonEditor",
-        "output": [
-          "output"
-        ],
+        "output": ["output"],
         "port": null,
         "run": false,
         "secretKey": "",
@@ -597,17 +589,12 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/37eea5d3e588edf46d61c811774ec393.png",
         "id": "37eea5d3e588edf46d61c811774ec393",
         "iframeId": "5a0tWHHhBvzIhsSTdeabC",
-        "input": [
-          "boundary",
-          "geoData"
-        ],
+        "input": ["boundary", "geoData"],
         "language": "javascript",
         "local": false,
         "model": "gpt-4o-mini",
         "name": "GridCreator",
-        "output": [
-          "grid"
-        ],
+        "output": ["grid"],
         "port": null,
         "run": false,
         "secretKey": "",
@@ -664,10 +651,7 @@
         "colorScheme": "interpolateSpectral",
         "containerIsRunning": false,
         "custom": true,
-        "dataRange": [
-          0,
-          1
-        ],
+        "dataRange": [0, 1],
         "dataType": "continuous",
         "description": "This module provides a React component to configure and visualize data properties on geojson features using various mapping schemes and data types.",
         "expand": false,
@@ -680,18 +664,14 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/97519323fe856bcd56d34129cee60324.png",
         "id": "97519323fe856bcd56d34129cee60324",
         "iframeId": "pJbawbcbq-pyq76iRXBPp",
-        "input": [
-          "geojson"
-        ],
+        "input": ["geojson"],
         "language": "javascript",
         "local": false,
         "model": "gpt-4o-mini",
         "name": "Mapping",
         "numCategories": 10,
         "option": "color",
-        "output": [
-          "geojson"
-        ],
+        "output": ["geojson"],
         "port": null,
         "property": "id_count",
         "run": false,
@@ -765,15 +745,11 @@
         "icon": "https://kekehurry.github.io/cityflow_community/source//icons/7b7167bfb69029f31049f03488315c94.png",
         "id": "7b7167bfb69029f31049f03488315c94",
         "iframeId": "xP6V1448NXdXAXFrI-rLr",
-        "input": [
-          "input"
-        ],
+        "input": ["input"],
         "language": "javascript",
         "local": false,
         "name": "GeoJson Map",
-        "output": [
-          ""
-        ],
+        "output": [""],
         "pin": true,
         "pinHeight": 627,
         "pinLeft": 255,
@@ -887,7 +863,7 @@
   "name": "Amenity Density in Cambridge",
   "packages": "\n  \n",
   "private": false,
-  "screenShot": "/images/9c05a8b6405613851d69a652f9ec68af_03-10-13.png",
+  "screenShot": "/images/5da65ad32f16358756ca2c78fd98da7c_12-07-01.png",
   "showcase": false,
   "source": "92c6646282d530edbd8221bbd53e78c5",
   "tag": "OSM, Geospatial Analysis, Density Calculation, Cambridge, Urban Planning",
