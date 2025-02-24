@@ -11,8 +11,5 @@ labels: workflow-submission
 ### Category
 [Replace this line with the category of the workflow]
 
-### Description
-[Please describe the file you are submitting]
-
 ### WorkFlow File
 Compress your workflow file into a `.zip` archive and upload it here.

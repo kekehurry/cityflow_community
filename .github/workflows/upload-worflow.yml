@@ -22,12 +22,14 @@ jobs:
         run: |
           # Extract Author
 
-          AUTHOR=$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=### Author\n)[^\n]+')
+          AUTHOR=$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=###\s*Author\s*\n)[^\n]+')
+
           echo "Extracted Author: $AUTHOR"
 
           # Extract Category
 
-          CATEGORY=$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=### Category\n)[^\n]+')
+          CATEGORY=$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=###\s*Category\s*\n)[^\n]+')
+          
           echo "Extracted Category: $CATEGORY"
 
           # Set GitHub Actions output
