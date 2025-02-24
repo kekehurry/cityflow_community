@@ -26,14 +26,14 @@ jobs:
           echo "Extracted Category: $CATEGORY"
 
           # Set GitHub Actions output
-          echo "::set-output name=author::$AUTHOR"
-          echo "::set-output name=category::$CATEGORY"
+          echo "AUTHOR=$AUTHOR" >> $GITHUB_ENV
+          echo "CATEGORY=$CATEGORY" >> $GITHUB_ENV
 
       - name: Download file from Issue comment
         id: download_file
         run: |
           # Extract Zip File URL
-          ZIP_URL=$(echo "${{ github.event.comment.body }}" | grep -oP 'https://github.com/[^/]+/[^/]+/files/\d+/download')
+          ZIP_URL=$(echo "${{ github.event.comment.body }}" | grep -oP 'https://github\.com/[^/]+/[^/]+/files/\d+/[^ ]+\.zip')
           if [ -z "$ZIP_URL" ]; then
             echo "No .zip file found in the comment."
             exit 1
