@@ -1579,7 +1579,6 @@
   "logs": "Using defaults and conda-forge.\r\n\nNo conda packages to install.\r\nNo npm packages to install.\r\nNo pip packages to install.\r\nSetup Completed!\r\n\n",
   "isAlive": false,
   "loading": false,
-  "authorId": "84b6b6bb7c0cfb896e345854b9cf5735",
   "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
   "autoSave": true,
   "basic": false,

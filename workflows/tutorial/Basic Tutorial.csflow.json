@@ -293,7 +293,6 @@
       "width": 100
     },
     {
-      "author": "Kai Hu",
       "basic": false,
       "config": {
         "author": "CityFlow",
@@ -348,7 +347,6 @@
       "width": 404
     },
     {
-      "author": "Kai Hu",
       "basic": false,
       "config": {
         "author": "CityFlow",
@@ -403,7 +401,6 @@
       "width": 91
     },
     {
-      "author": "Kai Hu",
       "basic": false,
       "config": {
         "author": "CityFlow",
@@ -458,7 +455,6 @@
       "width": 57
     },
     {
-      "author": "Kai Hu",
       "basic": false,
       "config": {
         "author": "CityFlow",
@@ -513,7 +509,6 @@
       "width": 60
     },
     {
-      "author": "Kai Hu",
       "basic": false,
       "config": {
         "author": "CityFlow",
@@ -568,7 +563,6 @@
       "width": 311
     },
     {
-      "author": "Kai Hu",
       "basic": false,
       "config": {
         "author": "CityFlow",
@@ -620,7 +614,6 @@
       "width": 100
     },
     {
-      "author": "Kai Hu",
       "basic": false,
       "config": {
         "author": "CityFlow",
@@ -694,7 +687,6 @@
   "logs": "Using defaults and conda-forge.\r\n\nNo conda packages to install.\r\nNo npm packages to install.\r\nNo pip packages to install.\r\nSetup Completed!\r\n\n",
   "isAlive": false,
   "loading": false,
-  "authorId": "d29545ce164c0b53b65671d6c1ebe6ac",
   "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
   "basic": false,
   "category": "tutorial",

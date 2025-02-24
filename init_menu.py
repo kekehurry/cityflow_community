@@ -10,7 +10,6 @@ raw_folder = os.path.join(os.getcwd(), 'raw')
 workflows_folder = os.path.join(os.getcwd(), 'workflows')
 
 if os.path.exists(source_folder):
-    print('delete source folder')   
     shutil.rmtree(source_folder)
     
 for folder in ['files','icons','images','html']:
@@ -18,7 +17,6 @@ for folder in ['files','icons','images','html']:
         os.makedirs(os.path.join(source_folder,folder))
 
 base_url = 'https://kekehurry.github.io/cityflow_community'
-
 
 workflows = {}
 for d in os.listdir(raw_folder):

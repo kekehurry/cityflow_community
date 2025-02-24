@@ -8,9 +8,11 @@ admin_id = md5(admin_passkey.encode()).hexdigest()
 
 def save_workflow(data,source_folder,base_url,admin=False):
     if admin:
-        data['author'] = 'CityFlow'
+        author = 'CityFlow'
+        data['author'] = author
         data['author_id'] = admin_id
-    author = data.get('author')
+    else:
+        author = data.get('author')
     name = data.get('name') 
     workflow_id = md5(f"{author}/{name}-{time.time()}".encode()).hexdigest()
     screenshot = data.get('screenShot') 
@@ -23,6 +25,8 @@ def save_workflow(data,source_folder,base_url,admin=False):
         module = save_module(module,source_folder,base_url,admin)
         new_modules.append(module)
     data['nodes'] = new_modules
+    if 'authorId' in data:
+        del data['authorId']
     return data
     
 
@@ -62,4 +66,8 @@ def save_module(module,source_folder,base_url,admin):
             config['html'] = base_url+f"/source/{request_path}"
     # update the module config
     module['config'] = config
+    if 'author' in module:
+        del module['author']
+    if 'authorId' in module:
+        del module['authorId']
     return module
