@@ -4,35 +4,54 @@
 This repository contains the community workflows for the [Cityflow Platform](https://github.com/kekehurry/cityflow_platform). When the `.csflow.json` files are updated, the `GitHub Action` in this repo will automatically generate the `community_workflows.json` file. The Cityflow platform will then retrieve all community workflows based on the URLs listed in this file. 
 
 
-## Project Structure
+## Steps to Submit a Workflow File
 
+### 1. Create a New Issue
+
+- Go to the Issues tab in the repository.
+- Click on New Issue.
+- Select the **"Submit WorkFlow File"** template from the list of available templates.
+
+### 2. Fill in the Issue Template
+
+The issue template will have the following fields. Fill them out carefully:
+
+- **Author** 
+
+Replace `[Input author name inside this square brackets]` with your name or GitHub username.
+
+- **Category**
+
+Replace `[Input the Category inside this square brackets]` with the appropriate category for your workflow.
+
+- **WorkFlow File**
+
+Compress your workflow file (`.csflow.json`) into a `.zip` archive.
+
+Upload the `.zip` file to the issue by dragging and dropping it into the comment section or using the file upload option.
+
+Example issue:
+
+```markdown
+### Author: [JohnDoe]
+### Category: [urban_index]
+### WorkFlow File
+[my_workflow.csflow.zip](https://github.com/user-attachments/files/18939255/my_workflow.zip)"
 ```
-my-static-website
-│── index.html      # Main HTML file for the static website
-│── folder          # datafolder
-│   └── data.json   # JSON data file accessible via the website
-└── README.md           # Documentation for the project
-```
 
-## Getting Started
+### 3. Submit the Issue
 
-To set up and run this static website, follow these steps:
+- Once all fields are filled out and the .zip file is attached, click Submit new issue.
 
-1. **Clone the Repository**
-   ```bash
-   git clone <repository-url>
-   cd cityflow_community
-   ```
 
-2. **Open the `index.html` File**
-   You can open the `index.html` file directly in your web browser. This file serves as the entry point for the website.
+## Important Note
 
-3. **Access the JSON Data**
-   The JSON data can be accessed directly via the URL:
-   ```
-   /folder/data.json
-   ```
+By uploading your workflow file, you agree to share your work under the MIT License. This means:
 
-## License
+- Your workflow will be freely available for others to use, modify, and distribute.
 
-This project is licensed under the MIT License.
+- You retain copyright of your work, but you allow others to use it under the terms of the **MIT License**.
+
+- If you do not agree to these terms, please do not upload your workflow file.
+
+For more details about the MIT License, please refer to the [MIT License documentation](https://opensource.org/licenses/MIT).
