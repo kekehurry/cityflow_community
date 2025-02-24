@@ -10,6 +10,7 @@ raw_folder = os.path.join(os.getcwd(), 'raw')
 workflows_folder = os.path.join(os.getcwd(), 'workflows')
 
 if os.path.exists(source_folder):
+    print('delete source folder')   
     shutil.rmtree(source_folder)
     
 for folder in ['files','icons','images','html']:
@@ -29,7 +30,7 @@ for d in os.listdir(raw_folder):
                 file_path = os.path.join(folder_path, file)
                 with open(file_path, "r", encoding="utf-8") as f:
                     data = json.load(f)
-                    data = save_workflow(data, source_folder, base_url)
+                    data = save_workflow(data, source_folder, base_url, admin=True)
                 ouput_folder = os.path.join(workflows_folder, d)
                 if not os.path.exists(ouput_folder):
                     os.makedirs(ouput_folder)

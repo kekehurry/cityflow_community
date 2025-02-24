@@ -5,7 +5,7 @@
       "config": {
         "author": "CityFlow",
         "authorId": null,
-        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
         "basic": false,
         "category": "custom",
         "code": [
@@ -89,7 +89,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
         "baseUrl": "",
         "basic": false,
         "category": "custom",
@@ -183,7 +183,7 @@
           "method": "count"
         },
         "author": "CityFlow",
-        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
         "baseUrl": "",
         "basic": false,
         "category": "custom",
@@ -263,7 +263,7 @@
       "config": {
         "author": "CityFlow",
         "authorId": null,
-        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
         "basic": false,
         "category": "custom",
         "code": [
@@ -340,7 +340,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
         "basic": false,
         "description": "# KNN Accessibility Score in Cambridge\n\n $$ KNNA[i]^{r} = \\sum_{ j \\in G-\\{i\\} , d[i,j] \\leq r } \\frac {W[j]*C_k}{e^{\\beta*max(d[i,j]-plateau,0)}}  $$\n\n\n$d[i,j]$ is the lowest-cost path distance between origin $i$ and destination $j$ in network $G$.\n\n$W[j]$ is the weight of destination j, and the function of distance between i and j in the denominator represents an exponential distance decay rate that is controlled  by parameter $\\beta$.\n\n$C_k$ is a predefined coefficient for the K-th nearest destination, given in an array of the form [0.5, ..., 0.1]. \n\nAn optional  $plateau$ radius (e.g. 400 meters) to the index: a  baseline distance from origin i in which no distance decay is applied and destinations contribute their full weights towards the index. This allows treating all nearby destinations as equally accessible. The $plateau$ radius can be set to zero to ensure that distance decay is always included. If the $plateau$ distance is greater than or equal to the search radius, it has no effect.\n\nReference:  Alhassan, Abdulaziz and Sevtsuk, Andres, Madina Python Package: Scalable Urban Network Analysis for Modeling Pedestrian and Bicycle Trips in Cities. Available at SSRN: https://ssrn.com/abstract=4748255 or http://dx.doi.org/10.2139/ssrn.4748255",
         "discription": "this module is useful for adding text to the workspace",
@@ -386,7 +386,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
         "basic": false,
         "category": "input/output",
         "code": [
@@ -599,7 +599,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
         "basic": false,
         "category": "Custom",
         "code": [
@@ -675,7 +675,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
         "basic": false,
         "description": "### This workflow is a simplified versioin of KNNA Score.  It's been simplified in these aspect:\n\n- $d[i,j]$  is calculated based on point-to-point distances and do not take into account the road network\n- W[j] is simply calculated by the amount of different amenities. (w=1 for each single amenity point)",
         "discription": "this module is useful for adding text to the workspace",
@@ -721,7 +721,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
         "basic": false,
         "category": "gis",
         "code": [
@@ -1539,7 +1539,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
         "basic": false,
         "category": "Custom",
         "code": [
@@ -1617,7 +1617,7 @@
       "basic": false,
       "config": {
         "author": "CityFlow",
-        "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+        "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
         "basic": false,
         "category": "chart",
         "code": [
@@ -1794,7 +1794,7 @@
   "isAlive": false,
   "loading": false,
   "authorId": "d29545ce164c0b53b65671d6c1ebe6ac",
-  "author_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
+  "author_id": "81a9cf9434d509c4ccef49dd7961ffa9",
   "basic": false,
   "category": "featured",
   "city": "Cambridge",

@@ -3,8 +3,13 @@ import time
 from hashlib import md5
 from .utils import base642file,text2file
 
+admin_passkey = 'admin/cityflow'
+admin_id = md5(admin_passkey.encode()).hexdigest()
 
-def save_workflow(data,source_folder,base_url):
+def save_workflow(data,source_folder,base_url,admin=False):
+    if admin:
+        data['author'] = 'CityFlow'
+        data['author_id'] = admin_id
     author = data.get('author')
     name = data.get('name') 
     workflow_id = md5(f"{author}/{name}-{time.time()}".encode()).hexdigest()
@@ -15,16 +20,19 @@ def save_workflow(data,source_folder,base_url):
 
     new_modules = []
     for module in data['nodes']:
-        module = save_module(module,source_folder,base_url)
+        module = save_module(module,source_folder,base_url,admin)
         new_modules.append(module)
     data['nodes'] = new_modules
     return data
     
 
-def save_module(module,source_folder,base_url):
+def save_module(module,source_folder,base_url,admin):
     module_id = module.get('id')
     config = module.get('config')
     icon = config.get('icon')
+    if admin:
+        config['author'] = 'CityFlow'
+        config['author_id'] = admin_id
     if icon:
         icon_path = os.path.join(source_folder,f"icons/{module_id}.png")
         icon_data = config['icon']
