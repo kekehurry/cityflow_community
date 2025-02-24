@@ -36,7 +36,7 @@ Example issue:
 ### Author: [JohnDoe]
 ### Category: [urban_index]
 ### WorkFlow File
-[my_workflow.csflow.zip](https://github.com/user-attachments/files/18939255/my_workflow.zip)"
+[my_workflow.csflow.zip](https://github.com/user-attachments/files/18939255/my_workflow.zip)
 ```
 
 ### 3. Submit the Issue
