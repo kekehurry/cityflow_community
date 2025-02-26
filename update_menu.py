@@ -3,10 +3,9 @@ import json
 from utils.save import save_workflow
 import argparse
 
-
+base_url = 'https://community.cityflow.cn'
 source_folder = os.path.join(os.getcwd(), 'source')
 workflows_folder = os.path.join(os.getcwd(), 'workflows')
-base_url = 'https://kekehurry.github.io/cityflow_community'
 
 def load_file(file_path,author,category):
     file = os.path.basename(file_path)

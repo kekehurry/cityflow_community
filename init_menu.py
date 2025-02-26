@@ -3,7 +3,7 @@ import shutil
 import json
 from utils.save import save_workflow
 
-
+base_url = 'https://community.cityflow.cn'
 
 source_folder = os.path.join(os.getcwd(), 'source')
 raw_folder = os.path.join(os.getcwd(), 'raw')
@@ -15,8 +15,6 @@ if os.path.exists(source_folder):
 for folder in ['files','icons','images','html']:
     if not os.path.exists(os.path.join(source_folder,folder)): 
         os.makedirs(os.path.join(source_folder,folder))
-
-base_url = 'https://kekehurry.github.io/cityflow_community'
 
 workflows = {}
 for d in os.listdir(raw_folder):

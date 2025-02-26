@@ -7,7 +7,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             console.log("start fetch");
-        const baseURL = '/cityflow_community/';
+        const baseURL = '/';
         fetch(baseURL+'community_workflows.json')
             .then((response) => response.json())
             .then((filesData) => {
