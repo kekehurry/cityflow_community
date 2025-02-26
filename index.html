@@ -4,42 +4,97 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CityFlow Community</title>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            console.log("start fetch");
-        const baseURL = '/';
-        fetch(baseURL+'community_workflows.json')
-            .then((response) => response.json())
-            .then((filesData) => {
-            const container = document.getElementById('data-container');
-            Object.keys(filesData).forEach((category) => {
-                const header = document.createElement('h2');
-                header.textContent = category;
-                container.appendChild(header);
-
-                const list = document.createElement('ul');
-
-                filesData[category].forEach((filePath) => {
-                const listItem = document.createElement('li');
-                const downloadLink = document.createElement('a');
-                downloadLink.href = filePath;
-                downloadLink.download = '';
-                downloadLink.textContent = filePath;
-                listItem.appendChild(downloadLink);
-                list.appendChild(listItem);
-                });
-                container.appendChild(list);
-            });
-            })
-            .catch((error) => {
-            console.error('Error loading files data:', error);
-            });
-        });
-    </script>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <h1>CityFlow Community</h1>
-    <p>This is a simple static website that serves CityFlow Community Workflows.</p>
+    <p>Explore and download community-created workflows</p>
+    <button id="upload-button" 
+        onclick="window.open('https\://github.com/kekehurry/cityflow_community/issues', '_blank')">
+        Share your workflow
+    </button>
     <div id="data-container"></div>
+    <div class="loader">Loading...</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const baseURL = '/';
+            const loader = document.querySelector('.loader');
+            fetch(baseURL + 'community_workflows.json')
+                .then(response => response.json())
+                .then(filesData => {
+                    loadData(filesData);
+                    loader.style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Error loading data:', error);
+                    loader.textContent = 'Failed to load data';
+                });
+
+            function loadData(filesData) {
+                const {featured, ...res} = filesData;
+                const reorderedData = {featured, ...res};
+                const container = document.getElementById('data-container');
+                Object.keys(reorderedData).forEach(category => {
+                    const header = document.createElement('h2');
+                    header.textContent = category ? category.toUpperCase() : 'OTHERS';
+                    container.appendChild(header);
+
+                    const list = document.createElement('ul');
+                    
+                    reorderedData[category].forEach(filePath => {
+                        const listItem = document.createElement('li');
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = filePath;
+                        downloadLink.download = '';
+                        fetch(filePath)
+                            .then(response => response.json())
+                            .then(flowData => {
+                                const img = document.createElement('img');
+                                img.src = flowData.screenShot;
+                                img.width = 300;
+                                img.height = 200;
+
+                                const nameElement = document.createElement('h3');
+                                nameElement.textContent = flowData.name;
+
+                                const descriptionElement = document.createElement('p');
+                                descriptionElement.textContent = flowData.description;
+                                
+                                
+                                const authorElement = document.createElement('p');
+                                authorElement.className = 'author';
+                                authorElement.textContent = `@${flowData.author}`;
+
+                                
+                                const infoContainer = document.createElement('div');
+                                infoContainer.className = 'workflow-info';
+                                
+                                infoContainer.appendChild(nameElement);
+                                infoContainer.appendChild(descriptionElement);
+                                infoContainer.appendChild(authorElement);
+
+                                const contentContainer = document.createElement('div');
+                                contentContainer.className = 'workflow-item';
+                                contentContainer.appendChild(img);
+                                contentContainer.appendChild(infoContainer);
+
+                                downloadLink.appendChild(contentContainer);
+                                listItem.appendChild(downloadLink);
+                                list.appendChild(listItem);
+
+                            })
+                            .catch(error => {
+                                console.error(`Error loading ${filePath}:`, error);
+                                listItem.textContent = "Failed to load workflow";
+                                list.appendChild(listItem);
+                            });
+                    });
+
+                    container.appendChild(list);
+                });
+            }
+        });
+    </script>
 </body>
 </html>
