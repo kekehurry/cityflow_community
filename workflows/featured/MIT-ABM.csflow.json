@@ -562809,8 +562809,7 @@
         "key": null,
         "ref": null,
         "props": {},
-        "_owner": null,
-        "_store": {}
+        "_owner": null
       },
       "module": "builder",
       "name": "Roads",
@@ -581234,8 +581233,7 @@
         "key": null,
         "ref": null,
         "props": {},
-        "_owner": null,
-        "_store": {}
+        "_owner": null
       },
       "module": "builder",
       "name": "Buildings",
@@ -581365,8 +581363,7 @@
         "key": null,
         "ref": null,
         "props": {},
-        "_owner": null,
-        "_store": {}
+        "_owner": null
       },
       "module": "builder",
       "name": "Mesa Simulator",
@@ -581398,7 +581395,7 @@
         "basic": false,
         "category": "custom",
         "code": [
-          "//entrypoint.js\nimport {BuildingLayer, RoadLayer, ResidentLayer, TileBaseLayer} from './layers'\nimport React, { useMemo, useState, useRef} from \"react\";\nimport DeckGL from \"@deck.gl/react\";\nimport { Box} from \"@mui/material\";\nimport { MapController} from \"@deck.gl/core\";\nimport {nanoid} from \"nanoid\"\n\nexport default function DeckGLMap(props) {\n    const {input,config,setConfig,setOutput} = props\n    if (!config) return\n    const id = nanoid()\n    const deckGLref = useRef(null);\n    const [viewState, setViewState] = useState({\n        latitude: 42.35851286116855, \n        longitude: -71.0944398751446,\n        zoom:  13.8,\n        pitch: 0,\n        bearing: 0,\n        minZoom: 10,\n        maxZoom: 22,\n    });\n\n    const buildingsLayer = useMemo(() => {\n      console.log(\"building update\",`buildings-${Date.now()}`)\n      return BuildingLayer({ data: input?.buildings, opacity: 0.2, id: `buildings-${Date.now()}` })\n    },[input?.buildings]);\n\n    const residentsLayer = useMemo(() => \n      ResidentLayer({ data: input?.residents, opacity: 0.5 }),\n    [input?.residents]);\n\n    const roadsLayer = useMemo(() => \n      RoadLayer({ data: input?.roads, opacity: 0.5 }),\n    [input?.roads]);\n\n    const layers = useMemo(() => [buildingsLayer, residentsLayer, roadsLayer], [\n      buildingsLayer,\n      residentsLayer,\n      roadsLayer\n    ]);\n    \n    return (\n        <Box style={{\n            minWidth:config?.width,\n            minHeight:config?.height,\n            width:\"100%\", \n            height:\"100%\", \n            margin:0,\n            padding:0}}>\n            <DeckGL\n            ref={deckGLref}\n            initialViewState={viewState}\n            onContextMenu={(e) => e.preventDefault()}\n            layers={layers}\n            controller={{\n                type: MapController,\n                dragRotate: true,\n                dragPan: true,\n                scrollZoom: true,\n                touchZoom: true,\n                touchRotate: true,\n                keyboard: true,\n                doubleClickZoom: true\n            }}\n            >\n            </DeckGL>\n        </Box>\n    );\n}\n",
+          "//entrypoint.js\nimport {BuildingLayer, RoadLayer, ResidentLayer, TileBaseLayer} from './layers'\nimport React, { useMemo, useState, useRef, useEffect} from \"react\";\nimport DeckGL from \"@deck.gl/react\";\nimport { Box} from \"@mui/material\";\nimport { MapController} from \"@deck.gl/core\";\nimport {nanoid} from \"nanoid\"\nimport * as turf from '@turf/turf'\n\nexport default function DeckGLMap(props) {\n    const {input,config,setConfig,setOutput} = props\n    if (!config) return\n    const id = nanoid()\n    const deckGLref = useRef(null);\n    const [bbox, setBbox] = useState(null);\n    const [viewState, setViewState] = useState({\n        latitude: 42.35851286116855, \n        longitude: -71.0944398751446,\n        zoom:  13.8,\n        pitch: 0,\n        bearing: 0,\n        minZoom: 10,\n        maxZoom: 22,\n    });\n\n    const buildingsLayer = useMemo(() => {\n      console.log(\"building update\",`buildings-${Date.now()}`)\n      return BuildingLayer({ data: input?.buildings, opacity: 0.2, id: `buildings-${Date.now()}` })\n    },[input?.buildings]);\n\n    const residentsLayer = useMemo(() => \n      ResidentLayer({ data: input?.residents, opacity: 0.5 }),\n    [input?.residents]);\n\n    const roadsLayer = useMemo(() => \n      RoadLayer({ data: input?.roads, opacity: 0.5 }),\n    [input?.roads]);\n\n    const layers = useMemo(() => [buildingsLayer, residentsLayer, roadsLayer], [\n      buildingsLayer,\n      residentsLayer,\n      roadsLayer\n    ]);\n\n    const onBeforeRender = () => {\n      if(input?.roads && roadsLayer && roadsLayer.isLoaded){\n        const bbox = turf.bbox(input?.roads);\n        const viewport = roadsLayer.context.viewport;\n        const formatedBounds = [[bbox[0], bbox[1]], [bbox[2], bbox[3]]];\n        const {longitude, latitude, zoom} = viewport.fitBounds(formatedBounds);\n        viewport.fitBounds(formatedBounds);\n        setViewState({...viewState,longitude, latitude, zoom:zoom});\n      }\n    }\n    \n    return (\n        <Box style={{\n            minWidth:config?.width,\n            minHeight:config?.height,\n            width:\"100%\", \n            height:\"100%\", \n            margin:0,\n            padding:0}}>\n            <DeckGL\n            ref={deckGLref}\n            initialViewState={viewState}\n            onContextMenu={(e) => e.preventDefault()}\n            onBeforeRender={onBeforeRender}\n            layers={layers}\n            controller={{\n                type: MapController,\n                dragRotate: true,\n                dragPan: true,\n                scrollZoom: true,\n                touchZoom: true,\n                touchRotate: true,\n                keyboard: true,\n                doubleClickZoom: true\n            }}\n            >\n            </DeckGL>\n        </Box>\n    );\n}\n",
           "//layers.js\n\nimport {GeoJsonLayer,BitmapLayer,ScatterplotLayer} from '@deck.gl/layers';\nimport {TileLayer} from '@deck.gl/geo-layers';\nimport {nanoid} from \"nanoid\"\n\n\nconst mapboxToken = secrets.MAPBOX_TOKEN;\n\nconst duration= 2000;\n\nexport const ResidentLayer = ({data, opacity})=>{\n    if(data){\n        return (\n          new ScatterplotLayer({\n                id: 'resident',\n                data: data,\n                material: false,\n                stroked: false,\n                opacity: opacity,\n                filled: true,\n                getFillColor: (d) => [253, 128, 93],\n                getPosition: (d) => d.coordinates,\n                getRadius: 12,\n                pickable: true,\n                autoHighlight: true,\n                highlightColor: [242, 0, 117, 120],\n                transitions: {\n                getPosition: duration,\n                },\n                zIndex:1000\n            })\n        )\n    }\n};\n\nexport const BuildingLayer = ({data, opacity, id})=>{\n    if(data){\n        return new GeoJsonLayer({\n          id: id,\n          data: data,\n          opacity: opacity || 0.5,\n          filled: true,\n          pickable: true,\n          getFillColor: d => d.properties?.color ||[64, 64, 64],\n          updateTrigger: {\n            getFillColor : id //trigger updates when id change\n          }\n        });\n    }\n  };\n\nexport const RoadLayer = ({data, opacity})=>{\n    if(data){\n        return new GeoJsonLayer({\n          id: 'road',\n          data: data,\n          opacity: opacity || 0.5,\n          filled: true,\n          getLineColor: d => d.properties?.lineColor || data.properties?.lineColor || [128, 128, 128]\n        });\n    }\n  };\n  \nexport function TileBaseLayer() {\n  const mapStyle = {\n    Dark: 'cjs9rb33k2pix1fo833uweyjd',\n    Light: 'ck0h5xn701bpr1dqs3he2lecq',\n    Inverse: 'cjlu6w5sc1dy12rmn4kl2zljn',\n    Normal: 'cl8dv36nv000t14qik9yg4ys6',\n  };\n  return new TileLayer({\n    data:\n      `https://api.mapbox.com/styles/v1/kekehurry/cm6ml8q4b00d201sqbx629qut/tiles/256/{z}/{x}/{y}?access_token=` + mapboxToken +\n      '&attribution=false&logo=false&fresh=true',\n    minZoom: 0,\n    maxZoom: 21,\n    tileSize: 256,\n    id: 'MapboxTile',\n    renderSubLayers: (props) => {\n      const {\n        bbox: { west, south, east, north },\n      } = props.tile;\n\n      return new BitmapLayer(props, {\n        data: null,\n        image: props.data,\n        bounds: [west, south, east, north],\n      });\n    },\n  });\n}"
         ],
         "containerIsRunning": false,
@@ -581410,7 +581407,7 @@
         "files": [],
         "hash": "43a9124e7d2524b3beb7cf081dfed0b4",
         "height": 400,
-        "html": "https://community.cityflow.cn/source//html/bdce3d5caff34a10e9c9867c586e9f6b",
+        "html": "https://community.cityflow.cn/source//html/160d20aa81b012fddd25ef0474a88226",
         "icon": "https://community.cityflow.cn/source//icons/8fb592cecf07c735366e0d30741bd731.png",
         "id": "8fb592cecf07c735366e0d30741bd731",
         "iframeId": "xP6V1448NXdXAXFrI-rLr",
@@ -581452,8 +581449,7 @@
         "key": null,
         "ref": null,
         "props": {},
-        "_owner": null,
-        "_store": {}
+        "_owner": null
       },
       "local": false,
       "module": "builder",
@@ -581466,7 +581462,7 @@
         "x": -1268.6029048286275,
         "y": -644.9201451712153
       },
-      "selected": true,
+      "selected": false,
       "type": "expand",
       "user_id": "3c29190c3c8b45c0c0c56b9ebc1b7438",
       "version": "0.0.1",
@@ -581532,8 +581528,7 @@
         "key": null,
         "ref": null,
         "props": {},
-        "_owner": null,
-        "_store": {}
+        "_owner": null
       },
       "module": "builder",
       "name": "Module Builder",
@@ -581611,8 +581606,7 @@
         "key": null,
         "ref": null,
         "props": {},
-        "_owner": null,
-        "_store": {}
+        "_owner": null
       },
       "module": "builder",
       "name": "Time",
@@ -581698,8 +581692,7 @@
         "key": null,
         "ref": null,
         "props": {},
-        "_owner": null,
-        "_store": {}
+        "_owner": null
       },
       "local": false,
       "module": "builder",
@@ -581776,8 +581769,7 @@
         "key": null,
         "ref": null,
         "props": {},
-        "_owner": null,
-        "_store": {}
+        "_owner": null
       },
       "module": "builder",
       "name": "Controller",
@@ -581852,8 +581844,7 @@
         "key": null,
         "ref": null,
         "props": {},
-        "_owner": null,
-        "_store": {}
+        "_owner": null
       },
       "local": false,
       "module": "builder",
@@ -581932,8 +581923,7 @@
         "key": null,
         "ref": null,
         "props": {},
-        "_owner": null,
-        "_store": {}
+        "_owner": null
       },
       "module": "builder",
       "name": "Resident Status",
@@ -582011,8 +582001,7 @@
         "key": null,
         "ref": null,
         "props": {},
-        "_owner": null,
-        "_store": {}
+        "_owner": null
       },
       "local": false,
       "module": "builder",
@@ -582091,8 +582080,7 @@
         "key": null,
         "ref": null,
         "props": {},
-        "_owner": null,
-        "_store": {}
+        "_owner": null
       },
       "module": "builder",
       "name": "Finished",
@@ -582170,8 +582158,7 @@
         "key": null,
         "ref": null,
         "props": {},
-        "_owner": null,
-        "_store": {}
+        "_owner": null
       },
       "local": false,
       "module": "builder",
@@ -582250,8 +582237,7 @@
         "key": null,
         "ref": null,
         "props": {},
-        "_owner": null,
-        "_store": {}
+        "_owner": null
       },
       "local": false,
       "module": "builder",
@@ -582330,8 +582316,7 @@
         "key": null,
         "ref": null,
         "props": {},
-        "_owner": null,
-        "_store": {}
+        "_owner": null
       },
       "local": false,
       "module": "builder",
@@ -582498,14 +582483,14 @@
   ],
   "globalScale": 0.01,
   "viewport": {
-    "x": 1387.819802837407,
-    "y": 763.6787273406908,
-    "zoom": 0.43769511973967135
+    "x": 1408.1235348926875,
+    "y": 797.082374814694,
+    "zoom": 0.44409857674102626
   },
   "flowId": "02b065ba124bd275c86a78e29ffc5b7e",
   "author": "CityFlow",
   "flowInited": false,
-  "logs": "Using defaults and conda-forge.\r\n\nNo conda packages to install.\r\nNo npm packages to install.\r\nNo pip packages to install.\r\nSetup Completed!\r\n\n",
+  "logs": "Using defaults and conda-forge.\r\n\nNo conda packages to install.\r\nNo npm packages to install.\r\nNo pip packages to install.\r\n\nSetup Completed!\r\n\n",
   "isAlive": true,
   "loading": false,
   "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
@@ -582519,7 +582504,7 @@
   "name": "MIT-ABM",
   "packages": "",
   "private": false,
-  "screenShot": "https://community.cityflow.cn/source//images/8d18e0c77dc42a9fa93ae36a0e003d98_11-55-14.png",
+  "screenShot": "https://community.cityflow.cn/source//images/aeede54af79e53ce9b08a0e98c84aabd_18-57-39.png",
   "showcase": false,
   "source": null,
   "tag": "",
