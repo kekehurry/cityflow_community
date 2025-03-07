@@ -26,6 +26,7 @@ for d in os.listdir(raw_folder):
                 file_path = os.path.join(folder_path, file)
                 with open(file_path, "r", encoding="utf-8") as f:
                     data = json.load(f)
+                    data['category'] = d
                     data = save_workflow(data, source_folder, base_url, admin=True)
                 ouput_folder = os.path.join(workflows_folder, d)
                 if not os.path.exists(ouput_folder):

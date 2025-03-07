@@ -14,6 +14,7 @@ def load_file(file_path,author,category):
     with open(file_path, "r", encoding="utf-8") as f:
         data = json.load(f)
     data['author'] = author
+    data['category'] = category 
     data = save_workflow(data, source_folder, base_url)
     ouput_folder = os.path.join(workflows_folder, category)
     if not os.path.exists(ouput_folder):
