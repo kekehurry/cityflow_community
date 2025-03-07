@@ -692,7 +692,7 @@
         "output": [
           "output"
         ],
-        "pin": true,
+        "pin": false,
         "pinHeight": 71,
         "pinLeft": 77,
         "pinTop": 176,
@@ -855,7 +855,7 @@
         "output": [
           "output"
         ],
-        "pin": true,
+        "pin": false,
         "pinHeight": 71,
         "pinLeft": 77,
         "pinTop": 176,
@@ -1617,7 +1617,7 @@
         "userId": null,
         "value": 14,
         "width": 150,
-        "author_id": null
+        "author_id": "cf6163624b23c8ea9848a2bc77fdb7a3"
       },
       "entrypoint": "index.js",
       "interface": "interface.js",
@@ -1943,14 +1943,14 @@
   ],
   "globalScale": 0.01,
   "viewport": {
-    "x": 1377.8615062854433,
-    "y": 537.1503170134011,
-    "zoom": 0.40014064943772015
+    "x": 1390.3209200687477,
+    "y": 730.6675743302986,
+    "zoom": 0.3682415144880581
   },
   "flowId": "17767daae1764526480019e67f2d7bea",
   "author": "CityFlow",
   "flowInited": false,
-  "isAlive": false,
+  "isAlive": true,
   "authorId": "81a9cf9434d509c4ccef49dd7961ffa9",
   "autoSave": true,
   "basic": false,
@@ -1960,11 +1960,11 @@
   "hash": "17767daae1764526480019e67f2d7bea",
   "image": "ghcr.io/kekehurry/cityflow_runner:full",
   "loading": false,
-  "logs": "Using defaults and conda-forge.\r\n\nNo conda packages to install.\r\nNo npm packages to install.\r\nInstalling pip packages...\r\n\nCollecting ezdxf\r\n\n  Downloading ezdxf-1.3.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (9.8 kB)\r\n\nRequirement already satisfied: pyparsing>=2.0.1 in /opt/conda/lib/python3.12/site-packages (from ezdxf) (3.2.1)\r\nRequirement already satisfied: typing_extensions>=4.6.0 in /opt/conda/lib/python3.12/site-packages (from ezdxf) (4.12.2)\r\n\nRequirement already satisfied: numpy in /opt/conda/lib/python3.12/site-packages (from ezdxf) (2.2.3)\r\n\nRequirement already satisfied: fonttools in /opt/conda/lib/python3.12/site-packages (from ezdxf) (4.56.0)\r\n\nDownloading ezdxf-1.3.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (5.6 MB)\r\n\n\u001b[?25l\n   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.0/5.6 MB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\n\r\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.0/5.6 MB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\n\r\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.0/5.6 MB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\n\r\u001b[2K   \u001b[91m━\u001b[0m\u001b[91m╸\u001b[0m\u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.3/5.6 MB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\n\r\u001b[2K   \u001b[91m━━━\u001b[0m\u001b[91m╸\u001b[0m\u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.5/5.6 MB\u001b[0m \u001b[31m1.5 MB/s\u001b[0m eta \u001b[36m0:00:04\u001b[0m\n\r\u001b[2K   \u001b[91m━━━━━━━━━\u001b[0m\u001b[90m╺\u001b[0m\u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m1.3/5.6 MB\u001b[0m \u001b[31m2.3 MB/s\u001b[0m eta \u001b[36m0:00:02\u001b[0m\n\r\u001b[2K   \u001b[91m━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[91m╸\u001b[0m\u001b[90m━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m2.6/5.6 MB\u001b[0m \u001b[31m3.6 MB/s\u001b[0m eta \u001b[36m0:00:01\u001b[0m\n\r\u001b[2K   \u001b[91m━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[91m╸\u001b[0m\u001b[90m━━━━━━━━━━━━\u001b[0m \u001b[32m3.9/5.6 MB\u001b[0m \u001b[31m4.3 MB/s\u001b[0m eta \u001b[36m0:00:01\u001b[0m\n\r\u001b[2K   \u001b[91m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[90m╺\u001b[0m \u001b[32m5.5/5.6 MB\u001b[0m \u001b[31m4.8 MB/s\u001b[0m eta \u001b[36m0:00:01\u001b[0m\n\r\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m5.6/5.6 MB\u001b[0m \u001b[31m4.4 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\r\n\u001b[?25h\nInstalling collected packages: ezdxf\r\n\nSuccessfully installed ezdxf-1.3.5\r\n\nSetup Completed!\r\n\n",
+  "logs": "\r\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.0/5.6 MB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\n\r\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.0/5.6 MB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\n\r\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.0/5.6 MB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\n\r\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.0/5.6 MB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\n\r\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.0/5.6 MB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\n\r\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.0/5.6 MB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\n\r\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.0/5.6 MB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\n\r\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.0/5.6 MB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\n\r\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.0/5.6 MB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\n\r\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.0/5.6 MB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\n\r\u001b[2K   \u001b[91m━\u001b[0m\u001b[91m╸\u001b[0m\u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.3/5.6 MB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\n\r\u001b[2K   \u001b[91m━━━━━\u001b[0m\u001b[91m╸\u001b[0m\u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.8/5.6 MB\u001b[0m \u001b[31m1.6 MB/s\u001b[0m eta \u001b[36m0:00:03\u001b[0m\n\r\u001b[2K   \u001b[91m━━━━━━━━━━━━━\u001b[0m\u001b[90m╺\u001b[0m\u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m1.8/5.6 MB\u001b[0m \u001b[31m2.9 MB/s\u001b[0m eta \u001b[36m0:00:02\u001b[0m\n\r\u001b[2K   \u001b[91m━━━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[90m╺\u001b[0m\u001b[90m━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m3.1/5.6 MB\u001b[0m \u001b[31m3.8 MB/s\u001b[0m eta \u001b[36m0:00:01\u001b[0m\n\r\u001b[2K   \u001b[91m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[91m╸\u001b[0m\u001b[90m━━━━━━\u001b[0m \u001b[32m4.7/5.6 MB\u001b[0m \u001b[31m4.6 MB/s\u001b[0m eta \u001b[36m0:00:01\u001b[0m\n\r\u001b[2K   \u001b[91m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[90m╺\u001b[0m\u001b[90m━━━━\u001b[0m \u001b[32m5.0/5.6 MB\u001b[0m \u001b[31m4.7 MB/s\u001b[0m eta \u001b[36m0:00:01\u001b[0m\n\r\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m5.6/5.6 MB\u001b[0m \u001b[31m4.0 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\r\n\u001b[?25h\nInstalling collected packages: ezdxf\r\n\nSuccessfully installed ezdxf-1.3.5\r\n\nSetup Completed!\r\n\n",
   "name": "MIT-ABM (DXF)",
   "packages": "pip:\n - ezdxf",
   "private": true,
-  "screenShot": "/api/dataset/source/images/c0bee581436921dab6dc85092b674b34_03-22-49.png",
+  "screenShot": "https://community.cityflow.cn/source//images/16571af8d3a0fee09a36533377ec1fac_15-29-27.png",
   "showcase": false,
   "source": "c0bee581436921dab6dc85092b674b34",
   "tag": "",
